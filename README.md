@@ -1,10 +1,10 @@
 # Introduction
 
-This file is information about twig.py, which generates teacherwise timetable from classwise timetable in an Excel workbook.
+This file is information about `twig.py`, which generates teacherwise timetable from classwise timetable in an Excel workbook.
 
 # Getting the sources
 
-Source for `twig.py` can be downloaded from https://github.com/sangwal/twig. A sample timetable in MS Excel xlsx format can also be downloaded. Please note that you should not change the format of the classwise timetable; otherwise, `twig.py` may not understand what is going on in the timetable.
+Source for `twig.py` can be downloaded from [here https://github.com/sangwal/twig](https://github.com/sangwal/twig). A sample timetable in MS Excel xlsx format can also be downloaded. Please note that you should not change the format of the classwise timetable; otherwise, `twig.py` may not understand what is going on in the timetable.
 
 # Setting up Environment
 
