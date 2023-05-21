@@ -9,6 +9,11 @@
     The classwise timetable is read from CLASSWISE sheet and the generated teacherwise
     timetable is saved in TEACHERWISE sheet of the same input workbook.
 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
     Written by Sunil Sangwal (sunil.sangwal@gmail.com)
     Date written: 20-Apr-2022
     Last Modified: 18-May-2023
