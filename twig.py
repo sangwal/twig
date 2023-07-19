@@ -2,9 +2,8 @@
 """
     twig.py -- TeacherWIse [timetable] Generator
     
-    This file is up-to-date version of timetable-teacherwise-gen.py
-
-    A python script to generate Teacherwise timetable from Classwise timetable (and vice versa -- yet to be implemented).
+    A python script to generate Teacherwise timetable from Classwise timetable
+    (and vice versa -- yet to be implemented).
     
     The classwise timetable is read from CLASSWISE sheet and the generated teacherwise
     timetable is saved in TEACHERWISE sheet of the same input workbook.
@@ -34,6 +33,8 @@ expand_names = False    # set this to True to write full names of teachers
 # filename = 'C:\\Users\\acer\\Downloads\\CLASSWISE TIMETABLE 2022-23.xlsx'
 # filename = 'C:\\Users\\acer\\Documents\\classwise-timetable.xlsx'
 # output_filename = 'C:\\Users\\acer\\Documents\\TEACHERWISE TIMETABLE-tmp2.xlsx'
+
+# utility functions
 
 def escape_special_chars(c):
     if c == '\n':
@@ -72,7 +73,7 @@ def expand_days(days):
             ret.append(int(days))
     return ret
 
-def compress_days(days): # **TODO:**
+def compress_days(days):
     """
         Parameter:
             days -- a list containing days in expanded form eg [1,2,3,5,6]
@@ -169,7 +170,7 @@ def highlight_clashes(sheet, context):
     total_clashes = 0
 
     # format of line is "CLASS (1-3,5-6) SUBJECT", e.g., 10A (1-2, 4) MATH
-    p = re.compile(r'^(?P<class_name>[\w]+)\s*\((?P<days>.*)\)\s*(?P<subject>[\w -]+)$')
+    p = re.compile(r'^(?P<class_name>[\w]+)\s*\((?P<days>.*)\)\s*(?P<subject>[\w \-.]+)$')
     
     row = 2
     while True:
@@ -205,7 +206,13 @@ def highlight_clashes(sheet, context):
                     continue
                 class_name, days, subject = m.groups()
                 subject = subject.strip()
+                # try:
                 days = expand_days(days)
+                # except:
+                #     print(f"\nERROR: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) in 'Teacherwise' timetable has formatting issue")
+                #     # print(e)
+                #     exit(1)
+                
                 """
                     Ex 1:
                         10A (1-2) MATH
@@ -288,7 +295,8 @@ def generate_teacherwise(workbook):
     # {'class': 'HIS', 'days': '1-4', 'teacher': 'SD'}
 
     print("Processing timetable ...")
-    p = re.compile(r'^(?P<subject>[\w -.]+)\s*\((?P<days>.*)\)\s*(?P<teacher>\w+)$') # format "SUBJECT (1-3,5-6) TEACHER"
+    # p = re.compile(r'^(?P<subject>[\w -.]+)\s*\((?P<days>.*)\)\s*(?P<teacher>\w+)$') # format "SUBJECT (1-3,5-6) TEACHER"
+    p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
 
     warnings = 0
     row = 2
