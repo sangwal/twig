@@ -153,8 +153,6 @@ def load_teacher_names(workbook):
         teacher_names[teacher_code] = sheet.cell(row, 2).value # full name
         row += 1
 
-    # assert len(teacher_names)==27
-
     return teacher_names
 
 def get_class_number(_class):
@@ -189,7 +187,6 @@ def highlight_clashes(sheet, context):
             # lines = content.split(";")
             lines = content.split(SEPARATOR) # SEPARATOR is "\n" or ;
             
-         
             entry = {}
 
             for line in lines:
@@ -268,13 +265,15 @@ def clear_sheet(sheet):
 
     return
 
-def generate_teacherwise(workbook):
+def generate_teacherwise(workbook, context):
+    SEPARATOR = context['SEPARATOR']
+
     if "CLASSWISE" in workbook:
         print("Reading 'CLASSWISE' sheet... ", end='')
         input_sheet = workbook["CLASSWISE"]
         print("done.")
     else:
-        print("Sheet 'CLASSWISE' not foud. Reading active sheet instead... ")
+        print("Sheet 'CLASSWISE' not found. Reading active sheet instead... ")
         input_sheet = workbook.active
 
     # if names are to be replaced with full names for teachers,
@@ -286,13 +285,6 @@ def generate_teacherwise(workbook):
         print("done.")
 
     timetable = {}
-
-    # >>> p = re.compile(r'(?P<class>\w+)\s*\((?P<days>.*)\)\s*(?P<teacher>\w+)')
-    # >>> p.match("HIS(1-4)SD")
-    # <re.Match object; span=(0, 10), match='HIS(1-4)SD'>
-    # >>> m = p.match("HIS(1-4)SD")
-    # >>> m.groupdict()
-    # {'class': 'HIS', 'days': '1-4', 'teacher': 'SD'}
 
     print("Processing timetable ...")
     # p = re.compile(r'^(?P<subject>[\w -.]+)\s*\((?P<days>.*)\)\s*(?P<teacher>\w+)$') # format "SUBJECT (1-3,5-6) TEACHER"
@@ -531,10 +523,13 @@ if __name__ == '__main__':
     book = openpyxl.load_workbook(filename)
     print("done.")
 
+    context = {
+        'SEPARATOR' : SEPARATOR
+    }
     if args.classwise:
-        warnings = generate_classwise(book)
+        warnings = generate_classwise(book, context)
     else:
-        warnings = generate_teacherwise(book)
+        warnings = generate_teacherwise(book, context)
 
     # generate_free_teacher_report()
 
