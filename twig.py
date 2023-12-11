@@ -20,7 +20,9 @@
 import argparse
 import re
 import time
+import os           # splitext()
 import sys
+import shutil       # copy file
 
 import openpyxl
 from openpyxl.styles import Alignment
@@ -197,7 +199,7 @@ def highlight_clashes(sheet, context):
 
                 m = p.match(line)
                 if not m:
-                    print(f"\nWarning: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) in 'Teacherwise' timetable has formatting issue")
+                    print(f"\nWarning: Cell {get_column_letter(column)}{row} in 'Teacherwise' timetable has formatting issue.")
                     print("    >>> ", line)
                     # warnings += 1
                     continue
@@ -230,7 +232,8 @@ def highlight_clashes(sheet, context):
                 for day in days:
                     if not day in entry:
                         entry[day] = []
-                    entry[day].append(get_class_number(class_name))    # Eg., 10 (from 10A)
+                    entry[day].append(get_class_number(class_name)+ '-' + subject)    # Eg., '10-SCI' (from 10A (1-6) SCI)
+                    # the above code now ensures that the case "7A (1) PE, 7B (1-4) MATH" is marked as a clash
 
             # after all lines in a cell have been processed
             clash_days = []
@@ -243,6 +246,7 @@ def highlight_clashes(sheet, context):
             # if there are clashes, write them
             if len(clash_days) > 0:
                 total_clashes += len(clash_days)
+                # converts list [1, 2, 5] into a string
                 clash_days = repr(clash_days)
                 sheet.cell(row=row, column=column).value = CLASH_MARK + f"{clash_days}:\n" + sheet.cell(row=row, column=column).value
 
@@ -284,7 +288,7 @@ def generate_teacherwise(workbook, context):
         teacher_names = load_teacher_names(workbook)
         print("done.")
 
-    timetable = {}
+    timetable = {}  # variable to hold teacherwise timetable
 
     print("Processing timetable ...")
     # p = re.compile(r'^(?P<subject>[\w -.]+)\s*\((?P<days>.*)\)\s*(?P<teacher>\w+)$') # format "SUBJECT (1-3,5-6) TEACHER"
@@ -315,8 +319,9 @@ def generate_teacherwise(workbook, context):
                     continue
 
                 m = p.match(line)
-                if not m:
-                    print(f"\nWarning: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue")
+                if m is None:   # no match
+                    # print(f"\nWarning: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue")
+                    print(f"\nWarning: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
                     print("    >>> ", line)
                     warnings += 1
                     continue
@@ -419,7 +424,7 @@ def generate_teacherwise(workbook, context):
             (column, class_name, days, subject) = period
             class_name = class_name.strip()
             if output_sheet.cell(row, column).value:
-                output_sheet.cell(row, column).value += f"\n{class_name} ({days}) {subject}"
+                output_sheet.cell(row, column).value += f"{SEPARATOR}{class_name} ({days}) {subject}"
             else:
                 output_sheet.cell(row, column).value = f"{class_name} ({days}) {subject}"
 
@@ -428,6 +433,9 @@ def generate_teacherwise(workbook, context):
         row += 1                    # move to the next row
         # end for
 
+    # timestamp
+    row = len(sorted_teachers) + 2
+    # print(f"Row is {row}")
     output_sheet.cell(row, 2).value = "Generated on " + time.ctime()
 
     return warnings
@@ -493,7 +501,6 @@ if __name__ == '__main__':
 
     parser.add_argument('filename', type=str, action='store', nargs='?', help='file containing timetable')
 
-
     # args = parser.parse_args(['Timetable-2023-24-Handcrafted.xlsx', 'Timetable-2023-24-Handcrafted-Teacherwise.xlsx'])
     args = parser.parse_args()
     # print(args)
@@ -508,7 +515,6 @@ if __name__ == '__main__':
     else:
         filename = args.filename
 
-
     if not args.separator:
         SEPARATOR = "\n"    # multi-line separator
     else:
@@ -518,6 +524,16 @@ if __name__ == '__main__':
         print(f"Using Separator '{escape_special_chars(SEPARATOR)}' ...")
 
     startTime = time.time()
+
+    DEBUG = False
+    if DEBUG:
+        filename = "Class-Wise(19-07-2023).xlsx"
+        SEPARATOR = ';'
+
+    # save file as backup
+    formatted_time = time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))
+    base_name, extension = os.path.splitext(filename)
+    shutil.copy(filename, f'{base_name}-backup-{formatted_time}.xlsx')
 
     print(f"Reading CLASSWISE timetable from '{filename}'... ", end="")
     book = openpyxl.load_workbook(filename)
@@ -537,6 +553,8 @@ if __name__ == '__main__':
     # Highlight possible clashes
     context = {'SEPARATOR': SEPARATOR}
     teacherwise_sheet = book['TEACHERWISE']
+    
+    # total_clashes = -1
     total_clashes = highlight_clashes(teacherwise_sheet, context)
     
     print(f"Saving to TEACHERWISE sheet of '{filename}'... ", end="")
