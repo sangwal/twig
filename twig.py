@@ -350,7 +350,7 @@ def generate_teacherwise(workbook, context):
 
             if set(days_assigned) != set([1, 2, 3, 4, 5, 6]):
                 warnings += 1
-                print(f"\nWarning: not all days have assigned in {get_column_letter(column)}{row}")
+                print(f"\nWarning: not all days have been assigned in {get_column_letter(column)}{row}")
 
         # calculate the number of periods assigned to different subjects
         periods_assigned = sorted(periods_assigned.items())
