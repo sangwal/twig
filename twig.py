@@ -299,7 +299,7 @@ def generate_teacherwise(workbook, context):
     while True:
         class_name = input_sheet.cell(row, 1).value
         if not class_name:
-            break
+            break       # we have reached the end of CLASSWISE sheet, so stop further processing
 
         periods_assigned = {}   # subjectwise keep track of how many periods have been assigned
 
@@ -313,6 +313,8 @@ def generate_teacherwise(workbook, context):
                 continue
 
             lines = content.split(SEPARATOR) # SEPARATOR is "\n" or ;
+            
+            days_assigned = []
             for line in lines:
                 line = line.strip()
                 if line == '' or line.startswith('#'):  # ignore lines with '#' -- used as comment
@@ -328,7 +330,8 @@ def generate_teacherwise(workbook, context):
 
                 subject, days, teacher = m.groups()
                 subject = subject.strip()
-                
+                days_assigned.extend(expand_days(days))
+
                 if subject not in periods_assigned:
                     periods_assigned[subject] = count_days(days)
                 else:
@@ -339,6 +342,15 @@ def generate_teacherwise(workbook, context):
                 
                 period = column                     # column denotes "period"
                 timetable[teacher].append((period, class_name, days, subject))
+
+            # check if all days in a particular period have been assigned
+            # if row == 3 and column == 3:
+            #     print(days_assigned)
+            #     exit(1)
+
+            if set(days_assigned) != set([1, 2, 3, 4, 5, 6]):
+                warnings += 1
+                print(f"\nWarning: not all days have assigned in {get_column_letter(column)}{row}")
 
         # calculate the number of periods assigned to different subjects
         periods_assigned = sorted(periods_assigned.items())
@@ -386,8 +398,10 @@ def generate_teacherwise(workbook, context):
     #     shrink_to_fit=False,
     #     indent=0)
 
+    # Clear the TEACHERWISE sheet before writing
     clear_sheet(output_sheet)
 
+    # writing the teacherwise timetable to the TEACHERWISE sheet
     # header = ["Name", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "Periods"]
     header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods"]
     for column in range(2, len(header) + 1):
@@ -437,6 +451,8 @@ def generate_teacherwise(workbook, context):
     row = len(sorted_teachers) + 2
     # print(f"Row is {row}")
     output_sheet.cell(row, 2).value = "Generated on " + time.ctime()
+    
+    # done writing to the TEACHERWISE sheet
 
     return warnings
     # end generate_teacherwise()
