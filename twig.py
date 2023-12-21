@@ -350,7 +350,7 @@ def generate_teacherwise(workbook, context):
 
             if set(days_assigned) != set([1, 2, 3, 4, 5, 6]):
                 warnings += 1
-                print(f"\nWarning: not all days have been assigned in {get_column_letter(column)}{row}")
+                print(f"\nWarning: not all days have been assigned in cell {get_column_letter(column)}{row}")
 
         # calculate the number of periods assigned to different subjects
         periods_assigned = sorted(periods_assigned.items())
@@ -512,8 +512,10 @@ if __name__ == '__main__':
     parser.version = '1.0'
     parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
     parser.add_argument('-v', '--version', action='store_true', help='display version information')
+    parser.add_argument('-b', '--backup', action='store_true', help='generate backup file')
     parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n')
     parser.add_argument('-c', '--classwise', action='store_true', help='generate classwise timetable from the teacherwise timetable')
+
 
     parser.add_argument('filename', type=str, action='store', nargs='?', help='file containing timetable')
 
@@ -547,9 +549,14 @@ if __name__ == '__main__':
         SEPARATOR = ';'
 
     # save file as backup
-    formatted_time = time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))
-    base_name, extension = os.path.splitext(filename)
-    shutil.copy(filename, f'{base_name}-backup-{formatted_time}.xlsx')
+    if args.backup:
+        print(f"Generating a backup of the timetable in {filename}...", end='')
+        formatted_time = time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))
+        base_name, extension = os.path.splitext(filename)
+        shutil.copy(filename, f'backup-{base_name}-{formatted_time}.xlsx')
+        print("done")
+    else:
+        print(f"Skipping backup generation of the timetable in {filename}.")
 
     print(f"Reading CLASSWISE timetable from '{filename}'... ", end="")
     book = openpyxl.load_workbook(filename)
