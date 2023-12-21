@@ -550,11 +550,11 @@ if __name__ == '__main__':
 
     # save file as backup
     if args.backup:
-        print(f"Generating a backup of the timetable in {filename}...", end='')
+        print(f"Generating a backup of the timetable in {filename}... ", end='')
         formatted_time = time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))
         base_name, extension = os.path.splitext(filename)
         shutil.copy(filename, f'backup-{base_name}-{formatted_time}.xlsx')
-        print("done")
+        print("done.")
     else:
         print(f"Skipping backup generation of the timetable in {filename}.")
 
