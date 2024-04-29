@@ -317,7 +317,7 @@ def generate_teacherwise(workbook, context):
             days_assigned = []
             for line in lines:
                 line = line.strip()
-                if line == '' or line.startswith('#'):  # ignore lines with '#' -- used as comment
+                if line == '' or line.startswith('#'):  # ignore empty lines and the ones starting with '#' -- used as comment
                     continue
 
                 m = p.match(line)
@@ -351,6 +351,10 @@ def generate_teacherwise(workbook, context):
             if set(days_assigned) != set([1, 2, 3, 4, 5, 6]):
                 warnings += 1
                 print(f"\nWarning: not all days have been assigned in cell {get_column_letter(column)}{row}")
+
+
+        # calculate the number of periods assigned to different subjects
+        # num_periods_assigned = calculate_subject_periods(periods_assigned)
 
         # calculate the number of periods assigned to different subjects
         periods_assigned = sorted(periods_assigned.items())
@@ -402,7 +406,6 @@ def generate_teacherwise(workbook, context):
     clear_sheet(output_sheet)
 
     # writing the teacherwise timetable to the TEACHERWISE sheet
-    # header = ["Name", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "Periods"]
     header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods"]
     for column in range(2, len(header) + 1):
         output_sheet.cell(row=1, column=column).value = header[column - 1]
@@ -410,21 +413,19 @@ def generate_teacherwise(workbook, context):
     unsorted_teachers = timetable.keys()
     sorted_teachers = []
 
-    for teacher in teacher_names:
-        if teacher in unsorted_teachers:
-            sorted_teachers.append(teacher)
-
     # check if there all teacher codes have associated full names
     # and add teacher if his/her whose fullname is not written in the TEACHERS sheet.
-    for teacher in unsorted_teachers:   # for every teacher code in timetable ...
-        if teacher not in sorted_teachers:
+    for teacher in teacher_names:   # for every teacher code in timetable ...
+        if teacher in unsorted_teachers:
             sorted_teachers.append(teacher)
 
     # start writing in 2nd row and then move to the following rows
     row = 2         
 
     for teacher in sorted_teachers:
+        
         periods = timetable[teacher]
+        
         # sheet.cell(row, 1).value = teacher # teacher code
         if expand_names and (teacher in teacher_names):
             output_sheet.cell(row, 1).value = teacher_names[teacher] # full teacher name
@@ -579,11 +580,11 @@ if __name__ == '__main__':
     
     # total_clashes = -1
     total_clashes = highlight_clashes(teacherwise_sheet, context)
-    
+
     print(f"Saving to TEACHERWISE sheet of '{filename}'... ", end="")
     book.save(filename)
     print("done.")
-    
+
     print(f"Clashes: {total_clashes}")
     print(f"Warnings: {warnings}")
 
