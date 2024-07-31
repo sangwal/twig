@@ -375,8 +375,12 @@ def generate_teacherwise(workbook, context):
         row += 1
         # end while loop
 
-    # source timetable update time
-    input_sheet.cell(row, 2).value = "Last updated on " + time.ctime()
+    ars = context['ARGS']
+    if args.keepstamp:  # don't update time stamp on the original timetable
+        pass
+    else:
+        # source timetable update time
+        input_sheet.cell(row, 2).value = "Last updated on " + time.ctime()
 
     # count total periods for each teacher
     total_periods = {}
@@ -448,10 +452,14 @@ def generate_teacherwise(workbook, context):
         row += 1                    # move to the next row
         # end for
 
-    # timestamp
-    row = len(sorted_teachers) + 2
-    # print(f"Row is {row}")
-    output_sheet.cell(row, 2).value = "Generated on " + time.ctime()
+    if args.keepstamp:  # keep timestamp
+        # don't change the time stamp
+        pass
+    else:
+        # timestamp
+        row = len(sorted_teachers) + 2
+        # print(f"Row is {row}")
+        output_sheet.cell(row, 2).value = "Generated on " + time.ctime()
     
     # done writing to the TEACHERWISE sheet
 
@@ -514,9 +522,9 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
     parser.add_argument('-v', '--version', action='store_true', help='display version information')
     parser.add_argument('-b', '--backup', action='store_true', help='generate backup file')
+    parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
     parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n')
     parser.add_argument('-c', '--classwise', action='store_true', help='generate classwise timetable from the teacherwise timetable')
-
 
     parser.add_argument('filename', type=str, action='store', nargs='?', help='file containing timetable')
 
@@ -542,6 +550,8 @@ if __name__ == '__main__':
             SEPARATOR = '\n'
         print(f"Using Separator '{escape_special_chars(SEPARATOR)}' ...")
 
+    
+
     startTime = time.time()
 
     DEBUG = False
@@ -564,7 +574,8 @@ if __name__ == '__main__':
     print("done.")
 
     context = {
-        'SEPARATOR' : SEPARATOR
+        'SEPARATOR' : SEPARATOR,
+        'ARGS' : args
     }
     if args.classwise:
         warnings = generate_classwise(book, context)
