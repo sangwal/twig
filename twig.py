@@ -132,8 +132,10 @@ def count_periods(teacher, timetable):
 
     return total_periods
 
-# print(expand_days("1-2, 3, 4-6"))
-# exit(0)
+def get_formatted_time():
+    # t = time.localtime()
+    # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}"
+    return "Last updated on " + time.ctime()
 
 def load_teacher_names(workbook):
     # the sheet "TEACHERS" contains data about teacher in format
@@ -258,14 +260,14 @@ def clear_sheet(sheet):
     # clear the sheet before starting writing...
     row = 2
     while True:
-        if not sheet.cell(row=row, column=1).value:
-            # we have reacher EOF
-            break
 
-        for column in range(2, 11):
+        for column in range(1, 11):
             sheet.cell(row=row, column=column).value = ""
 
         row += 1
+        if not sheet.cell(row=row, column=1).value:
+            # we have reacher EOF
+            break
 
     return
 
@@ -380,7 +382,9 @@ def generate_teacherwise(workbook, context):
         pass
     else:
         # source timetable update time
-        input_sheet.cell(row, 2).value = "Last updated on " + time.ctime()
+        formatted_time = get_formatted_time()
+        # input_sheet.cell(row, 2).value = "Last updated on " + time.ctime()
+        input_sheet.cell(row, 2).value = formatted_time
 
     # count total periods for each teacher
     total_periods = {}
@@ -389,7 +393,7 @@ def generate_teacherwise(workbook, context):
         total_periods[teacher] = count_periods(teacher, timetable)
 
     # everything has been read into the timetable
-    # now write back to a new work book
+    # now write back to the TEACHERWISE worksheet
 
     if 'TEACHERWISE' in book:
         output_sheet = book['TEACHERWISE']
@@ -414,17 +418,24 @@ def generate_teacherwise(workbook, context):
     for column in range(2, len(header) + 1):
         output_sheet.cell(row=1, column=column).value = header[column - 1]
 
-    unsorted_teachers = timetable.keys()
+    timetable_teachers = timetable.keys()
     sorted_teachers = []
 
     # check if there all teacher codes have associated full names
     # and add teacher if his/her whose fullname is not written in the TEACHERS sheet.
-    for teacher in teacher_names:   # for every teacher code in timetable ...
-        if teacher in unsorted_teachers:
+    for teacher in teacher_names:   # for every teacher in TEACHERS sheet ...
+        if teacher in timetable_teachers:   # keep teachers in the timetable and remove any extra teacher in TEACHERWISE
+            sorted_teachers.append(teacher)
+
+    # if a teacher is not in the TEACHERS sheet but appears in the timetable,
+    # append him to the `sorted_teachers' as well so that his timetable can be generated
+    # ensure every teacher in the timetable is has been appended
+    for teacher in timetable_teachers:   # for every teachers in the classwise timetable ...
+        if teacher not in sorted_teachers:
             sorted_teachers.append(teacher)
 
     # start writing in 2nd row and then move to the following rows
-    row = 2         
+    row = 2
 
     for teacher in sorted_teachers:
         
@@ -458,8 +469,8 @@ def generate_teacherwise(workbook, context):
     else:
         # timestamp
         row = len(sorted_teachers) + 2
-        # print(f"Row is {row}")
-        output_sheet.cell(row, 2).value = "Generated on " + time.ctime()
+        # output_sheet.cell(row, 2).value = "Generated on " + time.ctime()
+        output_sheet.cell(row, 2).value = get_formatted_time()
     
     # done writing to the TEACHERWISE sheet
 
@@ -532,7 +543,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # print(args)
     if args.version:
-        print("twig.py: version 1.0.0")
+        print("twig.py: version 20240809")
         exit(0)
 
     expand_names = args.fullname    # True or False; default = True
