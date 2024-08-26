@@ -325,7 +325,7 @@ def generate_teacherwise(workbook, context):
                 m = p.match(line)
                 if m is None:   # no match
                     # print(f"\nWarning: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue")
-                    print(f"\nWarning: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
+                    print(f"Warning: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
                     print("    >>> ", line)
                     warnings += 1
                     continue
@@ -345,14 +345,9 @@ def generate_teacherwise(workbook, context):
                 period = column                     # column denotes "period"
                 timetable[teacher].append((period, class_name, days, subject))
 
-            # check if all days in a particular period have been assigned
-            # if row == 3 and column == 3:
-            #     print(days_assigned)
-            #     exit(1)
-
             if set(days_assigned) != set([1, 2, 3, 4, 5, 6]):
                 warnings += 1
-                print(f"\nWarning: not all days have been assigned in cell {get_column_letter(column)}{row}")
+                print(f"Warning: not all days have been assigned in cell {get_column_letter(column)}{row}.")
 
 
         # calculate the number of periods assigned to different subjects
@@ -477,37 +472,106 @@ def generate_teacherwise(workbook, context):
     return warnings
     # end generate_teacherwise()
 
-def generate_classwise(workbook):
-    # 'sheet' contains Teacherwise timetable
+def generate_classwise(input_sheet, outfile):
 
-    # **TODO**:
-    print("Warning: This feature is under development.")
-    print("Generating Classwise from Teacherwise timetable... Done.")
+    master_sheet = None
 
-    # we should never write to the CLASSWISE sheet as it may corrupt our original timetable;
-    # instead we write to a CLASSWISE-GEN sheet.
+    try:
+        output_book = openpyxl.load_workbook(outfile) # Workbook()
+    except:
+        # create an empty book
+        output_book = openpyxl.Workbook()
+        
+    if 'MASTER' not in output_book:
+        master_sheet = output_book.create_sheet('MASTER')
 
-    CW = 'CLASSWISE-GEN'
-
-    if CW in workbook:
-        output_sheet = workbook[CW]
+        master_sheet['A1'] = 'GSSS AMARPURA (FAZILKA)'
+        master_sheet['A3'] = 'Mon'
+        master_sheet['A4'] = 'Tue'
+        master_sheet['A5'] = 'Wed'
+        master_sheet['A6'] = 'Thu'
+        master_sheet['A8'] = 'Sat'
+        master_sheet['A7'] = 'Fri'
+        for col in range(3, 10):
+            master_sheet.cell(3, col).value = col - 2   # periods 1 - 8
     else:
-        output_sheet = workbook.create_sheet(title=CW, index=0)
+        master_sheet = output_book['MASTER']
+    
+    row = 2
+    while True:
+        klass = input_sheet.cell(row, 1).value
+        if klass is None or klass == '':
+            break
 
-    input_sheet = workbook['TEACHERWISE']       # there must be TEACHERWISE sheet
+        if klass not in output_book:
+            print(f"creating sheet {klass}...")
+            # output_book.create_sheet(title=klass)
+            copy = output_book.copy_worksheet(master_sheet)
+            copy.title = klass
+
+        row += 1
+
+    # output_book.save(outfile)
 
     # set up loops and process
-    context = {
-        'input_sheet': input_sheet,
-        'output_sheet': output_sheet,
-               # _class ( days ) subject
-        'p' : r'^(?P<_class>[\w -.]+)\s*\((?P<days>.*)\)\s*(?P<subject>\w+)$' # format "CLASS (1-3,5-6) SUBJECT"
-    }
-    process_sheet(process_teacherwise_timetable_line, context)
-
+    p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
 
     warnings = 0
-    return warnings
+    row = 2
+    while True:
+        # print(f"Input Sheet: {input_sheet.title} row={row}")
+        class_name = input_sheet.cell(row, 1).value
+        if not class_name:
+            break       # we have reached the end of CLASSWISE sheet, so stop further processing
+        
+        sheet_name = class_name
+        output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
+        
+        for column in range(2, 10):
+            content = input_sheet.cell(row, column).value
+            # skip empty cells in class timetable with a warning
+            if not content:
+                warnings += 1
+                print(f"Warning: Cell {get_column_letter(column)}{row} is empty.")
+                continue
+
+            lines = content.split(SEPARATOR) # SEPARATOR is "\n" or ;
+            
+            
+            for line in lines:
+                line = line.strip()
+                if line == '' or line.startswith('#'):  # ignore empty lines and the ones starting with '#' -- used as comment
+                    continue
+
+                m = p.match(line)
+                if m is None:   # no match
+                    # print(f"\nWarning: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue")
+                    print(f"Warning: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
+                    print("    >>> ", line)
+                    warnings += 1
+                    continue
+
+                subject, days, teacher = m.groups()
+                subject = subject.strip()
+                days = expand_days(days)
+
+                # copy data to the respective classwise sheet
+                for day in days:
+                    r = day + 3
+                    # print(f"output_book[{sheet_name}].cell({r}, {column}).value += {subject} ({teacher})")
+                    if output_book[sheet_name].cell(r, column).value is None:
+                        output_book[sheet_name].cell(r, column).value = ''
+                    output_book[sheet_name].cell(r, column).value += f"{subject} ({teacher})\n"
+        
+        row += 1
+        # end of while True loop
+
+    # get the time stamp from the CLASSWISE sheet
+    timestamp = input_sheet.cell(row, 2).value
+    for ws in output_book:
+        ws.cell(10, 2).value = timestamp
+    # save everything to the file
+    output_book.save(outfile)
 
     # end generate_classwise(filename)
 
@@ -525,33 +589,45 @@ def process_teacherwise_timetable_line(context):
 if __name__ == '__main__':
     ##########################################################
     #
-    # process commmand line arguments
+    # process command line arguments
     #
     #
     parser = argparse.ArgumentParser(prog='twig.py', description='Generates teacherwise (or classwise) timetable from classwise (or teacherwise) timetable.')
     parser.version = '1.0'
+
     parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
-    parser.add_argument('-v', '--version', action='store_true', help='display version information')
-    parser.add_argument('-b', '--backup', action='store_true', help='generate backup file')
     parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
     parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n')
-    parser.add_argument('-c', '--classwise', action='store_true', help='generate classwise timetable from the teacherwise timetable')
+    parser.add_argument('-v', '--version', action='store_true', help='display version information')
 
-    parser.add_argument('filename', type=str, action='store', nargs='?', help='file containing timetable')
+    # Create a subparsers object
+    subparsers = parser.add_subparsers(dest="command", help="Subcommands")
 
-    # args = parser.parse_args(['Timetable-2023-24-Handcrafted.xlsx', 'Timetable-2023-24-Handcrafted-Teacherwise.xlsx'])
+    # Subcommand 'teacherwise'
+    tw_parser = subparsers.add_parser("teacherwise", help="Generate teacherwise timetable")
+    # start_parser.add_argument("-p", "--port", type=int, default=8080, help="Port to run the service on")
+    tw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+
+    # Subcommand 'classwise'
+    cw_parser = subparsers.add_parser("classwise", help="Generate classwise timetable")
+    # cw_parser.add_argument("-f", "--force", action="store_true", help="Force stop the service")
+    cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+    cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
+
+    # Parse the arguments
     args = parser.parse_args()
+
     # print(args)
     if args.version:
         print("twig.py: version 20240809")
         exit(0)
 
-    expand_names = args.fullname    # True or False; default = True
+    expand_names = args.fullname    # True or False; default = False
 
-    if not args.filename:
+    if not args.infile:
         filename = 'Timetable.xlsx'
     else:
-        filename = args.filename
+        filename = args.infile
 
     if not args.separator:
         SEPARATOR = "\n"    # multi-line separator
@@ -561,8 +637,6 @@ if __name__ == '__main__':
             SEPARATOR = '\n'
         print(f"Using Separator '{escape_special_chars(SEPARATOR)}' ...")
 
-    
-
     startTime = time.time()
 
     DEBUG = False
@@ -570,15 +644,15 @@ if __name__ == '__main__':
         filename = "Class-Wise(19-07-2023).xlsx"
         SEPARATOR = ';'
 
-    # save file as backup
-    if args.backup:
-        print(f"Generating a backup of the timetable in {filename}... ", end='')
-        formatted_time = time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))
-        base_name, extension = os.path.splitext(filename)
-        shutil.copy(filename, f'backup-{base_name}-{formatted_time}.xlsx')
-        print("done.")
-    else:
-        print(f"Skipping backup generation of the timetable in {filename}.")
+    # # save file as backup
+    # if args.backup:
+    #     print(f"Generating a backup of the timetable in {filename}... ", end='')
+    #     formatted_time = time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))
+    #     base_name, extension = os.path.splitext(filename)
+    #     shutil.copy(filename, f'backup-{base_name}-{formatted_time}.xlsx')
+    #     print("done.")
+    # else:
+    #     print(f"Skipping backup generation of the timetable in {filename}.")
 
     print(f"Reading CLASSWISE timetable from '{filename}'... ", end="")
     book = openpyxl.load_workbook(filename)
@@ -588,27 +662,25 @@ if __name__ == '__main__':
         'SEPARATOR' : SEPARATOR,
         'ARGS' : args
     }
-    if args.classwise:
-        warnings = generate_classwise(book, context)
-    else:
+    if args.command == 'classwise':
+        warnings = generate_classwise(book['CLASSWISE'], args.outfile)
+    elif args.command == 'teacherwise':
         warnings = generate_teacherwise(book, context)
+                # Highlight possible clashes
+        context = {'SEPARATOR': SEPARATOR}
+        teacherwise_sheet = book['TEACHERWISE']
+        
+        total_clashes = highlight_clashes(teacherwise_sheet, context)
 
-    # generate_free_teacher_report()
+        print(f"Saving to TEACHERWISE sheet of '{filename}'... ", end="")
+        book.save(filename)
+        print("done.")
+
+        print(f"Clashes: {total_clashes}")
+        print(f"Warnings: {warnings}")
+    else:
+        print("You should not have seen this line!")
 
     endTime = time.time()
-    # Highlight possible clashes
-    context = {'SEPARATOR': SEPARATOR}
-    teacherwise_sheet = book['TEACHERWISE']
-    
-    # total_clashes = -1
-    total_clashes = highlight_clashes(teacherwise_sheet, context)
-
-    print(f"Saving to TEACHERWISE sheet of '{filename}'... ", end="")
-    book.save(filename)
-    print("done.")
-
-    print(f"Clashes: {total_clashes}")
-    print(f"Warnings: {warnings}")
-
     print("Finished processing in %.3f seconds." % (endTime - startTime))
     print("Have a nice day!\n")
