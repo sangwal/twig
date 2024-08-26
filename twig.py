@@ -15,7 +15,7 @@
 
     Written by Sunil Sangwal (sunil.sangwal@gmail.com)
     Date written: 20-Apr-2022
-    Last Modified: 18-May-2023
+    Last Modified: 26-Aug-2024
 """
 import argparse
 import re
@@ -158,6 +158,32 @@ def load_teacher_names(workbook):
         row += 1
 
     return teacher_names
+
+def load_teacher_details(workbook):
+    # the sheet "TEACHERS" contains data about teacher in format
+    # TEACHER-CODE ; FULLNAME
+    sheet = workbook['TEACHERS']
+    
+    teacher_details = {}
+    
+    row = 2
+    while True:
+        teacher_code = sheet.cell(row, 1).value
+        if teacher_code == None:
+            break
+
+        if teacher_code in teacher_details:
+            # teacher code has been repeated
+            raise Exception(f"Teacher code '{teacher_code}' has been used more than once. Modify TEACHERS sheet to remove the error.")
+
+        for col in range(1, 6):
+            if teacher_code not in teacher_details:
+                teacher_details[teacher_code] = {}
+            teacher_details[teacher_code][sheet.cell(1, col).value] = sheet.cell(row, col).value
+
+        row += 1
+
+    return teacher_details
 
 def get_class_number(_class):
     return _class[:len(_class) - 1] # remove section (for example, 'A' from '10A')
@@ -472,9 +498,11 @@ def generate_teacherwise(workbook, context):
     return warnings
     # end generate_teacherwise()
 
-def generate_classwise(input_sheet, outfile):
+def generate_classwise(input_book, outfile):
 
     master_sheet = None
+
+    input_sheet = input_book['CLASSWISE']
 
     try:
         output_book = openpyxl.load_workbook(outfile) # Workbook()
@@ -497,24 +525,56 @@ def generate_classwise(input_sheet, outfile):
     else:
         master_sheet = output_book['MASTER']
     
+    # read the names of incharges from the TEACHERS sheet
+    teachers_sheet = input_book['TEACHERS']
+    class_incharge = {}
+    
+    # some settings!!
+    FULLNAME_COLUMN = 2
+    GENDER_COLUMN = 5
+    INCHARGE_COLUMN = 6
+    
+    row = 2
+    while True:
+        teacher_code = teachers_sheet.cell(row, 1).value
+        if teacher_code is None or teacher_code == '':
+            break
+        klass = teachers_sheet.cell(row, INCHARGE_COLUMN).value
+        if klass is not None:
+            class_incharge[klass] = teacher_code
+
+        row += 1
+
+    # copy/create templates for each class
     row = 2
     while True:
         klass = input_sheet.cell(row, 1).value
         if klass is None or klass == '':
             break
 
-        if klass not in output_book:
-            print(f"creating sheet {klass}...")
-            # output_book.create_sheet(title=klass)
+        # if klass not in output_book:
+        #     print(f"creating sheet {klass}...")
+        #     # output_book.create_sheet(title=klass)
+        #     copy = output_book.copy_worksheet(master_sheet)
+        #     copy.title = klass
+        
+        # the following code effectively clears the sheet before writing any data
+
+        if klass in output_book:
+            # delete old one
+            del output_book[klass]
+            # create new by copying from the master
             copy = output_book.copy_worksheet(master_sheet)
             copy.title = klass
 
         row += 1
 
-    # output_book.save(outfile)
+    
 
     # set up loops and process
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
+
+    teacher_details = load_teacher_details(input_book)
 
     warnings = 0
     row = 2
@@ -525,8 +585,20 @@ def generate_classwise(input_sheet, outfile):
             break       # we have reached the end of CLASSWISE sheet, so stop further processing
         
         sheet_name = class_name
+        # write class name
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
+
+        # write name of the class in-charge as well
+        output_book[sheet_name].cell(2, 6).value = "Incharge: "
+        # if class_name in class_incharge:
+        #     output_book[sheet_name].cell(2, 6).value += class_incharge[class_name]
+        if class_name in class_incharge:
+            title = 'Smt.' if teacher_details[class_incharge[class_name]]['GENDER'] == 'f' else 'Sh.'
+            output_book[sheet_name].cell(2, 6).value = f"Incharge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
+        else:
+            output_book[sheet_name].cell(2, 6).value = "Incharge: Sh./Smt. "
         
+
         for column in range(2, 10):
             content = input_sheet.cell(row, column).value
             # skip empty cells in class timetable with a warning
@@ -663,7 +735,7 @@ if __name__ == '__main__':
         'ARGS' : args
     }
     if args.command == 'classwise':
-        warnings = generate_classwise(book['CLASSWISE'], args.outfile)
+        warnings = generate_classwise(book, args.outfile)
     elif args.command == 'teacherwise':
         warnings = generate_teacherwise(book, context)
                 # Highlight possible clashes
