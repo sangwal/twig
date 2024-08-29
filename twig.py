@@ -514,14 +514,15 @@ def generate_classwise(input_book, outfile):
         master_sheet = output_book.create_sheet('MASTER')
 
         master_sheet['A1'] = 'GSSS AMARPURA (FAZILKA)'
-        master_sheet['A3'] = 'Mon'
-        master_sheet['A4'] = 'Tue'
-        master_sheet['A5'] = 'Wed'
-        master_sheet['A6'] = 'Thu'
-        master_sheet['A8'] = 'Sat'
-        master_sheet['A7'] = 'Fri'
-        for col in range(3, 10):
-            master_sheet.cell(3, col).value = col - 2   # periods 1 - 8
+        master_sheet['A4'] = 'Mon'
+        master_sheet['A5'] = 'Tue'
+        master_sheet['A6'] = 'Wed'
+        master_sheet['A7'] = 'Thu'
+        master_sheet['A8'] = 'Fri'
+        master_sheet['A9'] = 'Sat'
+
+        for col in range(2, 10):
+            master_sheet.cell(3, col).value = col - 1   # periods 1 - 8
     else:
         master_sheet = output_book['MASTER']
     
@@ -552,30 +553,27 @@ def generate_classwise(input_book, outfile):
         if klass is None or klass == '':
             break
 
-        # if klass not in output_book:
-        #     print(f"creating sheet {klass}...")
-        #     # output_book.create_sheet(title=klass)
-        #     copy = output_book.copy_worksheet(master_sheet)
-        #     copy.title = klass
-        
         # the following code effectively clears the sheet before writing any data
 
         if klass in output_book:
             # delete old one
             del output_book[klass]
-            # create new by copying from the master
-            copy = output_book.copy_worksheet(master_sheet)
-            copy.title = klass
+
+        # create new by copying from the master
+        print(f"creating sheet {klass} ...")
+        copy = output_book.copy_worksheet(master_sheet)
+        copy.title = klass
 
         row += 1
 
-    
+    output_book.save(outfile)
 
     # set up loops and process
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
 
     teacher_details = load_teacher_details(input_book)
-
+    print(teacher_details)
+    
     warnings = 0
     row = 2
     while True:
@@ -586,6 +584,7 @@ def generate_classwise(input_book, outfile):
         
         sheet_name = class_name
         # write class name
+        print(output_book.worksheets)
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
 
         # write name of the class in-charge as well
