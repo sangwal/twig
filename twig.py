@@ -728,7 +728,7 @@ if __name__ == '__main__':
 
     # print(args)
     if args.version:
-        print("twig.py: version 240827")
+        print("twig.py: version 240830")
         exit(0)
 
     expand_names = args.fullname    # True or False; default = False
