@@ -572,7 +572,7 @@ def generate_classwise(input_book, outfile):
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
 
     teacher_details = load_teacher_details(input_book)
-    print(teacher_details)
+    # print(teacher_details)
     
     warnings = 0
     row = 2
@@ -584,7 +584,7 @@ def generate_classwise(input_book, outfile):
         
         sheet_name = class_name
         # write class name
-        print(output_book.worksheets)
+        # print(output_book.worksheets)
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
 
         # write name of the class in-charge as well
