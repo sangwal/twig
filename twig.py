@@ -15,7 +15,7 @@
 
     Written by Sunil Sangwal (sunil.sangwal@gmail.com)
     Date written: 20-Apr-2022
-    Last Modified: 26-Aug-2024
+    Last Modified: 30-Aug-2024
 """
 import argparse
 import re
@@ -657,6 +657,40 @@ def process_teacherwise_timetable_line(context):
     ...
     # end process_teacherwise_timetable_line()
 
+def show_differences(base, current):
+    """
+        Shows difference between base and current timetables
+
+        base    -- filename of the base timetable (.xlsx)
+        current -- filename of the current timetable (.xlsx)
+    """
+
+    # load the two  workbooks
+    wb_base = openpyxl.load_workbook(base)
+    wb_current = openpyxl.load_workbook(current)
+
+    # ensure that these sheets exist
+    ws_base = wb_base['CLASSWISE']
+    ws_current = wb_current['CLASSWISE']
+
+    
+    differences = 0
+    row = 2
+    while True:
+        class_name = ws_base.cell(row, 1).value
+        if class_name is None:
+            break
+
+        for col in range(1, 10):
+            print(f"checking ({row}, {col}) ...")
+            if ws_base.cell(row, col).value != ws_current.cell(row, col).value:
+                differences += 1
+                print(f"Difference in ({row}, {col})")
+
+        row += 1
+
+    return differences
+
 if __name__ == '__main__':
     ##########################################################
     #
@@ -684,21 +718,20 @@ if __name__ == '__main__':
     # cw_parser.add_argument("-f", "--force", action="store_true", help="Force stop the service")
     cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
+    
+    diff_parser = subparsers.add_parser("diff", help="compare two timetables")
+    diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
+    diff_parser.add_argument("current", type=str, action="store", help="current timetable to be compared against base timetable")
 
     # Parse the arguments
     args = parser.parse_args()
 
     # print(args)
     if args.version:
-        print("twig.py: version 20240830")
+        print("twig.py: version 240827")
         exit(0)
 
     expand_names = args.fullname    # True or False; default = False
-
-    if not args.infile:
-        filename = 'Timetable.xlsx'
-    else:
-        filename = args.infile
 
     if not args.separator:
         SEPARATOR = "\n"    # multi-line separator
@@ -725,14 +758,22 @@ if __name__ == '__main__':
     # else:
     #     print(f"Skipping backup generation of the timetable in {filename}.")
 
-    print(f"Reading CLASSWISE timetable from '{filename}'... ", end="")
-    book = openpyxl.load_workbook(filename)
-    print("done.")
-
+    
     context = {
         'SEPARATOR' : SEPARATOR,
         'ARGS' : args
     }
+
+    if args.command in ['teacherwise', 'classwise']:
+        if not args.infile:
+            filename = 'Timetable.xlsx'
+        else:
+            filename = args.infile
+
+        print(f"Reading CLASSWISE timetable from '{filename}'... ", end="")
+        book = openpyxl.load_workbook(filename)
+        print("done.")
+
     if args.command == 'classwise':
         warnings = generate_classwise(book, args.outfile)
     elif args.command == 'teacherwise':
@@ -749,6 +790,14 @@ if __name__ == '__main__':
 
         print(f"Clashes: {total_clashes}")
         print(f"Warnings: {warnings}")
+    elif args.command == 'diff':
+        base = args.base
+        current = args.current
+
+        # compare "base" with "current"
+        print(f"Comparing '{base}' with '{current}' ..." )
+        differences = show_differences(base, current)
+        print(f"Found {differences} differences between {base} and {current}.")
     else:
         print("You should not have seen this line!")
 
