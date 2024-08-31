@@ -25,16 +25,45 @@ import sys
 import shutil       # copy file
 
 import openpyxl
-from openpyxl.styles import Alignment
+import openpyxl.formatting
+from openpyxl.styles import Alignment, Border, Side
+
+# change styles
+# alignment = Alignment(horizontal='general',
+#     vertical='top',
+#     text_rotation=0,
+#     wrap_text=True,
+#     shrink_to_fit=False,
+#     indent=0)
+
+from openpyxl.styles import Font
+# Make the cell bold using
+# bold_font = Font(bold=True)
+# ws['A1'].font = bold_font
+
+# to revert to normal font (without bold), use
+# normal_font = Font(bold=False)
+# ws['A1'].font = normal_font
+
+# Change the font color to red
+# red_font = Font(color="FF0000")
+# ws['A1'].font = red_font
+
+from openpyxl.styles import PatternFill
+# Change the background color of the cell to yellow
+# fill_color = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+# ws['A1'].fill = fill_color
+
 from openpyxl.utils import get_column_letter
+
+# filename = 'C:\\Users\\acer\\Downloads\\CLASSWISE TIMETABLE 2022-23.xlsx'
+# filename = 'C:\\Users\\acer\\Documents\\classwise-timetable.xlsx'
+# output_filename = 'C:\\Users\\acer\\Documents\\TEACHERWISE TIMETABLE-tmp2.xlsx'
 
 # configuration variables before running the script
 
 expand_names = False    # set this to True to write full names of teachers
 
-# filename = 'C:\\Users\\acer\\Downloads\\CLASSWISE TIMETABLE 2022-23.xlsx'
-# filename = 'C:\\Users\\acer\\Documents\\classwise-timetable.xlsx'
-# output_filename = 'C:\\Users\\acer\\Documents\\TEACHERWISE TIMETABLE-tmp2.xlsx'
 
 # utility functions
 
@@ -300,13 +329,16 @@ def clear_sheet(sheet):
 def generate_teacherwise(workbook, context):
     SEPARATOR = context['SEPARATOR']
 
-    if "CLASSWISE" in workbook:
-        print("Reading 'CLASSWISE' sheet... ", end='')
-        input_sheet = workbook["CLASSWISE"]
-        print("done.")
-    else:
-        print("Sheet 'CLASSWISE' not found. Reading active sheet instead... ")
-        input_sheet = workbook.active
+    if "CLASSWISE" not in workbook:
+        raise Exception('CLASSWISE sheet not found. Stopping.')
+    
+    print("Reading 'CLASSWISE' sheet... ", end='')
+    input_sheet = workbook["CLASSWISE"]
+    print("done.")
+
+    # else:
+    #     print("Sheet 'CLASSWISE' not found. Reading active sheet instead... ")
+    #     input_sheet = workbook.active
 
     # if names are to be replaced with full names for teachers,
     # then we must have 'TEACHERS' sheet in the input file
@@ -327,7 +359,8 @@ def generate_teacherwise(workbook, context):
     while True:
         class_name = input_sheet.cell(row, 1).value
         if not class_name:
-            break       # we have reached the end of CLASSWISE sheet, so stop further processing
+            # we have reached the end of CLASSWISE sheet, so stop further processing
+            break
 
         periods_assigned = {}   # subjectwise keep track of how many periods have been assigned
 
@@ -423,14 +456,6 @@ def generate_teacherwise(workbook, context):
         output_sheet = book.create_sheet(title='TEACHERWISE', index=1)
         print("done.")
 
-    # change styles
-    # alignment = Alignment(horizontal='general',
-    #     vertical='top',
-    #     text_rotation=0,
-    #     wrap_text=True,
-    #     shrink_to_fit=False,
-    #     indent=0)
-
     # Clear the TEACHERWISE sheet before writing
     clear_sheet(output_sheet)
 
@@ -507,7 +532,7 @@ def generate_classwise(input_book, outfile):
     try:
         output_book = openpyxl.load_workbook(outfile) # Workbook()
     except:
-        # create an empty book
+        # create an empty book if there is no workbook already
         output_book = openpyxl.Workbook()
         
     if 'MASTER' not in output_book:
@@ -523,6 +548,8 @@ def generate_classwise(input_book, outfile):
 
         for col in range(2, 10):
             master_sheet.cell(3, col).value = col - 1   # periods 1 - 8
+
+        format_master_ws(master_sheet)
     else:
         master_sheet = output_book['MASTER']
     
@@ -566,7 +593,7 @@ def generate_classwise(input_book, outfile):
 
         row += 1
 
-    output_book.save(outfile)
+    # output_book.save(outfile)
 
     # set up loops and process
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
@@ -588,14 +615,14 @@ def generate_classwise(input_book, outfile):
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
 
         # write name of the class in-charge as well
-        output_book[sheet_name].cell(2, 6).value = "Incharge: "
+        output_book[sheet_name].cell(2, 5).value = "Incharge: "
         # if class_name in class_incharge:
-        #     output_book[sheet_name].cell(2, 6).value += class_incharge[class_name]
+        #     output_book[sheet_name].cell(2, 5).value += class_incharge[class_name]
         if class_name in class_incharge:
             title = 'Smt.' if teacher_details[class_incharge[class_name]]['GENDER'] == 'f' else 'Sh.'
-            output_book[sheet_name].cell(2, 6).value = f"Incharge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
+            output_book[sheet_name].cell(2, 5).value = f"Class In-charge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
         else:
-            output_book[sheet_name].cell(2, 6).value = "Incharge: Sh./Smt. "
+            output_book[sheet_name].cell(2, 5).value = "Class In-charge:"
         
 
         for column in range(2, 10):
@@ -628,7 +655,7 @@ def generate_classwise(input_book, outfile):
 
                 # copy data to the respective classwise sheet
                 for day in days:
-                    r = day + 3
+                    r = day + 3     # variable "row" is already taken
                     # print(f"output_book[{sheet_name}].cell({r}, {column}).value += {subject} ({teacher})")
                     if output_book[sheet_name].cell(r, column).value is None:
                         output_book[sheet_name].cell(r, column).value = ''
@@ -640,9 +667,12 @@ def generate_classwise(input_book, outfile):
     # get the time stamp from the CLASSWISE sheet
     timestamp = input_sheet.cell(row, 2).value
     for ws in output_book:
-        ws.cell(10, 2).value = timestamp
+        if ws.title[0].isdigit():
+            ws.cell(10, 2).value = timestamp
+
     # save everything to the file
     output_book.save(outfile)
+    print(f'Classwise timetable saved to "{outfile}".')
 
     # end generate_classwise(filename)
 
@@ -670,10 +700,14 @@ def show_differences(base, current):
     wb_current = openpyxl.load_workbook(current)
 
     # ensure that these sheets exist
+    if 'CLASSWISE' not in wb_base:
+        raise Exception(f'Sheet CLASSWISE not found in {base}')
+    if 'CLASSWISE' not in wb_current:
+        raise Exception(f'Sheet CLASSWISE not found in {current}')
+    
     ws_base = wb_base['CLASSWISE']
     ws_current = wb_current['CLASSWISE']
 
-    
     differences = 0
     row = 2
     while True:
@@ -691,7 +725,65 @@ def show_differences(base, current):
 
     return differences
 
+def format_master_ws(ws):
+    ws.column_dimensions['A'].width = 16 # first column
+    for col in range(2, 10):
+        ws.column_dimensions[get_column_letter(col)].width = 14 # all other columns
+
+    # first three rows
+    for row in range(1, 4):
+        ws.row_dimensions[row].height = 34
+    
+    # rows 4 to 9
+    for row in range(4, 10):
+        ws.row_dimensions[row].height = 54
+    
+    # shade the row showing periods (3rd row)
+    for col in range(1, 10):
+        ws[get_column_letter(col)+'3'].fill = PatternFill(start_color="c3c3c3", end_color="c3c3c3", fill_type="solid")
+    # shade the days in Column A
+    for row in range(4, 10):
+        ws['A'+str(row)].fill = PatternFill(start_color="c3c3c3", end_color="c3c3c3", fill_type="solid")
+
+    alignment = Alignment(horizontal='center', vertical='top', wrap_text=True)
+
+    # format header
+    ws.merge_cells('A1:I1')
+    ws.merge_cells('A2:D2')
+    ws.merge_cells('E2:I2')
+
+    ws['A1'].font = Font(size=25)
+    ws['A2'].font = Font(size=16)
+    ws['E2'].font = Font(size=16)
+
+    ws['A1'].alignment = alignment
+    ws['A2'].alignment = Alignment(horizontal='left', vertical='top')
+    ws['E2'].alignment = Alignment(horizontal='left', vertical='top')
+
+    # Define the border style
+    thin_border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    for row in range(3, 10):
+        for col in range(1, 10):
+            ws.cell(row, col).border = thin_border
+            ws.cell(row, col).alignment = alignment
+
+
+
+    return # format_master_ws
+
+            
+
+
+        
+
+
 if __name__ == '__main__':
+
     ##########################################################
     #
     # process command line arguments
@@ -776,6 +868,7 @@ if __name__ == '__main__':
 
     if args.command == 'classwise':
         warnings = generate_classwise(book, args.outfile)
+        # print(f"Classwise timetables saved to '{args.outfile}'.")
     elif args.command == 'teacherwise':
         warnings = generate_teacherwise(book, context)
                 # Highlight possible clashes
@@ -799,7 +892,11 @@ if __name__ == '__main__':
         differences = show_differences(base, current)
         print(f"Found {differences} differences between {base} and {current}.")
     else:
-        print("You should not have seen this line!")
+        print("twig.py -- timetable manipulation utility")
+        print("Copyright (c) Sunil Sangwal <sunil.sangwal@gmail.com>")
+        print("Type 'python twig.py -h' for more information.")
+        exit(0)
+        
 
     endTime = time.time()
     print("Finished processing in %.3f seconds." % (endTime - startTime))
