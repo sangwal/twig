@@ -622,7 +622,7 @@ def generate_classwise(input_book, outfile):
             title = 'Smt.' if teacher_details[class_incharge[class_name]]['GENDER'] == 'f' else 'Sh.'
             output_book[sheet_name].cell(2, 5).value = f"Class In-charge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
         else:
-            output_book[sheet_name].cell(2, 5).value = "Class In-charge:"
+            output_book[sheet_name].cell(2, 5).value = "Class In-charge:" + '_' * 25    # leave space for writing name of the incharge
         
 
         for column in range(2, 10):
@@ -672,21 +672,41 @@ def generate_classwise(input_book, outfile):
 
     # save everything to the file
     output_book.save(outfile)
-    print(f'Classwise timetable saved to "{outfile}".')
-
+    
+    return warnings
     # end generate_classwise(filename)
 
-def process_sheet(callback, context):
-    input_sheet = context['input_sheet']
-    output_sheet = context['output_sheet']
-    p = context['p']
+def get_teachers_in_cell(ws, cell_name):
+    p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
+    content = ws[cell_name].value
+    lines = content.split(SEPARATOR)
+    teachers = []
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        m = p.match(line)
+        if not m:
+            print(lines)
+            raise Exception(f"Error: {cell_name} is not in correct format.")
+        subject, days, teacher = m.groups()
+        teachers.append(teacher)
 
-    # end process_sheet()
+    return teachers
 
-def process_teacherwise_timetable_line(context):
-    ...
-    # end process_teacherwise_timetable_line()
+def get_affected_teachers(ws_base, ws_current, cell_name):
+    # simplest implementation is to consider every teacher in the corresponding cells as affected
+    
+    # read names of teachers in both sheets
+    teachers = []
+    # first, read from base sheet
+    teachers.extend(get_teachers_in_cell(ws_base, cell_name))
+    teachers.extend(get_teachers_in_cell(ws_current, cell_name))
+    teachers = list(set(teachers))    # remove duplicates
 
+    return teachers   # re-convert to list
+    # read from the current sheet
+    
 def show_differences(base, current):
     """
         Shows difference between base and current timetables
@@ -699,16 +719,11 @@ def show_differences(base, current):
     wb_base = openpyxl.load_workbook(base)
     wb_current = openpyxl.load_workbook(current)
 
-    # ensure that these sheets exist
-    if 'CLASSWISE' not in wb_base:
-        raise Exception(f'Sheet CLASSWISE not found in {base}')
-    if 'CLASSWISE' not in wb_current:
-        raise Exception(f'Sheet CLASSWISE not found in {current}')
-    
     ws_base = wb_base['CLASSWISE']
     ws_current = wb_current['CLASSWISE']
 
-    differences = 0
+    differences = []
+    affected_teachers = []
     row = 2
     while True:
         class_name = ws_base.cell(row, 1).value
@@ -716,14 +731,27 @@ def show_differences(base, current):
             break
 
         for col in range(1, 10):
-            print(f"checking ({row}, {col}) ...")
+            cell_name = f"{get_column_letter(col)}{row}"
             if ws_base.cell(row, col).value != ws_current.cell(row, col).value:
-                differences += 1
-                print(f"Difference in ({row}, {col})")
+                differences.append(cell_name)
+                # print(f"Difference in {cell_name}")
+                teachers = get_affected_teachers(ws_base, ws_current, cell_name)
+                # print(teachers)
+                affected_teachers.extend(teachers)
+                # color code the change in the current in ws_current
+                ws_current.cell(row, col).fill = PatternFill(start_color="c3c3c3", end_color="c3c3c3", fill_type="solid")
 
         row += 1
 
-    return differences
+    affected_teachers = set(affected_teachers)  # remove duplicates
+    affected_teachers = list(affected_teachers) # re-convert to list
+    print("Differences found in cells: ", ', '.join(differences))
+    print(f"Likely affected teachers are: ", ', '.join(affected_teachers)+'.')
+
+    # save the changes to "current" file
+    wb_current.save(current)
+    # return number of differences found
+    return len(differences)
 
 def format_master_ws(ws):
     ws.column_dimensions['A'].width = 16 # first column
@@ -745,8 +773,6 @@ def format_master_ws(ws):
     for row in range(4, 10):
         ws['A'+str(row)].fill = PatternFill(start_color="c3c3c3", end_color="c3c3c3", fill_type="solid")
 
-    alignment = Alignment(horizontal='center', vertical='top', wrap_text=True)
-
     # format header
     ws.merge_cells('A1:I1')
     ws.merge_cells('A2:D2')
@@ -756,9 +782,10 @@ def format_master_ws(ws):
     ws['A2'].font = Font(size=16)
     ws['E2'].font = Font(size=16)
 
-    ws['A1'].alignment = alignment
-    ws['A2'].alignment = Alignment(horizontal='left', vertical='top')
-    ws['E2'].alignment = Alignment(horizontal='left', vertical='top')
+    alignment = Alignment(horizontal='center', vertical='top', wrap_text=True)
+    ws['A1'].alignment = alignment # school name
+    ws['A2'].alignment = Alignment(horizontal='left', vertical='top')   # Class
+    ws['E2'].alignment = Alignment(horizontal='right', vertical='top')  # Incharge
 
     # Define the border style
     thin_border = Border(
@@ -772,15 +799,8 @@ def format_master_ws(ws):
             ws.cell(row, col).border = thin_border
             ws.cell(row, col).alignment = alignment
 
-
-
-    return # format_master_ws
-
-            
-
-
-        
-
+    return
+    # end format_master_ws()
 
 if __name__ == '__main__':
 
@@ -820,7 +840,7 @@ if __name__ == '__main__':
 
     # print(args)
     if args.version:
-        print("twig.py: version 240830")
+        print("twig.py: version 240901")
         exit(0)
 
     expand_names = args.fullname    # True or False; default = False
@@ -840,17 +860,6 @@ if __name__ == '__main__':
         filename = "Class-Wise(19-07-2023).xlsx"
         SEPARATOR = ';'
 
-    # # save file as backup
-    # if args.backup:
-    #     print(f"Generating a backup of the timetable in {filename}... ", end='')
-    #     formatted_time = time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))
-    #     base_name, extension = os.path.splitext(filename)
-    #     shutil.copy(filename, f'backup-{base_name}-{formatted_time}.xlsx')
-    #     print("done.")
-    # else:
-    #     print(f"Skipping backup generation of the timetable in {filename}.")
-
-    
     context = {
         'SEPARATOR' : SEPARATOR,
         'ARGS' : args
@@ -868,18 +877,19 @@ if __name__ == '__main__':
 
     if args.command == 'classwise':
         warnings = generate_classwise(book, args.outfile)
-        # print(f"Classwise timetables saved to '{args.outfile}'.")
+        print(f"Classwise timetables saved to '{args.outfile}'.")
+        if warnings:
+            print(f"Warnings: {warnings}")
     elif args.command == 'teacherwise':
         warnings = generate_teacherwise(book, context)
-                # Highlight possible clashes
         context = {'SEPARATOR': SEPARATOR}
         teacherwise_sheet = book['TEACHERWISE']
         
+        # Highlight possible clashes
         total_clashes = highlight_clashes(teacherwise_sheet, context)
 
-        print(f"Saving to TEACHERWISE sheet of '{filename}'... ", end="")
         book.save(filename)
-        print("done.")
+        print(f"Teacherwise timetable saved to TEACHERWISE sheet of '{filename}'.")
 
         print(f"Clashes: {total_clashes}")
         print(f"Warnings: {warnings}")
