@@ -3,7 +3,7 @@
     twig.py -- TeacherWIse [timetable] Generator
     
     A python script to generate Teacherwise timetable from Classwise timetable
-    (and vice versa -- yet to be implemented).
+    and individual classwise sheets for all classes.
     
     The classwise timetable is read from CLASSWISE sheet and the generated teacherwise
     timetable is saved in TEACHERWISE sheet of the same input workbook.
@@ -15,7 +15,7 @@
 
     Written by Sunil Sangwal (sunil.sangwal@gmail.com)
     Date written: 20-Apr-2022
-    Last Modified: 30-Aug-2024
+    Last Modified: 06-Nov-2024
 """
 import argparse
 import re
@@ -524,6 +524,9 @@ def generate_teacherwise(workbook, context):
     # end generate_teacherwise()
 
 def generate_classwise(input_book, outfile):
+    """
+        generate individual sheets for all classes to be printed for fixing in classrooms
+    """
 
     master_sheet = None
 
@@ -619,7 +622,7 @@ def generate_classwise(input_book, outfile):
         # if class_name in class_incharge:
         #     output_book[sheet_name].cell(2, 5).value += class_incharge[class_name]
         if class_name in class_incharge:
-            title = 'Smt.' if teacher_details[class_incharge[class_name]]['GENDER'] == 'f' else 'Sh.'
+            title = 'Ms' if teacher_details[class_incharge[class_name]]['GENDER'] == 'f' else 'Mr'
             output_book[sheet_name].cell(2, 5).value = f"Class In-charge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
         else:
             output_book[sheet_name].cell(2, 5).value = "Class In-charge:" + '_' * 25    # leave space for writing name of the incharge
@@ -903,7 +906,7 @@ if __name__ == '__main__':
         print(f"Found {differences} differences between {base} and {current}.")
     else:
         print("twig.py -- timetable manipulation utility")
-        print("Copyright (c) Sunil Sangwal <sunil.sangwal@gmail.com>")
+        print("Copyright (c) 2024 Sunil Sangwal <sunil.sangwal@gmail.com>")
         print("Type 'python twig.py -h' for more information.")
         exit(0)
         
