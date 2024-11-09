@@ -394,8 +394,12 @@ def generate_teacherwise(workbook, context):
                 days_assigned.extend(expand_days(days))
 
                 if subject not in periods_assigned:
+                    # periods_assigned[subject] = expand_days(days)
                     periods_assigned[subject] = count_days(days)
                 else:
+                    # **TODO**
+                    # if two (or more) teachers have been assigned same subject in a period in a class
+                    # count them as one.
                     periods_assigned[subject] += count_days(days)
 
                 if teacher not in timetable:
@@ -406,7 +410,10 @@ def generate_teacherwise(workbook, context):
 
             if set(days_assigned) != set([1, 2, 3, 4, 5, 6]):
                 warnings += 1
-                print(f"Warning: not all days have been assigned in cell {get_column_letter(column)}{row}.")
+                pending_days = set([1, 2, 3, 4, 5, 6]) - set(days_assigned)
+                pending_days = list(pending_days)
+
+                print(f"Warning: {pending_days} days pending assignment in cell {get_column_letter(column)}{row}.")
 
 
         # calculate the number of periods assigned to different subjects
