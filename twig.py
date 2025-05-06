@@ -332,9 +332,9 @@ def generate_teacherwise(workbook, context):
     if "CLASSWISE" not in workbook:
         raise Exception('CLASSWISE sheet not found. Stopping.')
     
-    print("Reading 'CLASSWISE' sheet... ", end='')
+    # print("Reading 'CLASSWISE' sheet... ", end='')
     input_sheet = workbook["CLASSWISE"]
-    print("done.")
+    # print("done.")
 
     # else:
     #     print("Sheet 'CLASSWISE' not found. Reading active sheet instead... ")
@@ -353,7 +353,7 @@ def generate_teacherwise(workbook, context):
     print("Processing timetable ...")
     # p = re.compile(r'^(?P<subject>[\w -.]+)\s*\((?P<days>.*)\)\s*(?P<teacher>\w+)$') # format "SUBJECT (1-3,5-6) TEACHER"
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
-
+    
     warnings = 0
     row = 2
     while True:
@@ -381,7 +381,7 @@ def generate_teacherwise(workbook, context):
                 if line == '' or line.startswith('#'):  # ignore empty lines and the ones starting with '#' -- used as comment
                     continue
 
-                m = p.match(line)
+                m = p.match(line.upper())
                 if m is None:   # no match
                     # print(f"\nWarning: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue")
                     print(f"Warning: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
@@ -496,7 +496,7 @@ def generate_teacherwise(workbook, context):
         
         # sheet.cell(row, 1).value = teacher # teacher code
         if expand_names and (teacher in teacher_names):
-            output_sheet.cell(row, 1).value = teacher_names[teacher] # full teacher name
+            output_sheet.cell(row, 1).value = teacher_names[teacher] + ", " + teacher # full teacher name followed by a comma and the teacher code
         else:
             output_sheet.cell(row, 1).value = teacher # abbreviation as has been used in classwise timetable
 
