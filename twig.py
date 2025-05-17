@@ -161,6 +161,31 @@ def count_periods(teacher, timetable):
 
     return total_periods
 
+def count_periods_daywise(teacher, timetable):
+    period_count = {} # variable to hold daywise periods in a day
+    for day in [1, 2, 3, 4, 5, 6]:
+        period_count[day] = 0
+    
+    periods_daywise = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+
+    for period_info in timetable[teacher]:
+        column, class_name, days, subject = period_info # period_info is something like (1, 10A, 1-4, ENG)
+
+        days = expand_days(days)
+        # print(days)
+        # print(periods_daywise)
+
+        for day in days:
+            periods_daywise[day].append((column, day)) 
+
+
+        for day in days:
+            period_count[day] = len(set(periods_daywise[day]))    # remove duplicates
+
+
+    return period_count
+
+
 def get_formatted_time():
     # t = time.localtime()
     # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}"
@@ -474,7 +499,7 @@ def generate_teacherwise(workbook, context):
     timetable_teachers = timetable.keys()
     sorted_teachers = []
 
-    # check if there all teacher codes have associated full names
+    # check if every teacher code is associated with full name
     # and add teacher if his/her whose fullname is not written in the TEACHERS sheet.
     for teacher in teacher_names:   # for every teacher in TEACHERS sheet ...
         if teacher in timetable_teachers:   # keep teachers in the timetable and remove any extra teacher in TEACHERWISE
@@ -512,6 +537,11 @@ def generate_teacherwise(workbook, context):
                 output_sheet.cell(row, column).value = f"{class_name} ({days}) {subject}"
 
         output_sheet.cell(row, 10).value = total_periods[teacher]
+
+        
+        # write the daywise periods for each teacher
+        daywise_periods = count_periods_daywise(teacher, timetable)
+        output_sheet.cell(row, 11).value = repr(daywise_periods)[1:-1]
 
         row += 1                    # move to the next row
         # end for
