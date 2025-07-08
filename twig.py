@@ -392,10 +392,18 @@ def generate_teacherwise(workbook, context):
         print(f"Class: {class_name}... ", end="")
         for column in range(2, 10):
             content = input_sheet.cell(row, column).value
+            
             # skip empty cells in class timetable with a warning
             if not content:
                 warnings += 1
-                print(f"Warning: Cell {get_column_letter(column)}{row} is empty.")
+                print(f"Warning {warnings}: Cell {get_column_letter(column)}{row} is empty.")
+                continue
+
+            content = content.strip()
+            # use two or more #'s to mark a cell as commented
+            if content.startswith('##'):
+                warnings += 1
+                print(f"Warning {warnings}: Cell {get_column_letter(column)}{row} is commented and hence ignored.")
                 continue
 
             lines = content.split(SEPARATOR) # SEPARATOR is "\n" or ;
@@ -409,9 +417,9 @@ def generate_teacherwise(workbook, context):
                 m = p.match(line.upper())
                 if m is None:   # no match
                     # print(f"\nWarning: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue")
-                    print(f"Warning: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
-                    print("    >>> ", line)
                     warnings += 1
+                    print(f"Warning {warnings}: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
+                    print("    >>> ", line)
                     continue
 
                 subject, days, teacher = m.groups()
@@ -438,7 +446,7 @@ def generate_teacherwise(workbook, context):
                 pending_days = set([1, 2, 3, 4, 5, 6]) - set(days_assigned)
                 pending_days = list(pending_days)
 
-                print(f"Warning: {pending_days} days pending assignment in cell {get_column_letter(column)}{row}.")
+                print(f"Warning {warnings}: {pending_days} days pending assignment in cell {get_column_letter(column)}{row}.")
 
 
         # calculate the number of periods assigned to different subjects
