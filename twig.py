@@ -351,6 +351,9 @@ def clear_sheet(sheet):
 
     return
 
+def remove_comment(text):
+    return text.split('#')[0].strip()
+
 def generate_teacherwise(workbook, context):
     SEPARATOR = context['SEPARATOR']
 
@@ -410,7 +413,8 @@ def generate_teacherwise(workbook, context):
             
             days_assigned = []
             for line in lines:
-                line = line.strip()
+                line = remove_comment(line)
+                
                 if line == '' or line.startswith('#'):  # ignore empty lines and the ones starting with '#' -- used as comment
                     continue
 
