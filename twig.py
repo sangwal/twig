@@ -386,9 +386,18 @@ def generate_teacherwise(workbook, context):
     row = 2
     while True:
         class_name = input_sheet.cell(row, 1).value
+
         if not class_name:
             # we have reached the end of CLASSWISE sheet, so stop further processing
             break
+        
+        # 6A@L2G1 -- Level 2 Group 1
+        class_parts = class_name.split('@')
+        class_name = class_parts[0].strip()
+        if len(class_parts) == 2:
+            class_alias = class_parts[1].strip()
+        else:
+            class_alias = ''
 
         periods_assigned = {}   # subjectwise keep track of how many periods have been assigned
 
@@ -415,7 +424,7 @@ def generate_teacherwise(workbook, context):
             for line in lines:
                 line = remove_comment(line)
                 
-                if line == '' or line.startswith('#'):  # ignore empty lines and the ones starting with '#' -- used as comment
+                if line == '':  # ignore empty lines
                     continue
 
                 m = p.match(line.upper())
@@ -428,7 +437,11 @@ def generate_teacherwise(workbook, context):
 
                 subject, days, teacher = m.groups()
                 subject = subject.strip()
-                days_assigned.extend(expand_days(days))
+                try:
+                    days_assigned.extend(expand_days(days))
+                except:
+                    print(f"\nERROR: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue. Aborting...")
+                    exit(1)
 
                 if subject not in periods_assigned:
                     # periods_assigned[subject] = expand_days(days)
@@ -443,7 +456,11 @@ def generate_teacherwise(workbook, context):
                     timetable[teacher] = []
                 
                 period = column                     # column denotes "period"
-                timetable[teacher].append((period, class_name, days, subject))
+                
+                if class_alias != '':
+                    timetable[teacher].append((period, class_alias, days, subject))
+                else:
+                    timetable[teacher].append((period, class_name, days, subject))
 
             if set(days_assigned) != set([1, 2, 3, 4, 5, 6]):
                 warnings += 1
@@ -963,3 +980,4 @@ if __name__ == '__main__':
     endTime = time.time()
     print("Finished processing in %.3f seconds." % (endTime - startTime))
     print("Have a nice day!\n")
+
