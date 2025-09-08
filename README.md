@@ -87,10 +87,10 @@ Once all clashes have been removed, you may print the teacherwise timetable from
 Creating timetable is not a straight forward process; rather it is done step-by-step as follows:
 
 1. Make a few changes in the CLASSWISE sheet.
-2. Excel users close the workbook
+2. Excel users close the workbook (LibreOffice Calc users skip this step)
 3. run `twig.py` on it to generate the corresponding TEACHERWISE sheet
-4. Reopen the timetable file in Excel to see changes to the TEACHERWISE sheet
-3. Repeat above steps until we are satisfied with the timetable
+4. Excel users reopen the timetable file in Excel to see changes to the TEACHERWISE sheet (LibreOffice Calc users reload the file by File > Reload; shortcut ALT+F L)
+5. Repeat above steps until we are satisfied with the timetable
 
 ## Thanks
 
