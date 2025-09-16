@@ -63,7 +63,7 @@ from openpyxl.utils import get_column_letter
 # configuration variables before running the script
 
 expand_names = False    # set this to True to write full names of teachers
-
+MAX_PERIODS = 8       # maximum number of periods in a day
 
 # utility functions
 
@@ -160,31 +160,6 @@ def count_periods(teacher, timetable):
         total_periods += periods
 
     return total_periods
-
-def count_periods_daywise(teacher, timetable):
-    period_count = {} # variable to hold daywise periods in a day
-    for day in [1, 2, 3, 4, 5, 6]:
-        period_count[day] = 0
-    
-    periods_daywise = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
-
-    for period_info in timetable[teacher]:
-        column, class_name, days, subject = period_info # period_info is something like (1, 10A, 1-4, ENG)
-
-        days = expand_days(days)
-        # print(days)
-        # print(periods_daywise)
-
-        for day in days:
-            periods_daywise[day].append((column, day)) 
-
-
-        for day in days:
-            period_count[day] = len(set(periods_daywise[day]))    # remove duplicates
-
-
-    return period_count
-
 
 def get_formatted_time():
     # t = time.localtime()
@@ -351,9 +326,6 @@ def clear_sheet(sheet):
 
     return
 
-def remove_comment(text):
-    return text.split('#')[0].strip()
-
 def generate_teacherwise(workbook, context):
     SEPARATOR = context['SEPARATOR']
 
@@ -386,62 +358,40 @@ def generate_teacherwise(workbook, context):
     row = 2
     while True:
         class_name = input_sheet.cell(row, 1).value
-
         if not class_name:
             # we have reached the end of CLASSWISE sheet, so stop further processing
             break
-        
-        # 6A@L2G1 -- Level 2 Group 1
-        class_parts = class_name.split('@')
-        class_name = class_parts[0].strip()
-        if len(class_parts) == 2:
-            class_alias = class_parts[1].strip()
-        else:
-            class_alias = ''
 
         periods_assigned = {}   # subjectwise keep track of how many periods have been assigned
 
         print(f"Class: {class_name}... ", end="")
         for column in range(2, 10):
             content = input_sheet.cell(row, column).value
-            
             # skip empty cells in class timetable with a warning
             if not content:
                 warnings += 1
-                print(f"Warning {warnings}: Cell {get_column_letter(column)}{row} is empty.")
-                continue
-
-            content = content.strip()
-            # use two or more #'s to mark a cell as commented
-            if content.startswith('##'):
-                warnings += 1
-                print(f"Warning {warnings}: Cell {get_column_letter(column)}{row} is commented and hence ignored.")
+                print(f"Warning: Cell {get_column_letter(column)}{row} is empty.")
                 continue
 
             lines = content.split(SEPARATOR) # SEPARATOR is "\n" or ;
             
             days_assigned = []
             for line in lines:
-                line = remove_comment(line)
-                
-                if line == '':  # ignore empty lines
+                line = line.strip()
+                if line == '' or line.startswith('#'):  # ignore empty lines and the ones starting with '#' -- used as comment
                     continue
 
                 m = p.match(line.upper())
                 if m is None:   # no match
                     # print(f"\nWarning: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue")
-                    warnings += 1
-                    print(f"Warning {warnings}: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
+                    print(f"Warning: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
                     print("    >>> ", line)
+                    warnings += 1
                     continue
 
                 subject, days, teacher = m.groups()
                 subject = subject.strip()
-                try:
-                    days_assigned.extend(expand_days(days))
-                except:
-                    print(f"\nERROR: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue. Aborting...")
-                    exit(1)
+                days_assigned.extend(expand_days(days))
 
                 if subject not in periods_assigned:
                     # periods_assigned[subject] = expand_days(days)
@@ -456,18 +406,14 @@ def generate_teacherwise(workbook, context):
                     timetable[teacher] = []
                 
                 period = column                     # column denotes "period"
-                
-                if class_alias != '':
-                    timetable[teacher].append((period, class_alias, days, subject))
-                else:
-                    timetable[teacher].append((period, class_name, days, subject))
+                timetable[teacher].append((period, class_name, days, subject))
 
             if set(days_assigned) != set([1, 2, 3, 4, 5, 6]):
                 warnings += 1
                 pending_days = set([1, 2, 3, 4, 5, 6]) - set(days_assigned)
                 pending_days = list(pending_days)
 
-                print(f"Warning {warnings}: {pending_days} days pending assignment in cell {get_column_letter(column)}{row}.")
+                print(f"Warning: {pending_days} days pending assignment in cell {get_column_letter(column)}{row}.")
 
 
         # calculate the number of periods assigned to different subjects
@@ -528,7 +474,7 @@ def generate_teacherwise(workbook, context):
     timetable_teachers = timetable.keys()
     sorted_teachers = []
 
-    # check if every teacher code is associated with full name
+    # check if there all teacher codes have associated full names
     # and add teacher if his/her whose fullname is not written in the TEACHERS sheet.
     for teacher in teacher_names:   # for every teacher in TEACHERS sheet ...
         if teacher in timetable_teachers:   # keep teachers in the timetable and remove any extra teacher in TEACHERWISE
@@ -566,11 +512,6 @@ def generate_teacherwise(workbook, context):
                 output_sheet.cell(row, column).value = f"{class_name} ({days}) {subject}"
 
         output_sheet.cell(row, 10).value = total_periods[teacher]
-
-        
-        # write the daywise periods for each teacher
-        daywise_periods = count_periods_daywise(teacher, timetable)
-        output_sheet.cell(row, 11).value = repr(daywise_periods)[1:-1]
 
         row += 1                    # move to the next row
         # end for
@@ -871,6 +812,59 @@ def format_master_ws(ws):
     return
     # end format_master_ws()
 
+def generate_vacant_sheet(book, context):
+
+    VACANT_SHEET = "VACANT"
+
+    if "TEACHERWISE" not in book:
+        raise Exception('TEACHERWISE sheet not found. Stopping.')
+    
+    print(f"Writing vacant period info to {VACANT_SHEET} ...", end='')
+    input_sheet = book["TEACHERWISE"]
+    
+    # Load workbook and sheet
+    ws = input_sheet    # book["TEACHERWISE"]
+    wb = book           # openpyxl.load_workbook(filename)
+
+    # Create (or get) output sheet
+    if VACANT_SHEET in wb.sheetnames:
+        out_ws = wb[VACANT_SHEET]
+    else:
+        out_ws = wb.create_sheet(VACANT_SHEET)
+
+    # Loop over rows in TEACHERWISE
+    for row_idx, row in enumerate(ws.iter_rows(min_row=1, values_only=True), start=1):
+        if row_idx == 1:
+            # Header row
+            out_ws.cell(row=row_idx, column=1, value="Teacher")
+            for col in range(2, 8):
+                out_ws.cell(row=row_idx, column=col, value=col - 1)  # Days 1-6
+            continue
+        
+        data_str = row[10]  # 11th column (0-based index = 10)
+        
+        if not data_str:
+            continue  # skip empty cells
+
+        # copy teacher name in first column
+        out_ws.cell(row=row_idx, column=1, value=input_sheet.cell(row=row_idx, column=1).value)  # Teacher name
+
+        # Parse string into dictionary
+        data = {}
+        for item in data_str.split(","):
+            # print("item: ", item)
+            col, val = item.split(":")
+            data[int(col.strip())] = int(val.strip())
+
+        # Write into OUTPUT sheet (same row number)
+        for col, val in data.items():
+            out_ws.cell(row=row_idx, column=col+1, value=MAX_PERIODS - val)
+
+    print("done.")
+    print(f"Vacant periods data written to {VACANT_SHEET} sheet.")
+    return # generate_vacant_sheet()
+
+
 if __name__ == '__main__':
 
     ##########################################################
@@ -881,7 +875,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='twig.py', description='Generates teacherwise (or classwise) timetable from classwise (or teacherwise) timetable.')
     parser.version = '1.0'
 
-    parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
     parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
     parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n')
     parser.add_argument('-v', '--version', action='store_true', help='display version information')
@@ -891,15 +884,21 @@ if __name__ == '__main__':
 
     # Subcommand 'teacherwise'
     tw_parser = subparsers.add_parser("teacherwise", help="Generate teacherwise timetable")
+    tw_parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
     # start_parser.add_argument("-p", "--port", type=int, default=8080, help="Port to run the service on")
     tw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
 
     # Subcommand 'classwise'
     cw_parser = subparsers.add_parser("classwise", help="Generate classwise timetable")
-    # cw_parser.add_argument("-f", "--force", action="store_true", help="Force stop the service")
     cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
+
+    # subcommand 'vacant'
+    vacant_parser = subparsers.add_parser("vacant", help="show vacant periods for all teachers")
+    vacant_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     
+
+    # Subcommand 'diff'    
     diff_parser = subparsers.add_parser("diff", help="compare two timetables")
     diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
     diff_parser.add_argument("current", type=str, action="store", help="current timetable to be compared against base timetable")
@@ -907,12 +906,13 @@ if __name__ == '__main__':
     # Parse the arguments
     args = parser.parse_args()
 
+
     # print(args)
     if args.version:
-        print("twig.py: version 240901")
+        print("twig.py: version 20250916")
         exit(0)
 
-    expand_names = args.fullname    # True or False; default = False
+    expand_names = getattr(args, "fullname", False)    # True or False; default = False
 
     if not args.separator:
         SEPARATOR = "\n"    # multi-line separator
@@ -934,7 +934,7 @@ if __name__ == '__main__':
         'ARGS' : args
     }
 
-    if args.command in ['teacherwise', 'classwise']:
+    if args.command in ['teacherwise', 'classwise', 'vacant']:
         if not args.infile:
             filename = 'Timetable.xlsx'
         else:
@@ -957,11 +957,23 @@ if __name__ == '__main__':
         # Highlight possible clashes
         total_clashes = highlight_clashes(teacherwise_sheet, context)
 
+        # generate vacant periods sheet as well
+        generate_vacant_sheet(book, context)
+
+        # save the teacherwise timetable
         book.save(filename)
         print(f"Teacherwise timetable saved to TEACHERWISE sheet of '{filename}'.")
 
         print(f"Clashes: {total_clashes}")
         print(f"Warnings: {warnings}")
+
+    elif args.command == 'vacant':
+        # read teacherwise timetable and generate a vacant sheet
+        # containing number of vacant periods for every teacher on each day.
+        generate_vacant_sheet(book, context)
+        book.save(args.infile)
+        print(f"Vacant periods sheet saved to '{args.infile}'.")    
+
     elif args.command == 'diff':
         base = args.base
         current = args.current
@@ -980,4 +992,3 @@ if __name__ == '__main__':
     endTime = time.time()
     print("Finished processing in %.3f seconds." % (endTime - startTime))
     print("Have a nice day!\n")
-
