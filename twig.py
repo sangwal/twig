@@ -819,7 +819,7 @@ def generate_vacant_sheet(book, context):
     if "TEACHERWISE" not in book:
         raise Exception('TEACHERWISE sheet not found. Stopping.')
     
-    print(f"Writing vacant period info to {VACANT_SHEET} ...", end='')
+    print(f"Writing vacant period info to {VACANT_SHEET} sheet... ", end='')
     input_sheet = book["TEACHERWISE"]
     
     # Load workbook and sheet
@@ -861,7 +861,7 @@ def generate_vacant_sheet(book, context):
             out_ws.cell(row=row_idx, column=col+1, value=MAX_PERIODS - val)
 
     print("done.")
-    print(f"Vacant periods data written to {VACANT_SHEET} sheet.")
+    # print(f"Vacant periods data written to {VACANT_SHEET} sheet.")
     return # generate_vacant_sheet()
 
 
