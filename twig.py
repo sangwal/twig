@@ -856,7 +856,7 @@ def generate_vacant_sheet(book, context):
             col, val = item.split(":")
             data[int(col.strip())] = int(val.strip())
 
-        # Write into OUTPUT sheet (same row number)
+        # Write into VACANT sheet (same row number)
         for col, val in data.items():
             out_ws.cell(row=row_idx, column=col+1, value=MAX_PERIODS - val)
 
