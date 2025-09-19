@@ -859,7 +859,7 @@ def generate_adjustment_helper_sheet(timetable, context):
     if FREE_SHEET in book.sheetnames:
         ws = book[FREE_SHEET]
         # Clear previous content
-        for row in ws.iter_rows(min_row=1, max_row=MAX_PERIODS+2, min_col=1, max_col=9):
+        for row in ws.iter_rows(min_row=1, max_row=7, min_col=1, max_col=9):
             for cell in row:
                 cell.value = None
     else:
@@ -893,7 +893,20 @@ def generate_adjustment_helper_sheet(timetable, context):
                 busy_periods = teacher_busy_periods[teacher].get(day, set())
                 if period not in busy_periods:
                     free_teachers.append(teacher)
-            ws.cell(row=day+1, column=period+1, value=", ".join(sorted(free_teachers)))
+                # print(f"teacher {teacher}, day {day}, period {period} {busy_periods}")
+            # ws.cell(row=day+1, column=period+1, value=", ".join(sorted(free_teachers)))
+            # Sort free_teachers by number of free periods (descending)
+            free_teachers_sorted = sorted(
+                free_teachers,
+                key=lambda t: MAX_PERIODS - len(teacher_busy_periods[t].get(day, set())),
+                reverse=True
+            )
+            # Format as "teacher_code : number_of_free_periods"
+            formatted = [
+                f"{t}:{MAX_PERIODS - len(teacher_busy_periods[t].get(day, set()))}"
+                for t in free_teachers_sorted
+            ]
+            ws.cell(row=day+1, column=period+1, value=", ".join(formatted))
 
     print(f"Free teachers sheet written to '{FREE_SHEET}'.")
     return # generate_adjustment_helper_sheet()
