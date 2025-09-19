@@ -877,7 +877,7 @@ def generate_adjustment_helper_sheet(timetable, context):
     # Build a lookup: teacher -> day -> set of busy periods
     teacher_busy_periods = {}
     # timetable['AS'] equals
-    # 'AS': [(3, '11A', '3-6', 'PBI'), (4, '11A', '6', 'PBI'), (6, '11A', '2', 'ROT HIS'), (8, '11A', '5-6', 'PBI'), (9, '11A', '3-4', 'HIS'), (2, '11B', '2', 'PBI'), (5, '11B', '1', 'ROT NSQF-CG-WL'), (6, '11B', '5-6', 'PBI'), (7, '11B', '2-3, 6', 'PBI'), (9, '11B', '1', 'PBI'), (2, '12A', '1, 3-6', 'PBI'), (8, '12A', '2-3', 'PBI'), (4, '12B', '5', 'PBI'), (5, '12B', '3-6', 'PBI'), (8, '12B', '1, 4', 'PBI'), (9, '12B', '5', 'HIS')]
+    # 'AS': [(2, '11A', '3-6', 'PBI'), (3, '11A', '6', 'PBI'), (5, '11A', '2', 'ROT HIS'), (7, '11A', '5-6', 'PBI'), ...]
     for teacher in timetable:
         teacher_busy_periods[teacher] = {}
         for period_info in timetable[teacher]:
@@ -897,10 +897,6 @@ def generate_adjustment_helper_sheet(timetable, context):
 
     print(f"Free teachers sheet written to '{FREE_SHEET}'.")
     return # generate_adjustment_helper_sheet()
-
-
-if __name__ == '__main__':
-    main()
 
 def main():
     ##########################################################
@@ -941,7 +937,6 @@ def main():
 
     # Parse the arguments
     args = parser.parse_args()
-
 
     # print(args)
     if args.version:
@@ -1035,3 +1030,12 @@ def main():
     endTime = time.time()
     print("Finished processing in %.3f seconds." % (endTime - startTime))
     print("Have a nice day!\n")
+    
+    return warnings
+
+
+if __name__ == '__main__':
+    warnings = main()
+    if warnings:
+        exit(1)
+    exit(0)
