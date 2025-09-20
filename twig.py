@@ -27,7 +27,7 @@ import shutil       # copy file
 import openpyxl
 # import openpyxl.formatting
 from openpyxl.styles import Alignment, Border, Side
-import pandas as pd
+# import pandas as pd
 
 # change styles
 # alignment = Alignment(horizontal='general',
@@ -167,32 +167,76 @@ def get_formatted_time():
     # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}"
     return "Last updated on " + time.ctime()
 
+# def load_teacher_details(workbook, ws_name='TEACHERS'):
+#     """
+#         loads details of teachers from the TEACHERS sheet
+#         returns a dictionary of the form
+#             {teacher_code: {SHORTNAME: ..., NAME: ..., Post: ...,
+#     """
+
+#     MAX_FIELDS = 20
+
+#     # the sheet "TEACHERS" contains data about teacher in format
+#     # NUMBER SHORTNAME	NAME	Post	Gender	Incharge	Mobile	Email	Remarks
+    
+    
+#     if ws_name not in workbook:
+#         raise Exception(f"Sheet '{ws_name}' not found in the workbook.")
+    
+#     # using pandas for simplicity
+#     teacher_details = pd.read_excel(workbook.filename, sheet_name=ws_name)
+    
+#     teacher_details.set_index('SHORTNAME', inplace=True)
+#     teacher_details = teacher_details.to_dict(orient='index')
+    
+#     # Remove keys that start with '#' symbol
+
+#     # keep only keys that do not start with '#'
+#     teacher_details = {k: v for k, v in teacher_details.items() if not k.startswith('#')}
+
+#     return teacher_details
+
+# alternate implementation without using pandas
 def load_teacher_details(workbook, ws_name='TEACHERS'):
     """
         loads details of teachers from the TEACHERS sheet
         returns a dictionary of the form
-            {teacher_code: {SHORTNAME: ..., NAME: ..., Post: ...,
+            {teacher_code: {SHORTNAME: ..., NAME: ..., Post: ...}}
     """
-
-    MAX_FIELDS = 20
-
-    # the sheet "TEACHERS" contains data about teacher in format
-    # NUMBER SHORTNAME	NAME	Post	Gender	Incharge	Mobile	Email	Remarks
-    
-    
     if ws_name not in workbook:
         raise Exception(f"Sheet '{ws_name}' not found in the workbook.")
-    
-    # using pandas for simplicity
-    teacher_details = pd.read_excel(workbook.filename, sheet_name=ws_name)
-    
-    teacher_details.set_index('SHORTNAME', inplace=True)
-    teacher_details = teacher_details.to_dict(orient='index')
-    
-    # Remove keys that start with '#' symbol
 
-    # keep only keys that do not start with '#'
-    teacher_details = {k: v for k, v in teacher_details.items() if not k.startswith('#')}
+    ws = workbook[ws_name]
+    # Find header row (assume first row)
+    headers = []
+    for col in range(1, ws.max_column + 1):
+        val = ws.cell(row=1, column=col).value
+        if val is None:
+            break
+        headers.append(str(val).strip())
+
+    # Find index of SHORTNAME
+    try:
+        shortname_idx = headers.index('SHORTNAME')
+    except ValueError:
+        raise Exception("SHORTNAME column not found in TEACHERS sheet.")
+
+    teacher_details = {}
+    row = 2
+    while True:
+        shortname = ws.cell(row=row, column=shortname_idx + 1).value
+        if shortname is None or str(shortname).strip() == '':
+            break
+        shortname = str(shortname).strip()
+        if shortname.startswith('#'): # ignore entries starting with '#'
+            row += 1
+            continue
+        details = {}
+        for idx, header in enumerate(headers):
+            val = ws.cell(row=row, column=idx + 1).value
+            details[header] = val
+        teacher_details[shortname] = details
+        row += 1
 
     return teacher_details
 
