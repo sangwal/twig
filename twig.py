@@ -61,6 +61,18 @@ from openpyxl.utils import get_column_letter
 expand_names = False    # set this to True to write full names of teachers
 MAX_PERIODS = 8       # maximum number of periods in a day
 
+def get_config(item):
+    config = {
+        'SEPARATOR': '\n',   # separator between multiple entries in a cell
+        'ARGS': None,        # command line arguments
+        'book': None,       # workbook object
+    }
+
+    if item in config:
+        return config[item]
+    else:
+        return None
+
 # utility functions
 
 def escape_special_chars(c):
@@ -721,7 +733,7 @@ def generate_classwise(input_book, outfile, context):
 def get_teachers_in_cell(ws, cell_name):
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
     content = ws[cell_name].value
-    lines = content.split(SEPARATOR)
+    lines = content.split(get_config('SEPARATOR')) # SEPARATOR is "\n" or ;
     teachers = []
     for line in lines:
         line = line.strip()
