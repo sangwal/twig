@@ -20,14 +20,9 @@
 import argparse
 import re
 import time
-import os           # splitext()
-import sys
-import shutil       # copy file
-
 import openpyxl
-# import openpyxl.formatting
+
 from openpyxl.styles import Alignment, Border, Side
-# import pandas as pd
 
 # change styles
 # alignment = Alignment(horizontal='general',
@@ -555,7 +550,7 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     # end of write_teacherwise_sheet()
 
 
-def generate_classwise(input_book, outfile):
+def generate_classwise(input_book, outfile, context):
     """
         generate individual sheets for all classes to be printed for fixing in classrooms
     """
@@ -593,20 +588,32 @@ def generate_classwise(input_book, outfile):
     class_incharge = {}
     
     # some settings!!
-    FULLNAME_COLUMN = 2
-    GENDER_COLUMN = 5
-    INCHARGE_COLUMN = 6
+    # config
+    MAX_TEACHER_FIELDS = 12
+
+    # find the column indexes for fields in the TEACHERS sheet
+    column_index = {}
+    for col in range(1, MAX_TEACHER_FIELDS):
+        cell_value = teachers_sheet.cell(1, col).value
+        if cell_value is None or cell_value == '':
+            break
+        cell_value = cell_value.strip()
+        column_index[cell_value] = col
+        
     
     row = 2
     while True:
-        teacher_code = teachers_sheet.cell(row, 1).value
+        teacher_code = teachers_sheet.cell(row, column_index['SHORTNAME']).value
         if teacher_code is None or teacher_code == '':
             break
-        klass = teachers_sheet.cell(row, INCHARGE_COLUMN).value
+        klass = teachers_sheet.cell(row, column_index['INCHARGE']).value
         if klass is not None:
             class_incharge[klass] = teacher_code
 
         row += 1
+
+    # print(class_incharge)
+    # exit(1)
 
     # copy/create templates for each class
     row = 2
@@ -650,10 +657,11 @@ def generate_classwise(input_book, outfile):
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
 
         # write name of the class in-charge as well
-        output_book[sheet_name].cell(2, 5).value = "Incharge: "
+        # output_book[sheet_name].cell(2, 5).value = "Incharge: "
         # if class_name in class_incharge:
         #     output_book[sheet_name].cell(2, 5).value += class_incharge[class_name]
         if class_name in class_incharge:
+            # print(teacher_details[class_incharge[class_name]])
             title = 'Ms' if teacher_details[class_incharge[class_name]]['GENDER'] == 'f' else 'Mr'
             output_book[sheet_name].cell(2, 5).value = f"Class In-charge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
         else:
@@ -668,8 +676,7 @@ def generate_classwise(input_book, outfile):
                 print(f"Warning: Cell {get_column_letter(column)}{row} is empty.")
                 continue
 
-            lines = content.split(SEPARATOR) # SEPARATOR is "\n" or ;
-            
+            lines = content.split(context['SEPARATOR']) # SEPARATOR is "\n" or ;
             
             for line in lines:
                 line = line.strip()
@@ -1034,7 +1041,7 @@ def main():
         print("done.")
 
     if args.command == 'classwise':
-        warnings = generate_classwise(book, args.outfile)
+        warnings = generate_classwise(book, args.outfile, context)
         print(f"Classwise timetables saved to '{args.outfile}'.")
         if warnings:
             print(f"Warnings: {warnings}")
