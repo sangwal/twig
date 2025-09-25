@@ -61,17 +61,47 @@ from openpyxl.utils import get_column_letter
 expand_names = False    # set this to True to write full names of teachers
 MAX_PERIODS = 8       # maximum number of periods in a day
 
-def get_config(item):
-    config = {
-        'SEPARATOR': '\n',   # separator between multiple entries in a cell
-        'ARGS': None,        # command line arguments
-        'book': None,       # workbook object
-    }
 
-    if item in config:
-        return config[item]
-    else:
+def singleton(cls):
+    instances = {}
+
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+    
+    return get_instance
+
+@singleton
+class Config:
+    _config = {}
+
+    def get_config(self, item):
+        if item in self._config:
+            return self._config[item]
         return None
+    
+    def set_config(self, item, value):
+        self._config[item] = value
+
+# CONFIG1 = Config()
+# CONFIG2 = Config()
+
+# print(CONFIG1 is CONFIG2)
+# exit(0)
+
+
+# def get_config(item):
+#     config = {
+#         'SEPARATOR': '\n',   # separator between multiple entries in a cell
+#         'ARGS': None,        # command line arguments
+#         'book': None,       # workbook object
+#     }
+
+#     if item in config:
+#         return config[item]
+#     else:
+#         return None
 
 # utility functions
 
@@ -695,7 +725,7 @@ def generate_classwise(input_book, outfile, context):
                 print(f"Warning: Cell {get_column_letter(column)}{row} is empty.")
                 continue
 
-            lines = content.split(context['SEPARATOR']) # SEPARATOR is "\n" or ;
+            lines = content.split(context['ARGS'].separator) # SEPARATOR is "\n" or ;
             
             for line in lines:
                 line = line.strip()
@@ -738,9 +768,10 @@ def generate_classwise(input_book, outfile, context):
     # end generate_classwise(filename)
 
 def get_teachers_in_cell(ws, cell_name):
+    config = Config()
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
     content = ws[cell_name].value
-    lines = content.split(get_config('SEPARATOR')) # SEPARATOR is "\n" or ;
+    lines = content.split(config.get_config('ARGS').separator) # SEPARATOR is "\n" or ;
     teachers = []
     for line in lines:
         line = line.strip()
@@ -1046,6 +1077,10 @@ def main():
     context = {
         'ARGS' : args
     }
+
+    config = Config()
+    config.set_config('ARGS', args)
+    config.set_config('SCHOOLNAME', "GSSS AMARPURA")
 
     if args.command in ['teacherwise', 'classwise', 'vacant']:
         if not args.infile:
