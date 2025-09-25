@@ -1,4 +1,4 @@
-#! python3
+#!python
 """
     twig.py -- TeacherWIse [timetable] Generator
     
@@ -255,7 +255,8 @@ def highlight_clashes(sheet, context):
         reads teacherwise timetable and highlights possible clashes
         by prepending **CLASH** to the offending cell
     """
-    SEPARATOR = context['SEPARATOR']
+    args = context['ARGS']
+    SEPARATOR = args.separator
     CLASH_MARK = '**CLASH** '
     total_clashes = 0
 
@@ -295,12 +296,12 @@ def highlight_clashes(sheet, context):
                     continue
                 class_name, days, subject = m.groups()
                 subject = subject.strip()
-                # try:
-                days = expand_days(days)
-                # except:
-                #     print(f"\nERROR: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) in 'Teacherwise' timetable has formatting issue")
-                #     # print(e)
-                #     exit(1)
+                try:
+                    days = expand_days(days)
+                except:
+                    print(f"\nERROR: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) in 'Teacherwise' timetable has formatting issue")
+                    print(f"content: {content}, line: {line}")
+                    exit(1)
                 
                 """
                     Ex 1:
@@ -369,11 +370,13 @@ def generate_teacherwise(workbook, context):
         context: dict containing configuration such as SEPARATOR and ARGS
 
     Returns:
-        warnings (int): Number of warnings generated while processing.
         timetable (dict): The generated timetable data structure.
+        warnings (int): Number of warnings generated while processing.
+        total_periods: total periods assigned to teachers
     """
-    SEPARATOR = context['SEPARATOR']
     args = context['ARGS']
+    SEPARATOR = args.separator
+    # print(args)
 
     if "CLASSWISE" not in workbook:
         raise Exception("CLASSWISE sheet not found. Stopping.")
@@ -396,7 +399,7 @@ def generate_teacherwise(workbook, context):
         input_sheet.cell(row=num_classes + 2, column=2).value = get_formatted_time()
 
     # Write teacherwise sheet
-    write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, SEPARATOR, args)
+    write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, context)
 
     return timetable, warnings, total_periods
     # end of generate_teacherwise()
@@ -513,7 +516,7 @@ def write_period_summary(sheet, row, periods_assigned):
     # end of write_period_summary()
 
 
-def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, SEPARATOR, args):
+def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, context):  # context has SEPARATOR, args
     """
     Create or update the TEACHERWISE sheet with the timetable data.
     """
@@ -536,6 +539,10 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     timetable_teachers = set(timetable.keys())
     sorted_teachers = [t for t in teacher_details if t in timetable_teachers]
     sorted_teachers.extend(t for t in timetable_teachers if t not in sorted_teachers)
+
+    args = context['ARGS']
+    expand_names = args.fullname
+    SEPARATOR = args.separator
 
     # Write each teacher's timetable
     row = 2
@@ -1022,12 +1029,12 @@ def main():
     expand_names = getattr(args, "fullname", False)    # True or False; default = False
 
     if not args.separator:
-        SEPARATOR = "\n"    # multi-line separator
+        args.separator = "\n"    # multi-line separator
     else:
-        SEPARATOR = args.separator
-        if SEPARATOR == '\\n':
-            SEPARATOR = '\n'
-        print(f"Using Separator '{escape_special_chars(SEPARATOR)}' ...")
+        # args.SEPARATOR = args.separator
+        if args.separator == '\\n':
+            args.separator = '\n'
+        print(f"Using Separator '{escape_special_chars(args.separator)}' ...")
 
     startTime = time.time()
 
@@ -1037,7 +1044,6 @@ def main():
         SEPARATOR = ';'
 
     context = {
-        'SEPARATOR' : SEPARATOR,
         'ARGS' : args
     }
 
