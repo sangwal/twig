@@ -1,4 +1,4 @@
-#!python
+
 """
     twig.py -- TeacherWIse [timetable] Generator
     
@@ -76,34 +76,14 @@ def singleton(cls):
 class Config:
     _config = {}
 
-    def get_config(self, item):
-        if item in self._config:
-            return self._config[item]
-        return None
+    def get(self, key: str, default=None):
+        # if item in self._config:
+        #     return self._config[item]
+        # return None
+        return self._config.get(key, default)
     
-    def set_config(self, item, value):
-        self._config[item] = value
-
-# CONFIG1 = Config()
-# CONFIG2 = Config()
-
-# print(CONFIG1 is CONFIG2)
-# exit(0)
-
-
-# def get_config(item):
-#     config = {
-#         'SEPARATOR': '\n',   # separator between multiple entries in a cell
-#         'ARGS': None,        # command line arguments
-#         'book': None,       # workbook object
-#     }
-
-#     if item in config:
-#         return config[item]
-#     else:
-#         return None
-
-# utility functions
+    def set(self, key: str, value):
+        self._config[key] = value
 
 def escape_special_chars(c):
     if c == '\n':
@@ -771,7 +751,10 @@ def get_teachers_in_cell(ws, cell_name):
     config = Config()
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
     content = ws[cell_name].value
-    lines = content.split(config.get_config('ARGS').separator) # SEPARATOR is "\n" or ;
+    if config.get('ARGS'):
+        lines = content.split(config.get('ARGS').separator) # SEPARATOR is "\n" or ;
+    else:
+        lines = content.split('\n') # SEPARATOR is "\n"
     teachers = []
     for line in lines:
         line = line.strip()
@@ -1079,8 +1062,8 @@ def main():
     }
 
     config = Config()
-    config.set_config('ARGS', args)
-    config.set_config('SCHOOLNAME', "GSSS AMARPURA")
+    config.set('ARGS', args)
+    config.set('SCHOOLNAME', "GSSS AMARPURA")
 
     if args.command in ['teacherwise', 'classwise', 'vacant']:
         if not args.infile:
