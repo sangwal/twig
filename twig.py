@@ -21,6 +21,7 @@
 import argparse
 import re
 import time
+import json # config settings file is in JSON format
 import openpyxl
 
 from openpyxl.styles import Alignment, Border, Side
@@ -53,6 +54,8 @@ from openpyxl.styles import PatternFill
 
 from openpyxl.utils import get_column_letter
 
+__version__ = '20250927'    # twig.py version YYYYMMDD
+
 # filename = 'C:\\Users\\acer\\Downloads\\CLASSWISE TIMETABLE 2022-23.xlsx'
 # filename = 'C:\\Users\\acer\\Documents\\classwise-timetable.xlsx'
 # output_filename = 'C:\\Users\\acer\\Documents\\TEACHERWISE TIMETABLE-tmp2.xlsx'
@@ -75,24 +78,52 @@ def singleton(cls):
 
 @singleton
 class Config:
-    _config = {}
+    # _config = {}
+
+    def __init__(self, *args, **kwargs):
+        self._config = {}
+        # print(args, kwargs)
+        
+        for arg in args:
+            self._load(arg)
+        # override with kwargs
+        for key in kwargs:
+            self._config[key] = kwargs[key]
+
+    def _load(self, filename):
+        try:
+            with open(filename, 'r') as f:
+                self._config |= json.load(f)    # merge with previously loaded config
+        except FileNotFoundError:
+            print(f"Warning: Configuration file '{filename}' not found. Using default settings.")
+        except json.JSONDecodeError as e:
+            print(f"Error: Failed to parse configuration file '{filename}': {e}")
+
+        return None # self._config
 
     def get(self, key: str, default=None):
-        # if item in self._config:
-        #     return self._config[item]
-        # return None
         return self._config.get(key, default)
     
     def set(self, key: str, value):
         self._config[key] = value
 
 def escape_special_chars(c):
-    if c == '\n':
-        c = '\\n'
-    elif c == '\t':
-        c = '\\t'
+    replacements = {
+        '\n': '\\n',
+        '\t': '\\t',
+        '\r': '\\r',
+        '\b': '\\b',
+        '\f': '\\f',
+        '\v': '\\v',
+        '\\': '\\\\',
+        '\'': '\\\'',
+        '\"': '\\"'
+    }
+    if c in replacements:
+        return replacements[c]
     return c
 
+# chatgpt version
 def expand_days(days):
     """
         Parameter
@@ -102,27 +133,51 @@ def expand_days(days):
             [1, 2, 3, 4, 5, 6]
     """
     ret = []
-    if days.find(',') >= 0:
-        groups = days.split(',')
-    else:
-        groups = [days]
-
-    for days in groups:
-        if days.find('-') >= 0:
-            start_day, end_day = days.split('-')
-            start_day = int(start_day)
-            end_day = int(end_day)
-
-            # swap if in reverse order: 6-4 is same as 4-6
+    for group in re.split(r',\s*', days):
+        if '-' in group:
+            start_day, end_day = map(int, group.split('-'))
             if end_day < start_day:
                 start_day, end_day = end_day, start_day
-
-            for i in range(start_day, end_day+1):
-                ret.append(i)
+            ret.extend(range(start_day, end_day + 1))
         else:
-            ret.append(int(days))
+            try:
+                ret.append(int(group))
+            except ValueError:
+                continue
     return ret
 
+# my version
+# def expand_days(days):
+#     """
+#         Parameter
+#             days : eg. "1-2, 3, 4-6"
+        
+#         Returns:
+#             [1, 2, 3, 4, 5, 6]
+#     """
+#     ret = []
+#     if days.find(',') >= 0:
+#         groups = days.split(',')
+#     else:
+#         groups = [days]
+
+#     for days in groups:
+#         if days.find('-') >= 0:
+#             start_day, end_day = days.split('-')
+#             start_day = int(start_day)
+#             end_day = int(end_day)
+
+#             # swap if in reverse order: 6-4 is same as 4-6
+#             if end_day < start_day:
+#                 start_day, end_day = end_day, start_day
+
+#             for i in range(start_day, end_day+1):
+#                 ret.append(i)
+#         else:
+#             ret.append(int(days))
+#     return ret
+
+# chatgpt version
 def compress_days(days):
     """
         Parameter:
@@ -131,29 +186,54 @@ def compress_days(days):
         Returns:
             a string of the form "1-3, 5-6"
     """
-    days = sorted(days)
-    ret = []
-    start = end = 0
-    for i in range(len(days) - 1):
-        if days[i + 1] - days[i] == 1:
-            continue
+    if not days:
+        return ""
+    days = sorted(set(days))
+    ranges = []
+    start = prev = days[0]
+    for day in days[1:]:
+        if day == prev + 1:
+            prev = day
         else:
-            end = i
-            if start == end:
-                s = f"{days[start]}"
-            else:
-                s = f"{days[start]}-{days[end]}"
-            ret.append(s)
-            start = i + 1
+            ranges.append(f"{start}-{prev}" if start != prev else f"{start}")
+            start = prev = day
+    ranges.append(f"{start}-{prev}" if start != prev else f"{start}")
+    return ", ".join(ranges)
 
-    end = i+1
-    if start == end:
-        ret.append(f"{days[start]}")
-    else:
-        ret.append(f"{days[start]}-{days[end]}")
+# my version
+#
+# def compress_days(days):
+#     """
+#         Parameter:
+#             days -- a list containing days in expanded form eg [1,2,3,5,6]
+        
+#         Returns:
+#             a string of the form "1-3, 5-6"
+#     """
+#     days = sorted(days)
+#     ret = []
+#     start = end = 0
+#     for i in range(len(days) - 1):
+#         if days[i + 1] - days[i] == 1:
+#             continue
+#         else:
+#             end = i
+#             if start == end:
+#                 s = f"{days[start]}"
+#             else:
+#                 s = f"{days[start]}-{days[end]}"
+#             ret.append(s)
+#             start = i + 1
 
-    retval =  ", ".join(ret)
-    return retval
+#     end = i+1
+#     if start == end:
+#         ret.append(f"{days[start]}")
+#     else:
+#         ret.append(f"{days[start]}-{days[end]}")
+
+#     retval =  ", ".join(ret)
+#     return retval
+
 
 # print(compress_days([1, 2, 3, 4, 5, 6]))
 # exit(0)
@@ -585,6 +665,8 @@ def generate_classwise(input_book, outfile, context):
         generate individual sheets for all classes to be printed for fixing in classrooms
     """
 
+    config = Config()
+
     master_sheet = None
 
     input_sheet = input_book['CLASSWISE']
@@ -598,7 +680,8 @@ def generate_classwise(input_book, outfile, context):
     if 'MASTER' not in output_book:
         master_sheet = output_book.create_sheet('MASTER')
 
-        master_sheet['A1'] = 'GSSS AMARPURA (FAZILKA)'
+        # write the header
+        master_sheet['A1'] = config.get('SCHOOLNAME')   # 'GSSS AMARPURA (FAZILKA)'
         master_sheet['A4'] = 'Mon'
         master_sheet['A5'] = 'Tue'
         master_sheet['A6'] = 'Wed'
@@ -1038,10 +1121,10 @@ def main():
 
     # print(args)
     if args.version:
-        print("twig.py: version 20250916")
+        print(f"twig.py: version {__version__} by Sunil Sangwal")
         exit(0)
 
-    expand_names = getattr(args, "fullname", False)    # True or False; default = False
+    # expand_names = getattr(args, "fullname", False)    # True or False; default = False
 
     if not args.separator:
         args.separator = "\n"    # multi-line separator
@@ -1053,18 +1136,34 @@ def main():
 
     startTime = time.time()
 
-    DEBUG = False
+    # load settings from twig.json file
+    CONFIG_FILE = 'twig.json'
+
+    config = Config(CONFIG_FILE)
+    print(f"Configuration loaded from {CONFIG_FILE}.")
+    
+    DEBUG = config.get('DEBUG')
+    print(f"Debug mode is {'ON' if DEBUG else 'OFF'}.")
+    warnings = 0
+
     if DEBUG:
-        filename = "Class-Wise(19-07-2023).xlsx"
-        SEPARATOR = ';'
+        filename = "timetable.xlsx" # input file
+        args.fullname = True
+        args.keepstamp = False
+        args.separator = '\n'
+        print("Configuration is: ")
+        print(config._config)
+
 
     context = {
         'ARGS' : args
     }
 
-    config = Config()
+
     config.set('ARGS', args)
-    config.set('SCHOOLNAME', "GSSS AMARPURA")
+    # config.set('SCHOOLNAME', "GSSS AMARPURA")
+
+    args.command = args.command.lower() if args.command else None
 
     if args.command in ['teacherwise', 'classwise', 'vacant']:
         if not args.infile:
