@@ -21,7 +21,8 @@
 import argparse
 import re
 import time
-import json # config settings file is in JSON format
+# import json # config settings file is in JSON format
+import configparser
 import openpyxl
 
 from openpyxl.styles import Alignment, Border, Side
@@ -65,47 +66,6 @@ __version__ = '20250927'    # twig.py version YYYYMMDD
 expand_names = False    # set this to True to write full names of teachers
 MAX_PERIODS = 8       # maximum number of periods in a day
 
-
-def singleton(cls):
-    instances = {}
-
-    def get_instance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    
-    return get_instance
-
-@singleton
-class Config:
-    # _config = {}
-
-    def __init__(self, *args, **kwargs):
-        self._config = {}
-        # print(args, kwargs)
-        
-        for arg in args:
-            self._load(arg)
-        # override with kwargs
-        for key in kwargs:
-            self._config[key] = kwargs[key]
-
-    def _load(self, filename):
-        try:
-            with open(filename, 'r') as f:
-                self._config |= json.load(f)    # merge with previously loaded config
-        except FileNotFoundError:
-            print(f"Warning: Configuration file '{filename}' not found. Using default settings.")
-        except json.JSONDecodeError as e:
-            print(f"Error: Failed to parse configuration file '{filename}': {e}")
-
-        return None # self._config
-
-    def get(self, key: str, default=None):
-        return self._config.get(key, default)
-    
-    def set(self, key: str, value):
-        self._config[key] = value
 
 def escape_special_chars(c):
     replacements = {
@@ -665,7 +625,8 @@ def generate_classwise(input_book, outfile, context):
         generate individual sheets for all classes to be printed for fixing in classrooms
     """
 
-    config = Config()
+    config = configparser.ConfigParser()
+    config.read('twig.ini')
 
     master_sheet = None
 
@@ -681,7 +642,7 @@ def generate_classwise(input_book, outfile, context):
         master_sheet = output_book.create_sheet('MASTER')
 
         # write the header
-        master_sheet['A1'] = config.get('SCHOOLNAME')   # 'GSSS AMARPURA (FAZILKA)'
+        master_sheet['A1'] = config['SCHOOL']['NAME']   # 'GSSS AMARPURA (FAZILKA)'
         master_sheet['A4'] = 'Mon'
         master_sheet['A5'] = 'Tue'
         master_sheet['A6'] = 'Wed'
@@ -701,7 +662,6 @@ def generate_classwise(input_book, outfile, context):
     class_incharge = {}
     
     # some settings!!
-    # config
     MAX_TEACHER_FIELDS = 12
 
     # find the column indexes for fields in the TEACHERS sheet
@@ -1136,13 +1096,14 @@ def main():
 
     startTime = time.time()
 
-    # load settings from twig.json file
-    CONFIG_FILE = 'twig.json'
+    # load settings from twig.ini file
+    CONFIG_FILE = 'twig.ini'
 
-    config = Config(CONFIG_FILE)
+    config = configparser.ConfigParser()
+    config.read(CONFIG_FILE)
     print(f"Configuration loaded from {CONFIG_FILE}.")
     
-    DEBUG = config.get('DEBUG')
+    DEBUG = config['app']['DEBUG']
     print(f"Debug mode is {'ON' if DEBUG else 'OFF'}.")
     warnings = 0
 
@@ -1151,17 +1112,15 @@ def main():
         args.fullname = True
         args.keepstamp = False
         args.separator = '\n'
-        print("Configuration is: ")
-        print(config._config)
+        # print("Configuration is: ")
+        # print(config._config)
 
 
     context = {
         'ARGS' : args
     }
 
-
-    config.set('ARGS', args)
-    # config.set('SCHOOLNAME', "GSSS AMARPURA")
+    config['app']['ARGS'] = args
 
     args.command = args.command.lower() if args.command else None
 
