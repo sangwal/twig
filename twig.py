@@ -21,8 +21,7 @@
 import argparse
 import re
 import time
-# import json # config settings file is in JSON format
-import configparser
+import configparser # now settings are in twig.ini
 import openpyxl
 
 from openpyxl.styles import Alignment, Border, Side
@@ -66,6 +65,47 @@ __version__ = '20250927'    # twig.py version YYYYMMDD
 expand_names = False    # set this to True to write full names of teachers
 MAX_PERIODS = 8       # maximum number of periods in a day
 
+def singleton(cls):
+    instances = {}
+
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+    
+    return get_instance
+
+@singleton
+class Config:
+    _config = {}
+
+    def __init__(self, *args, **kwargs):
+        Config._config = {}
+        # print(args, kwargs)
+        
+        for arg in args:
+            self._load(arg)
+        # override with kwargs
+        for key in kwargs:
+            self._config['app'][key] = kwargs[key]
+
+    def _load(self, filename):
+        config = configparser.ConfigParser()
+        config.read(filename)
+        Config._config = config
+        
+        return None # self._config
+
+    def get(self, key: str, default=None):
+        print(Config._config)
+        if Config._config['app'][key]:
+            return Config._config['app'][key]
+        else:
+            return default
+    
+    def set(self, key: str, value):
+        Config._config['app'][key] = value
+
 
 def escape_special_chars(c):
     replacements = {
@@ -106,37 +146,6 @@ def expand_days(days):
                 continue
     return ret
 
-# my version
-# def expand_days(days):
-#     """
-#         Parameter
-#             days : eg. "1-2, 3, 4-6"
-        
-#         Returns:
-#             [1, 2, 3, 4, 5, 6]
-#     """
-#     ret = []
-#     if days.find(',') >= 0:
-#         groups = days.split(',')
-#     else:
-#         groups = [days]
-
-#     for days in groups:
-#         if days.find('-') >= 0:
-#             start_day, end_day = days.split('-')
-#             start_day = int(start_day)
-#             end_day = int(end_day)
-
-#             # swap if in reverse order: 6-4 is same as 4-6
-#             if end_day < start_day:
-#                 start_day, end_day = end_day, start_day
-
-#             for i in range(start_day, end_day+1):
-#                 ret.append(i)
-#         else:
-#             ret.append(int(days))
-#     return ret
-
 # chatgpt version
 def compress_days(days):
     """
@@ -159,44 +168,6 @@ def compress_days(days):
             start = prev = day
     ranges.append(f"{start}-{prev}" if start != prev else f"{start}")
     return ", ".join(ranges)
-
-# my version
-#
-# def compress_days(days):
-#     """
-#         Parameter:
-#             days -- a list containing days in expanded form eg [1,2,3,5,6]
-        
-#         Returns:
-#             a string of the form "1-3, 5-6"
-#     """
-#     days = sorted(days)
-#     ret = []
-#     start = end = 0
-#     for i in range(len(days) - 1):
-#         if days[i + 1] - days[i] == 1:
-#             continue
-#         else:
-#             end = i
-#             if start == end:
-#                 s = f"{days[start]}"
-#             else:
-#                 s = f"{days[start]}-{days[end]}"
-#             ret.append(s)
-#             start = i + 1
-
-#     end = i+1
-#     if start == end:
-#         ret.append(f"{days[start]}")
-#     else:
-#         ret.append(f"{days[start]}-{days[end]}")
-
-#     retval =  ", ".join(ret)
-#     return retval
-
-
-# print(compress_days([1, 2, 3, 4, 5, 6]))
-# exit(0)
 
 def count_days(days):
     return len(set(expand_days(days)))
@@ -224,35 +195,6 @@ def get_formatted_time():
     # t = time.localtime()
     # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}"
     return "Last updated on " + time.ctime()
-
-# def load_teacher_details(workbook, ws_name='TEACHERS'):
-#     """
-#         loads details of teachers from the TEACHERS sheet
-#         returns a dictionary of the form
-#             {teacher_code: {SHORTNAME: ..., NAME: ..., Post: ...,
-#     """
-
-#     MAX_FIELDS = 20
-
-#     # the sheet "TEACHERS" contains data about teacher in format
-#     # NUMBER SHORTNAME	NAME	Post	Gender	Incharge	Mobile	Email	Remarks
-    
-    
-#     if ws_name not in workbook:
-#         raise Exception(f"Sheet '{ws_name}' not found in the workbook.")
-    
-#     # using pandas for simplicity
-#     teacher_details = pd.read_excel(workbook.filename, sheet_name=ws_name)
-    
-#     teacher_details.set_index('SHORTNAME', inplace=True)
-#     teacher_details = teacher_details.to_dict(orient='index')
-    
-#     # Remove keys that start with '#' symbol
-
-#     # keep only keys that do not start with '#'
-#     teacher_details = {k: v for k, v in teacher_details.items() if not k.startswith('#')}
-
-#     return teacher_details
 
 # alternate implementation without using pandas
 def load_teacher_details(workbook, ws_name='TEACHERS'):
@@ -1099,12 +1041,18 @@ def main():
     # load settings from twig.ini file
     CONFIG_FILE = 'twig.ini'
 
-    config = configparser.ConfigParser()
-    config.read(CONFIG_FILE)
+    config = Config(CONFIG_FILE)
+
     print(f"Configuration loaded from {CONFIG_FILE}.")
     
-    DEBUG = config['app']['DEBUG']
-    print(f"Debug mode is {'ON' if DEBUG else 'OFF'}.")
+    DEBUG = config.get('DEBUG')
+    if DEBUG == 'false':
+        DEBUG = False
+        # print("Debug mode is 'OFF'.")
+    else:
+        DEBUG = True
+        print("Debug mode is 'ON'.")
+    
     warnings = 0
 
     if DEBUG:
@@ -1112,15 +1060,10 @@ def main():
         args.fullname = True
         args.keepstamp = False
         args.separator = '\n'
-        # print("Configuration is: ")
-        # print(config._config)
-
 
     context = {
         'ARGS' : args
     }
-
-    config['app']['ARGS'] = args
 
     args.command = args.command.lower() if args.command else None
 
