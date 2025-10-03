@@ -65,6 +65,11 @@ __version__ = '20250927'    # twig.py version YYYYMMDD
 expand_names = False    # set this to True to write full names of teachers
 MAX_PERIODS = 8       # maximum number of periods in a day
 
+# config = configparser.ConfigParser()
+
+# config.read('twig.ini')
+# exit(0)
+
 def singleton(cls):
     instances = {}
 
@@ -541,7 +546,8 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     row = 2
     for teacher_code in sorted_teachers:
         if expand_names:
-            teacher_label = f"{teacher_details[teacher_code]['NAME']}, {teacher_code}" if teacher_code in teacher_details else teacher_code
+            teacher_label = f"{teacher_details[teacher_code]['NAME']}, {teacher_code}"  \
+                if teacher_code in teacher_details else teacher_code
         else:
             teacher_label = teacher_code
         output_sheet.cell(row, 1).value = teacher_label
@@ -915,7 +921,8 @@ def generate_vacant_sheet(book, context):
     # print(f"Vacant periods data written to {VACANT_SHEET} sheet.")
     return # generate_vacant_sheet()
 
-
+# FREE_TEACHERS sheet:
+# Teachers who are free on a particular day and period
 def generate_adjustment_helper_sheet(timetable, context):
     """
         generate a sheet to help in adjusting timetable
@@ -935,14 +942,17 @@ def generate_adjustment_helper_sheet(timetable, context):
     else:
         ws = book.create_sheet(FREE_SHEET)
 
+    ws.cell(row=1, column=2, value='Free Teachers Sheet')
+    FIRST_ROW = 2
+
     # Write header: periods on top
-    ws.cell(row=1, column=1, value="Day/Period")
+    ws.cell(row=FIRST_ROW, column=1, value="Day/Period")
     for period in range(1, MAX_PERIODS+1):
-        ws.cell(row=1, column=period+1, value=f"Period {period}")
+        ws.cell(row=FIRST_ROW, column=period+1, value=f"Period {period}")
 
     # Write days on left
     for day in range(1, 7):
-        ws.cell(row=day+1, column=1, value=f"Day {day}")
+        ws.cell(row=FIRST_ROW + day, column=1, value=f"Day {day}")
 
     # Build a lookup: teacher -> day -> set of busy periods
     teacher_busy_periods = {}
@@ -976,7 +986,10 @@ def generate_adjustment_helper_sheet(timetable, context):
                 f"{t}:{MAX_PERIODS - len(teacher_busy_periods[t].get(day, set()))}"
                 for t in free_teachers_sorted
             ]
-            ws.cell(row=day+1, column=period+1, value=", ".join(formatted))
+            ws.cell(row=day+FIRST_ROW, column=period+1, value=", ".join(formatted))
+
+    # Timestamp
+    ws.cell(row=FIRST_ROW + 7, column=2).value = get_formatted_time()
 
     print(f"Free teachers sheet written to '{FREE_SHEET}'.")
     return # generate_adjustment_helper_sheet()
