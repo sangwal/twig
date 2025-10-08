@@ -1024,72 +1024,8 @@ def verbose(msg, level=1):
         print(msg)
     return
 
-def main():
-    ##########################################################
-    #
-    # process command line arguments
-    #
-    #
-    parser = argparse.ArgumentParser(prog='twig.py', description='Generates teacherwise (or classwise) timetable from classwise (or teacherwise) timetable.')
-    parser.version = '1.0'
-
-    parser.add_argument('-i', '--config', action='store',
-        help='configuration file; default is twig.ini', default='twig.ini')
-    parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
-    parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n', default="\n")
-    parser.add_argument('-v', '--version', action='store_true', help='display version information')
-    parser.add_argument('-b', '--verbose', action='store_true', help='verbose output')
-
-    # Create a subparsers object
-    subparsers = parser.add_subparsers(dest="command", help="Subcommands")
-
-    # Subcommand 'teacherwise'
-    tw_parser = subparsers.add_parser("teacherwise", help="Generate teacherwise timetable")
-    tw_parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
-    tw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
-
-    # Subcommand 'classwise'
-    cw_parser = subparsers.add_parser("classwise", help="Generate classwise timetable")
-    cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
-    cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
-
-    # # subcommand 'vacant'
-    # vacant_parser = subparsers.add_parser("vacant", help="show vacant periods for all teachers")
-    # vacant_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
-    
-    # Subcommand 'diff'    
-    diff_parser = subparsers.add_parser("diff", help="compare two timetables")
-    diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
-    diff_parser.add_argument("current", type=str, action="store", help="current timetable to be compared against base timetable")
-
-    # Parse the arguments
-    args = parser.parse_args()
-
-    # print(args)
-    if args.version:
-        print(f"twig.py: version {__version__} by Sunil Sangwal")
-        exit(0)
-
-    # expand_names = getattr(args, "fullname", False)    # True or False; default = False
-
-    # if not args.separator:
-    #     args.separator = "\n"    # multi-line separator
-    # else:
-    #     # args.SEPARATOR = args.separator
-    #     if args.separator == '\\n':
-    #         args.separator = '\n'
-    verbose(f"Using Separator '{escape_special_chars(args.separator)}' ...")
-
-    startTime = time.time()
-
-    # load settings from twig.ini file
-    CONFIG_FILE = args.config # 'twig.ini'
-
-    # using pathlib (modern, recommended)
-    config_path = Path(CONFIG_FILE)
-    if not config_path.exists():
-        # create a default config file
-        DEFAULT_CONFIG = """[SCHOOL]
+def write_sample_config(filename):
+    DEFAULT_CONFIG = """[SCHOOL]
 SHORTNAME = AP
 NAME = Your School (District, State)
 ADDRESS = Your School Address Line 1
@@ -1156,14 +1092,83 @@ X = Lilac
 Y = Magnolia
 Z = Peony
 """
+    # print(f"Configuration file '{CONFIG_FILE}' not found. Creating a new one with default settings.")
+    with open(CONFIG_FILE, 'w') as config:
+        config.write("; Configuration file for twig.py\n")
+        config.write("; You can modify the settings as needed.\n\n")
+        config.write(DEFAULT_CONFIG)
+        config.close()
+        print(f"Default configuration written to '{CONFIG_FILE}'. You can modify it as needed and rerun the program.")
+
+def main():
+    ##########################################################
+    #
+    # process command line arguments
+    #
+    #
+    parser = argparse.ArgumentParser(prog='twig.py', description='Generates teacherwise (or classwise) timetable from classwise (or teacherwise) timetable.')
+    parser.version = '1.0'
+
+    parser.add_argument('-i', '--config', action='store',
+        help='configuration file; default is twig.ini', default='twig.ini')
+    parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
+    parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n', default="\n")
+    parser.add_argument('-v', '--version', action='store_true', help='display version information')
+    parser.add_argument('-b', '--verbose', action='store_true', help='verbose output')
+
+    # Create a subparsers object
+    subparsers = parser.add_subparsers(dest="command", help="Subcommands")
+
+    # Subcommand 'teacherwise'
+    tw_parser = subparsers.add_parser("teacherwise", help="Generate teacherwise timetable")
+    tw_parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
+    tw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+
+    # Subcommand 'classwise'
+    cw_parser = subparsers.add_parser("classwise", help="Generate classwise timetable")
+    cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+    cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
+
+    # # subcommand 'vacant'
+    # vacant_parser = subparsers.add_parser("vacant", help="show vacant periods for all teachers")
+    # vacant_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+    
+    # Subcommand 'diff'    
+    diff_parser = subparsers.add_parser("diff", help="compare two timetables")
+    diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
+    diff_parser.add_argument("current", type=str, action="store", help="current timetable to be compared against base timetable")
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # print(args)
+    if args.version:
+        print(f"twig.py: version {__version__} by Sunil Sangwal")
+        exit(0)
+
+    # expand_names = getattr(args, "fullname", False)    # True or False; default = False
+
+    # if not args.separator:
+    #     args.separator = "\n"    # multi-line separator
+    # else:
+    #     # args.SEPARATOR = args.separator
+    #     if args.separator == '\\n':
+    #         args.separator = '\n'
+    verbose(f"Using Separator '{escape_special_chars(args.separator)}' ...")
+
+    startTime = time.time()
+
+    # load settings from twig.ini file
+    CONFIG_FILE = args.config # 'twig.ini'
+
+    # using pathlib (modern, recommended)
+    config_path = Path(CONFIG_FILE)
+    if not config_path.exists():
+        # create a default config file
         print(f"Configuration file '{CONFIG_FILE}' not found. Creating a new one with default settings.")
-        with open(CONFIG_FILE, 'w') as config:
-            config.write("; Configuration file for twig.py\n")
-            config.write("; You can modify the settings as needed.\n\n")
-            config.write(DEFAULT_CONFIG)
-            config.close()
-            print(f"Default configuration written to '{CONFIG_FILE}'. You can modify it as needed and rerun the program.")
-            exit(0)
+        write_sample_config(CONFIG_FILE)
+        print(f"Sample configuration file '{CONFIG_FILE}' created. Please edit it as needed and run again.")
+        exit(1)
 
     print(f"Using configuration from {CONFIG_FILE}...")
 
@@ -1171,10 +1176,11 @@ Z = Peony
 
     
     DEBUG = config.get('DEBUG')
-    if DEBUG == 'true' or DEBUG == 'True' or DEBUG == '1':
+    if DEBUG.lower() == 'true' or DEBUG == '1':
         DEBUG = True
     else:
         DEBUG = False
+    verbose(f"DEBUG is {DEBUG}")
     
     warnings = 0
 
@@ -1202,6 +1208,8 @@ Z = Peony
         print("done.")
 
     if args.command == 'classwise':
+        verbose(f"Generating classwise timetable in '{args.outfile}' ...")
+        # read classwise timetable and generate classwise sheets
         warnings = generate_classwise(book, args.outfile, context)
         print(f"Classwise timetables saved to '{args.outfile}'.")
         if warnings:
@@ -1215,27 +1223,31 @@ Z = Peony
         teacherwise_sheet = book['TEACHERWISE']
         
         # Highlight possible clashes
+        verbose("Highlighting clashes ...", level=2)
         total_clashes = highlight_clashes(teacherwise_sheet, context)
 
         # generate vacant periods sheet as well
+        verbose("Generating vacant periods sheet ...", level=2)
         generate_vacant_sheet(book, context)
 
         # generate adjustment helper sheet as well
+        verbose("Generating adjustment helper sheet ...", level=2)
         generate_adjustment_helper_sheet(timetable, context)    # use timetable generated above
 
         # save the teacherwise timetable
+        verbose(f"Saving teacherwise timetable to '{filename}' ...")
         book.save(filename)
-        print(f"Teacherwise timetable saved to TEACHERWISE sheet of '{filename}'.")
+        verbose(f"Teacherwise timetable saved to TEACHERWISE sheet of '{filename}'.", level=2)
 
         print(f"Clashes: {total_clashes}")
         print(f"Warnings: {warnings}")
 
-    elif args.command == 'vacant':
-        # read teacherwise timetable and generate a vacant sheet
-        # containing number of vacant periods for every teacher on each day.
-        generate_vacant_sheet(book, context)
-        book.save(args.infile)
-        print(f"Vacant periods sheet saved to '{args.infile}'.")    
+    # elif args.command == 'vacant':
+    #     # read teacherwise timetable and generate a vacant sheet
+    #     # containing number of vacant periods for every teacher on each day.
+    #     generate_vacant_sheet(book, context)
+    #     book.save(args.infile)
+    #     print(f"Vacant periods sheet saved to '{args.infile}'.")    
 
     elif args.command == 'diff':
         base = args.base
@@ -1254,7 +1266,7 @@ Z = Peony
 
     endTime = time.time()
     print("Finished processing in %.3f seconds." % (endTime - startTime))
-    print("Have a nice day!\n")
+    verbose("Have a nice day!\n", level=2)
     
     return warnings
 
