@@ -23,7 +23,6 @@ import re
 import time
 import configparser # now settings are in twig.ini
 import openpyxl
-import os
 from pathlib import Path
 
 from openpyxl.styles import Alignment, Border, Side
@@ -604,8 +603,6 @@ def generate_classwise(input_book, outfile, context):
     """
 
     config = Config()
-    # config.read('twig.ini')
-    # print(config)
 
     master_sheet = None
 
@@ -653,9 +650,6 @@ def generate_classwise(input_book, outfile, context):
             break
         cell_value = cell_value.strip()
         column_index[cell_value] = col
-
-    # print(column_index)
-    # exit(0)
 
     # read the incharge details
     row = 2
@@ -1025,6 +1019,11 @@ def generate_adjustment_helper_sheet(timetable, context):
     print(f"Free teachers sheet written to '{FREE_SHEET}'.")
     return # generate_adjustment_helper_sheet()
 
+def verbose(msg, level=1):
+    if level > 1:
+        print(msg)
+    return
+
 def main():
     ##########################################################
     #
@@ -1034,10 +1033,12 @@ def main():
     parser = argparse.ArgumentParser(prog='twig.py', description='Generates teacherwise (or classwise) timetable from classwise (or teacherwise) timetable.')
     parser.version = '1.0'
 
-    parser.add_argument('-i', '--config', action='store', help='configuration file; default is twig.ini', default='twig.ini')
+    parser.add_argument('-i', '--config', action='store',
+        help='configuration file; default is twig.ini', default='twig.ini')
     parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
-    parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n')
+    parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n', default="\n")
     parser.add_argument('-v', '--version', action='store_true', help='display version information')
+    parser.add_argument('-b', '--verbose', action='store_true', help='verbose output')
 
     # Create a subparsers object
     subparsers = parser.add_subparsers(dest="command", help="Subcommands")
@@ -1052,11 +1053,10 @@ def main():
     cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
 
-    # subcommand 'vacant'
-    vacant_parser = subparsers.add_parser("vacant", help="show vacant periods for all teachers")
-    vacant_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+    # # subcommand 'vacant'
+    # vacant_parser = subparsers.add_parser("vacant", help="show vacant periods for all teachers")
+    # vacant_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     
-
     # Subcommand 'diff'    
     diff_parser = subparsers.add_parser("diff", help="compare two timetables")
     diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
@@ -1072,13 +1072,13 @@ def main():
 
     # expand_names = getattr(args, "fullname", False)    # True or False; default = False
 
-    if not args.separator:
-        args.separator = "\n"    # multi-line separator
-    else:
-        # args.SEPARATOR = args.separator
-        if args.separator == '\\n':
-            args.separator = '\n'
-        print(f"Using Separator '{escape_special_chars(args.separator)}' ...")
+    # if not args.separator:
+    #     args.separator = "\n"    # multi-line separator
+    # else:
+    #     # args.SEPARATOR = args.separator
+    #     if args.separator == '\\n':
+    #         args.separator = '\n'
+    verbose(f"Using Separator '{escape_special_chars(args.separator)}' ...")
 
     startTime = time.time()
 
