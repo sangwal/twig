@@ -392,12 +392,12 @@ def generate_teacherwise(workbook, context):
     # Build timetable (core logic moved to helper)
     num_classes, timetable, total_periods, warnings = load_timetable(input_sheet, SEPARATOR)
 
+    # Write teacherwise sheet
+    write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, context)
+
     # Update timestamp in CLASSWISE
     if not args.keepstamp:
         input_sheet.cell(row=num_classes + 2, column=2).value = get_formatted_time()
-
-    # Write teacherwise sheet
-    write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, context)
 
     return timetable, warnings, total_periods
     # end of generate_teacherwise()
@@ -559,6 +559,10 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
             output_sheet.cell(row, col).value = f"{existing}{SEPARATOR}{entry}" if existing else entry
 
         output_sheet.cell(row, 10).value = total_periods[teacher_code]
+
+        # write daywise period count for every teacher in K column (11th column)
+        # TODO:
+        
         row += 1
 
     # Timestamp
@@ -870,7 +874,7 @@ def format_master_ws(ws):
     # end format_master_ws()
 
 def generate_vacant_sheet(book, context):
-
+    return None
     VACANT_SHEET = "VACANT"
 
     if "TEACHERWISE" not in book:
@@ -897,8 +901,16 @@ def generate_vacant_sheet(book, context):
             for col in range(2, 8):
                 out_ws.cell(row=row_idx, column=col, value=col - 1)  # Days 1-6
             continue
-        
-        data_str = row[10]  # 11th column (0-based index = 10)
+        # ------ TODO: problematic code starts here -------
+        try:
+            data_str = row[10]  # 11th column (0-based index = 10)
+        except Exception as e:
+            continue
+            print(len(row), row)
+            print(e)
+            exit(0)
+
+        # -----end---- #
         
         if not data_str:
             continue  # skip empty cells
