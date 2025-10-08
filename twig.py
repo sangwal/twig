@@ -57,11 +57,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '20251010'    # twig.py version YYYYMMDD
-
-# filename = 'C:\\Users\\acer\\Downloads\\CLASSWISE TIMETABLE 2022-23.xlsx'
-# filename = 'C:\\Users\\acer\\Documents\\classwise-timetable.xlsx'
-# output_filename = 'C:\\Users\\acer\\Documents\\TEACHERWISE TIMETABLE-tmp2.xlsx'
+__version__ = '251010'    # twig.py version YYMMDD
 
 # configuration variables before running the script
 
@@ -88,19 +84,19 @@ class Config:
         config = configparser.ConfigParser()
         config.read(filename)
         Config._config = dict(config)  # convert to normal dictionary
-        print(Config._config)
+        # print(Config._config)
         
         return None # self._config
 
-    def get(self, key: str, default=None):
+    def get(self, key: str, section='APP', default=None):
         # print(Config._config)
-        if key in Config._config['APP']:
-            return Config._config['APP'][key]
+        if key in Config._config[section]:
+            return Config._config[section][key]
         else:
             return default
     
-    def set(self, key: str, value):
-        Config._config['APP'][key] = value
+    def set(self, key: str, value, section='APP'):
+        Config._config[section][key] = value
 
     def __repr__(self):
         return str(Config._config)
@@ -410,7 +406,7 @@ def generate_teacherwise(workbook, context):
 
     # Update timestamp in CLASSWISE
     if not args.keepstamp:
-        input_sheet.cell(row=num_classes + 2, column=2).value = get_formatted_time()
+        input_sheet.cell(row=num_classes + 2, column=2).value = "Last updated on " + get_formatted_time()
 
     # Write teacherwise sheet
     write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, context)
@@ -597,7 +593,7 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     
     # Timestamp
     if not args.keepstamp:
-        output_sheet.cell(row=len(sorted_teachers) + 2, column=2).value = get_formatted_time()
+        output_sheet.cell(row=len(sorted_teachers) + 2, column=2).value = "Last updated on " + get_formatted_time()
 
     # end of write_teacherwise_sheet()
 
@@ -625,7 +621,6 @@ def generate_classwise(input_book, outfile, context):
         master_sheet = output_book.create_sheet('MASTER')
 
         # write the header
-        master_sheet['A1'] = config['SCHOOL']['NAME']   # 'GSSS AMARPURA (FAZILKA)'
         master_sheet['A4'] = 'Mon'
         master_sheet['A5'] = 'Tue'
         master_sheet['A6'] = 'Wed'
@@ -640,6 +635,9 @@ def generate_classwise(input_book, outfile, context):
     else:
         master_sheet = output_book['MASTER']
     
+    # update school name irrespective of whether the sheet was newly created or already existed
+    master_sheet['A1'] = config.get('NAME', 'SCHOOL')   # 'GSSS AMARPURA (FAZILKA)'
+
     # read the names of incharges from the TEACHERS sheet
     teachers_sheet = input_book['TEACHERS']
     class_incharge = {}
@@ -675,9 +673,6 @@ def generate_classwise(input_book, outfile, context):
 
         row += 1
 
-    # print(class_incharge)
-    # exit(0)
-
     # copy/create templates for each class
     row = 2
     while True:
@@ -686,7 +681,6 @@ def generate_classwise(input_book, outfile, context):
             break
 
         # the following code effectively clears the sheet before writing any data
-
         if klass in output_book:
             # delete old one
             del output_book[klass]
@@ -698,13 +692,10 @@ def generate_classwise(input_book, outfile, context):
 
         row += 1
 
-    # output_book.save(outfile)
-
     # set up loops and process
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
 
     teacher_details = load_teacher_details(input_book)
-    # print(teacher_details)
     
     warnings = 0
     row = 2
@@ -1014,8 +1005,6 @@ def generate_adjustment_helper_sheet(timetable, context):
                 busy_periods = teacher_busy_periods[teacher].get(day, set())
                 if period not in busy_periods:
                     free_teachers.append(teacher)
-                # print(f"teacher {teacher}, day {day}, period {period} {busy_periods}")
-            # ws.cell(row=day+1, column=period+1, value=", ".join(sorted(free_teachers)))
             # Sort free_teachers by number of free periods (descending)
             free_teachers_sorted = sorted(
                 free_teachers,
@@ -1030,7 +1019,8 @@ def generate_adjustment_helper_sheet(timetable, context):
             ws.cell(row=day+FIRST_ROW, column=period+1, value=", ".join(formatted))
 
     # Timestamp
-    ws.cell(row=FIRST_ROW + 7, column=2).value = get_formatted_time()
+    if not context['ARGS'].keepstamp:
+        ws.cell(row=FIRST_ROW + 7, column=2).value = "Last updated on " +  get_formatted_time()
 
     print(f"Free teachers sheet written to '{FREE_SHEET}'.")
     return # generate_adjustment_helper_sheet()
@@ -1044,6 +1034,7 @@ def main():
     parser = argparse.ArgumentParser(prog='twig.py', description='Generates teacherwise (or classwise) timetable from classwise (or teacherwise) timetable.')
     parser.version = '1.0'
 
+    parser.add_argument('-i', '--config', action='store', help='configuration file; default is twig.ini', default='twig.ini')
     parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
     parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n')
     parser.add_argument('-v', '--version', action='store_true', help='display version information')
@@ -1054,7 +1045,6 @@ def main():
     # Subcommand 'teacherwise'
     tw_parser = subparsers.add_parser("teacherwise", help="Generate teacherwise timetable")
     tw_parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
-    # start_parser.add_argument("-p", "--port", type=int, default=8080, help="Port to run the service on")
     tw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
 
     # Subcommand 'classwise'
@@ -1093,7 +1083,7 @@ def main():
     startTime = time.time()
 
     # load settings from twig.ini file
-    CONFIG_FILE = 'twig.ini'
+    CONFIG_FILE = args.config # 'twig.ini'
 
     # using pathlib (modern, recommended)
     config_path = Path(CONFIG_FILE)
@@ -1118,7 +1108,7 @@ UDISE = 00000000000
 
 [PRINCIPAL]
 NAME = principal name
-DEGREE = DEGREE
+DEGREE = MA, B.Ed.
 DESIGNATION = Principal
 
 [GENERATED_BY]
