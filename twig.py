@@ -1025,6 +1025,7 @@ def verbose(msg, level=1):
     return
 
 def write_sample_config(filename):
+    CONFIG_FILE = filename
     DEFAULT_CONFIG = """[SCHOOL]
 SHORTNAME = AP
 NAME = Your School (District, State)
