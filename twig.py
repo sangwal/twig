@@ -23,6 +23,8 @@ import re
 import time
 import configparser # now settings are in twig.ini
 import openpyxl
+import os
+from pathlib import Path
 
 from openpyxl.styles import Alignment, Border, Side
 
@@ -54,7 +56,8 @@ from openpyxl.styles import PatternFill
 
 from openpyxl.utils import get_column_letter
 
-__version__ = '20250927'    # twig.py version YYYYMMDD
+
+__version__ = '20251010'    # twig.py version YYYYMMDD
 
 # filename = 'C:\\Users\\acer\\Downloads\\CLASSWISE TIMETABLE 2022-23.xlsx'
 # filename = 'C:\\Users\\acer\\Documents\\classwise-timetable.xlsx'
@@ -65,26 +68,13 @@ __version__ = '20250927'    # twig.py version YYYYMMDD
 expand_names = False    # set this to True to write full names of teachers
 MAX_PERIODS = 8       # maximum number of periods in a day
 
-# config = configparser.ConfigParser()
-
-# config.read('twig.ini')
-# exit(0)
-
-def singleton(cls):
-    instances = {}
-
-    def get_instance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    
-    return get_instance
-
-@singleton
 class Config:
     _config = {}
 
     def __init__(self, *args, **kwargs):
+        if len(Config._config) > 0:
+            # already initialized
+            return
         Config._config = {}
         # print(args, kwargs)
         
@@ -92,24 +82,28 @@ class Config:
             self._load(arg)
         # override with kwargs
         for key in kwargs:
-            self._config['app'][key] = kwargs[key]
+            self._config['APP'][key] = kwargs[key]
 
     def _load(self, filename):
         config = configparser.ConfigParser()
         config.read(filename)
-        Config._config = config
+        Config._config = dict(config)  # convert to normal dictionary
+        print(Config._config)
         
         return None # self._config
 
     def get(self, key: str, default=None):
-        print(Config._config)
-        if Config._config['app'][key]:
-            return Config._config['app'][key]
+        # print(Config._config)
+        if key in Config._config['APP']:
+            return Config._config['APP'][key]
         else:
             return default
     
     def set(self, key: str, value):
-        Config._config['app'][key] = value
+        Config._config['APP'][key] = value
+
+    def __repr__(self):
+        return str(Config._config)
 
 
 def escape_special_chars(c):
@@ -189,18 +183,34 @@ def count_periods(teacher, timetable):
         period_count[column].extend(days)   # combine two lists
 
     total_periods = 0
-    
     for column in period_count:
         periods = len(set(period_count[column]))   # remove duplicates
         total_periods += periods
-
+    
     return total_periods
+
+def count_periods_daywise(teacher, timetable):
+    # Build mapping day -> set(periods) to avoid duplicate counting of same period on same day
+    teacher_timetable = timetable.get(teacher, [])
+    day_periods = {}
+    for period, _class, days, subject in teacher_timetable:
+        for day in expand_days(days):
+            day_periods.setdefault(day, set()).add(period)
+
+    # Return counts for days 1..6 (zero if no periods)
+    periods_daywise = {day: len(day_periods.get(day, set())) for day in range(1, 7)}
+
+    # print(f"Teacher {teacher}: periods daywise: {periods_daywise}")
+    return periods_daywise
 
 # def get_formatted_time():
 #     # t = time.localtime()
 #     # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}"
 #     return "Last updated on " + time.ctime()
 def get_formatted_time():
+    """
+        returns a cached time string
+    """
     if not hasattr(get_formatted_time, "_cached_time"):
         get_formatted_time._cached_time = time.ctime() # strftime("%H:%M:%S")
     return get_formatted_time._cached_time
@@ -243,6 +253,8 @@ def load_teacher_details(workbook, ws_name='TEACHERS'):
         details = {}
         for idx, header in enumerate(headers):
             val = ws.cell(row=row, column=idx + 1).value
+            if val is not None:
+                val = str(val).strip()
             details[header] = val
         teacher_details[shortname] = details
         row += 1
@@ -254,7 +266,7 @@ def get_class_number(_class):
 
 def highlight_clashes(sheet, context):
     """
-        reads teacherwise timetable and highlights possible clashes
+        reads teacherwise timetable from the TEACHERWISE sheet and highlights possible clashes
         by prepending **CLASH** to the offending cell
     """
     args = context['ARGS']
@@ -435,8 +447,19 @@ def load_timetable(input_sheet, SEPARATOR):
         class_name = input_sheet.cell(row, 1).value
         if not class_name:
             break  # no more rows
+        class_name = class_name.strip()
+        
+        if class_name.startswith("#"):
+            row += 1
+            continue  # skip commented rows
 
         print(f"Class: {class_name}... ", end="")
+        
+        # a space after the class name in the CLASSWISE sheet is ignored
+        # space after class name gave me a great deal of headache: 
+        # the incharge name was not being printed properly in the classwise sheets
+
+        input_sheet.cell(row, 1).value = class_name  # trim spaces
         periods_assigned = {}
 
         for column in range(2, 10):  # periods 1-8
@@ -533,7 +556,7 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     clear_sheet(output_sheet)
 
     # Header
-    header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods"]
+    header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods", "Periods Daywise"]
     for col, val in enumerate(header, start=1):
         output_sheet.cell(row=1, column=col).value = val
 
@@ -563,8 +586,15 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
             output_sheet.cell(row, col).value = f"{existing}{SEPARATOR}{entry}" if existing else entry
 
         output_sheet.cell(row, 10).value = total_periods[teacher_code]
-        row += 1
+        
+        # write the periods per day in the K column of TEACHERWISE sheet
+        periods_daywise = count_periods_daywise(teacher_code, timetable)
+        periods_daywise = repr(periods_daywise)[1:-1]
+        output_sheet.cell(row, 11).value = periods_daywise
 
+        row += 1 # the last line of the loop
+
+    
     # Timestamp
     if not args.keepstamp:
         output_sheet.cell(row=len(sorted_teachers) + 2, column=2).value = get_formatted_time()
@@ -577,8 +607,9 @@ def generate_classwise(input_book, outfile, context):
         generate individual sheets for all classes to be printed for fixing in classrooms
     """
 
-    config = configparser.ConfigParser()
-    config.read('twig.ini')
+    config = Config()
+    # config.read('twig.ini')
+    # print(config)
 
     master_sheet = None
 
@@ -624,21 +655,28 @@ def generate_classwise(input_book, outfile, context):
             break
         cell_value = cell_value.strip()
         column_index[cell_value] = col
-        
-    
+
+    # print(column_index)
+    # exit(0)
+
+    # read the incharge details
     row = 2
     while True:
         teacher_code = teachers_sheet.cell(row, column_index['SHORTNAME']).value
         if teacher_code is None or teacher_code == '':
             break
         klass = teachers_sheet.cell(row, column_index['INCHARGE']).value
-        if klass is not None:
+        
+        teacher_code = teacher_code.strip()
+        klass = klass.strip() if klass is not None else ''
+
+        if klass is not None and klass != '':
             class_incharge[klass] = teacher_code
 
         row += 1
 
     # print(class_incharge)
-    # exit(1)
+    # exit(0)
 
     # copy/create templates for each class
     row = 2
@@ -678,20 +716,15 @@ def generate_classwise(input_book, outfile, context):
         
         sheet_name = class_name
         # write class name
-        # print(output_book.worksheets)
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
 
-        # write name of the class in-charge as well
-        # output_book[sheet_name].cell(2, 5).value = "Incharge: "
-        # if class_name in class_incharge:
-        #     output_book[sheet_name].cell(2, 5).value += class_incharge[class_name]
+        # write incharge name    
         if class_name in class_incharge:
-            # print(teacher_details[class_incharge[class_name]])
-            title = 'Ms' if teacher_details[class_incharge[class_name]]['GENDER'] == 'f' else 'Mr'
-            output_book[sheet_name].cell(2, 5).value = f"Class In-charge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
+            title = 'Ms' if teacher_details[class_incharge[class_name]]['GENDER'] in ['f', 'F'] else 'Mr'
+            output_book[sheet_name].cell(2, 5).value = \
+                f"Class In-charge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
         else:
             output_book[sheet_name].cell(2, 5).value = "Class In-charge:" + '_' * 25    # leave space for writing name of the incharge
-        
 
         for column in range(2, 10):
             content = input_sheet.cell(row, column).value
@@ -913,9 +946,13 @@ def generate_vacant_sheet(book, context):
         # Parse string into dictionary
         data = {}
         for item in data_str.split(","):
-            # print("item: ", item)
-            col, val = item.split(":")
-            data[int(col.strip())] = int(val.strip())
+            try:
+                # print("item: ", item)
+                col, val = item.split(":")
+                data[int(col.strip())] = int(val.strip())
+            except Exception as e:
+                print(f"generate_vacant_sheet(): Runtime error: {e}")
+                continue
 
         # Write into VACANT sheet (same row number)
         for col, val in data.items():
@@ -1058,17 +1095,96 @@ def main():
     # load settings from twig.ini file
     CONFIG_FILE = 'twig.ini'
 
+    # using pathlib (modern, recommended)
+    config_path = Path(CONFIG_FILE)
+    if not config_path.exists():
+        # create a default config file
+        DEFAULT_CONFIG = """[SCHOOL]
+SHORTNAME = AP
+NAME = Your School (District, State)
+ADDRESS = Your School Address Line 1
+ADDRESS2 = Your School Address Line 2
+CITY = Your City
+STATE = Your State
+PIN = 000000
+PHONE = +91-0000-000000
+EMAIL = yourschoolname@gmail.com
+WEBSITE = www.yourschool.in
+LOGO = school_logo.png
+; MOTTO = 
+MOTTO_EN = Lead me from darkness to light
+AFFILIATION = XXXXXX
+UDISE = 00000000000
+
+[PRINCIPAL]
+NAME = principal name
+DEGREE = DEGREE
+DESIGNATION = Principal
+
+[GENERATED_BY]
+NAME = Sunil Sangwal
+EMAIL = sunil.sangwal@gmail.com
+WEBSITE = https://sangwal.in
+GITHUB = https://www.github.com/sangwal/twig.git
+
+; settings regarding Timetable or twig.py
+[APP]
+MAX_PERIODS = 8
+MAX_DAYS = 6
+OUTPUT_FILE = timetable.xlsx
+INPUT_FILE = timetable.xlsx
+LOG_FILE = timetable.log
+RANDOM_SEED = 42
+VERBOSE = true
+DEBUG = true
+
+[SECTION]
+A = Daisy
+B = Lotus
+C = Marigold
+D = Tulip
+E = Rose
+F = Sunflower
+G = Jasmine
+H = Hibiscus
+I = Orchid
+J = Lily
+K = Daffodil
+L = Poppy
+M = Iris
+N = Dahlia
+O = Carnation
+P = Chrysanthemum
+Q = Gardenia
+R = Azalea
+S = Begonia
+T = Camellia
+U = Freesia
+V = Gladiolus
+W = Hydrangea
+X = Lilac
+Y = Magnolia
+Z = Peony
+"""
+        print(f"Configuration file '{CONFIG_FILE}' not found. Creating a new one with default settings.")
+        with open(CONFIG_FILE, 'w') as config:
+            config.write("; Configuration file for twig.py\n")
+            config.write("; You can modify the settings as needed.\n\n")
+            config.write(DEFAULT_CONFIG)
+            config.close()
+            print(f"Default configuration written to '{CONFIG_FILE}'. You can modify it as needed and rerun the program.")
+            exit(0)
+
+    print(f"Using configuration from {CONFIG_FILE}...")
+
     config = Config(CONFIG_FILE)
 
-    print(f"Configuration loaded from {CONFIG_FILE}.")
     
     DEBUG = config.get('DEBUG')
-    if DEBUG == 'false':
-        DEBUG = False
-        # print("Debug mode is 'OFF'.")
-    else:
+    if DEBUG == 'true' or DEBUG == 'True' or DEBUG == '1':
         DEBUG = True
-        print("Debug mode is 'ON'.")
+    else:
+        DEBUG = False
     
     warnings = 0
 
