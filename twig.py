@@ -196,10 +196,14 @@ def count_periods(teacher, timetable):
 
     return total_periods
 
+# def get_formatted_time():
+#     # t = time.localtime()
+#     # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}"
+#     return "Last updated on " + time.ctime()
 def get_formatted_time():
-    # t = time.localtime()
-    # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}"
-    return "Last updated on " + time.ctime()
+    if not hasattr(get_formatted_time, "_cached_time"):
+        get_formatted_time._cached_time = time.ctime() # strftime("%H:%M:%S")
+    return get_formatted_time._cached_time
 
 # alternate implementation without using pandas
 def load_teacher_details(workbook, ws_name='TEACHERS'):
