@@ -1215,7 +1215,7 @@ def main():
     else:
         DEBUG = False
     verbose(f"DEBUG is {DEBUG}")
-    
+
     warnings = 0
 
     if DEBUG:
