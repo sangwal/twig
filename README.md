@@ -13,7 +13,9 @@ This file is information about `twig.py`, which generates teacherwise timetable 
 
 ## Getting the sources
 
-Source for `twig.py` can be downloaded from [here (https://github.com/sangwal/twig)](https://github.com/sangwal/twig). A sample timetable in MS Excel xlsx format can also be downloaded. Please note that you should not change the format of the classwise timetable; otherwise, `twig.py` may not understand what is going on in the timetable.
+Source for `twig.py` can be downloaded from [here (https://github.com/sangwal/twig)](https://github.com/sangwal/twig). A sample timetable in MS Excel xlsx format can also be downloaded. Please note that you should not change the format of the classwise timetable; otherwise, `twig.py` may not understand what is going on in the timetable. The first run of the twig.py will create twig.ini in the current directory. Modify this ini file to suit your needs, especially the SCHOOL NAME and re-run the program. This NAME is written to the sheets generated with 'classwise' subcommand of twig.py.
+
+Note: Currently not all settings have any effect on execution of twig.py. Future versions may need them.
 
 ## Setting up Environment
 
@@ -39,7 +41,7 @@ In the top most row we write the periods as `1, 2, 3, ..., 8` starting from the 
 
 ### Guidelines to enter classwise timetable
 
-Now you have to allot subjects to teachers on specific days and periods by filling in cells of the `CLASSWISE` sheet. We follow a set format `SUBJECT (DAYS) TEACHER` (e.g., `MATH (1-3, 5) SK`) format. Multiple lines can be inserted in a cell using `ALT+ENTER` (or `CTRL+ENTER`) combination. The `SUBJECT` can contain alphabets and hyphens. The `TEACHER` is usually a two letter short name (e.g., `SK` for `Sunil Kumar`) for a teacher. If you want to put two or more teachers in a class at the same time, you should enter one line for each teacher. Enter the whole classwise timetable following above guidelines. Now save the workbook by giving it a convenient name such as `Timetable.xlsx` and close the workbook.
+Now you have to allot subjects to teachers on specific days and periods by filling in cells of the `CLASSWISE` sheet. We follow a set format `SUBJECT (DAYS) TEACHER` (e.g., `MATH (1-3, 5) SK`) format. Multiple lines can be inserted in a cell using `ALT+ENTER` combination in MS Excel (or `CTRL+ENTER` in LibreCalc). The `SUBJECT` can contain alphabets and hyphens. The `TEACHER` is usually a two letter short name (e.g., `SK` for `Sunil Kumar`) for a teacher. If you want to put two or more teachers in a class at the same time, you should enter one line for each teacher. Enter the whole classwise timetable following above guidelines. Now save the workbook by giving it a convenient name such as `Timetable.xlsx` and close the workbook.
 
 Once the timetable has been entered for all the classes, you are ready to run `twig.py`.
 
@@ -48,11 +50,9 @@ Once the timetable has been entered for all the classes, you are ready to run `t
 The following lines show the usage syntax of `twig.py`.
 
 ```
-usage: python twig.py [-h] [-f] [-k] [-s SEPARATOR] [-v]
-               {teacherwise,classwise,diff} ...
+usage: twig.py [-h] [-i CONFIG] [-k] [-s SEPARATOR] [-v] [-b] {teacherwise,classwise,diff} ...
 
-Generates teacherwise (or classwise) timetable from classwise (or teacherwise)
-timetable.
+Generates teacherwise (or detailed classwise) timetable from concise classwise timetable in xlsx format.
 
 positional arguments:
   {teacherwise,classwise,diff}
@@ -63,24 +63,33 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -f, --fullname        replace short names with full names
+  -i, --config CONFIG   configuration file; default is twig.ini
   -k, --keepstamp       keep time stamp intact
-  -s SEPARATOR, --separator SEPARATOR
+  -s, --separator SEPARATOR
                         newline separator; default is \n
   -v, --version         display version information
+  -b, --verbose         verbose output
  
 ```
 
-Tip: Close the timetable worksheet before running `twig.py` if you are editing the file using using MS Excel. If you use LibreOffice Calc, you don't need to close the timetable worksheet.
+Tip: Close the timetable worksheet before running `twig.py` if you are editing the file using using MS Excel. If you use LibreOffice Calc, you don't need to close the timetable worksheet and remember to reload the file after processing with twig.py.
 
 Open the terminal window (run CMD in windows) and generate teacherwise timetable using the command:
 
-`python twig.py teacherwise Timetable.xlsx` [under Windows]
-`python3 twig.py teacherwise Timetable.xlsx` [under Linux]
+`python twig.py teacherwise -f Timetable.xlsx` [under Windows]
+`python3 twig.py teacherwise -f Timetable.xlsx` [under Linux]
 
-Its output will show clashes and warnings in the timetable on successful execution. The generated teacherwise timetable is stored in `TEACHERWISE` sheet of `Timetable.xlsx`. You may search for `**CLASH**` in the `TEACHERWISE` sheet which shows the days in which there are clashes. For example, if you see `**CLASH** [1, 4]` in a cell, it means on day 1 and 4, there are clashes. You now need to modify your classwise timetable to remove the clashes. Now close `Timetable.xlsx` in Excel and re-run `twig.py` to re-generate teacherwise timetable.
+Its output will show number of clashes and warnings in the timetable on successful execution. The generated teacherwise timetable is stored in `TEACHERWISE` sheet of `Timetable.xlsx`. You may search for `**CLASH**` in the `TEACHERWISE` sheet which shows the days in which there are clashes. For example, if you see `**CLASH** [1, 4]` in a cell, it means on day 1 and 4, there are clashes. You now need to modify your classwise timetable to remove the clashes. Now close `Timetable.xlsx` in Excel and re-run `twig.py` to re-generate teacherwise timetable.
 
 Once all clashes have been removed, you may print the teacherwise timetable from `TEACHERWISE` sheet of `Timetable.xlsx` after suitable formatting, such as resizing rows and columns to properly show their contents.
+
+# Generating detailed classwise sheets
+
+The command
+```
+    python twig.py classwise Timetable.xlsx classwise-tmp.xlsx
+```
+will generate classwise sheets for each of the classes the timetable and save all them in a separate file `classwise-tmp.xlsx'. (`-tmp` is just a reminder that it a temporary file and may be deleted once the sheets for all classes have been generated.)
 
 ## Typical workflow
 
@@ -94,6 +103,7 @@ Creating timetable is not a straight forward process; rather it is done step-by-
 
 ## Thanks
 
+I don't claim twig.py is a refined program. It surely contains bugs and may not work to your requirements. I developed it according to my requirements which may be obviously different from mine. It works for me and I hope it will be helpful to you also.
 In case you run into some issue, you may ask for help using my email [sunil.sangwal@gmail.com](mailto:sunil.sangwal@gmail.com).
 
 If you find `twig.py` useful, please consider buying me a cup of coffee by paying to my UPI address sunil.sangwal@okhdfcbank (Indian users).
