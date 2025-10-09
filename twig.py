@@ -912,7 +912,9 @@ def format_master_ws(ws):
     # end format_master_ws()
 
 def generate_vacant_sheet(book, context):
-
+    """
+        generates the VACANT sheet with number of free periods for each teacher on each day
+    """
     VACANT_SHEET = "VACANT"
 
     if "TEACHERWISE" not in book:
