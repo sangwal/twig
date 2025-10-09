@@ -596,11 +596,31 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
 
     # end of write_teacherwise_sheet()
 
+def get_user_input(valid_chars:str, prompt: str):
+    while True:
+        response = input(prompt)
+        if response in valid_chars:
+            return response
+        print("Invalid choice. Try again.")
+
+
+# print('Your choice: ', get_user_input('yYnNcC', 'y)es  n)o  c)ancel? '))
+# exit(0)
 
 def generate_classwise(input_book, outfile, context):
     """
         generate individual sheets for all classes to be printed for fixing in classrooms
     """
+
+    # check if outfile already exists. If it exists, prompt user for confirmation
+    outfile_path = Path(outfile)
+    if outfile_path.exists():
+        # outfile already exists
+        print(f"File {outfile} already exists.")
+        response = get_user_input('ynYN', 'Do you want to overwrite? y)es   n)o: ')
+        if response.lower() == 'n':    
+            print('Stopping prematurely. Re-run with other filename.')
+            exit(1)
 
     config = Config()
 
@@ -1024,7 +1044,8 @@ def generate_adjustment_helper_sheet(timetable, context):
     if not context['ARGS'].keepstamp:
         ws.cell(row=FIRST_ROW + 7, column=2).value = "Last updated on " +  get_formatted_time()
 
-    print(f"Free teachers sheet written to '{FREE_SHEET}'.")
+    verbose(f"Free teachers sheet written to '{FREE_SHEET}'.")
+
     return # generate_adjustment_helper_sheet()
 
 def verbose(msg, level=1):
@@ -1197,12 +1218,12 @@ def main():
         filename = "timetable.xlsx" # input file
         args.fullname = True
         args.keepstamp = False
-        args.separator = '\n'
+        # args.separator = '\n'
 
     context = {
         'ARGS' : args
     }
-
+ 
     args.command = args.command.lower() if args.command else None
 
     if args.command in ['teacherwise', 'classwise', 'vacant']:
@@ -1211,16 +1232,16 @@ def main():
         else:
             filename = args.infile
 
-        print(f"Reading CLASSWISE timetable from '{filename}'... ", end="")
+        verbose(f"Reading CLASSWISE timetable from '{filename}'... ", level=2)
         book = openpyxl.load_workbook(filename)
         book.filename = filename    # remember the filename
-        print("done.")
+        # print("done.")
 
     if args.command == 'classwise':
         verbose(f"Generating classwise timetable in '{args.outfile}' ...")
         # read classwise timetable and generate classwise sheets
         warnings = generate_classwise(book, args.outfile, context)
-        print(f"Classwise timetables saved to '{args.outfile}'.")
+        verbose(f"Classwise timetables saved to '{args.outfile}'.")
         if warnings:
             print(f"Warnings: {warnings}")
     elif args.command == 'teacherwise':
@@ -1232,31 +1253,31 @@ def main():
         teacherwise_sheet = book['TEACHERWISE']
         
         # Highlight possible clashes
-        verbose("Highlighting clashes ...", level=2)
+        verbose("Highlighting clashes ...",)
         total_clashes = highlight_clashes(teacherwise_sheet, context)
 
         # generate vacant periods sheet as well
-        verbose("Generating vacant periods sheet ...", level=2)
+        verbose("Generating vacant periods sheet 'VACANT' ...", level=2)
         generate_vacant_sheet(book, context)
 
         # generate adjustment helper sheet as well
-        verbose("Generating adjustment helper sheet ...", level=2)
+        verbose("Generating adjustment helper sheet 'FREE_TEACHERS' ...", level=2)
         generate_adjustment_helper_sheet(timetable, context)    # use timetable generated above
 
         # save the teacherwise timetable
         verbose(f"Saving teacherwise timetable to '{filename}' ...")
         book.save(filename)
-        verbose(f"Teacherwise timetable saved to TEACHERWISE sheet of '{filename}'.", level=2)
+        verbose(f"Teacherwise timetable saved to 'TEACHERWISE' sheet of '{filename}'.", level=2)
 
-        print(f"Clashes: {total_clashes}")
-        print(f"Warnings: {warnings}")
+        verbose(f"Clashes: {total_clashes}", level=2)
+        verbose(f"Warnings: {warnings}", level=2)
 
     # elif args.command == 'vacant':
     #     # read teacherwise timetable and generate a vacant sheet
     #     # containing number of vacant periods for every teacher on each day.
     #     generate_vacant_sheet(book, context)
     #     book.save(args.infile)
-    #     print(f"Vacant periods sheet saved to '{args.infile}'.")    
+    #     print(f"Vacant periods sheet saved to 'git {args.infile}'.")    
 
     elif args.command == 'diff':
         base = args.base
