@@ -77,6 +77,7 @@ Tip: Close the timetable worksheet before running `twig.py` if you are editing t
 Open the terminal window (run CMD in windows) and generate teacherwise timetable using the command:
 
 `python twig.py teacherwise -f Timetable.xlsx` [under Windows]
+
 `python3 twig.py teacherwise -f Timetable.xlsx` [under Linux]
 
 Its output will show number of clashes and warnings in the timetable on successful execution. The generated teacherwise timetable is stored in `TEACHERWISE` sheet of `Timetable.xlsx`. You may search for `**CLASH**` in the `TEACHERWISE` sheet which shows the days in which there are clashes. For example, if you see `**CLASH** [1, 4]` in a cell, it means on day 1 and 4, there are clashes. You now need to modify your classwise timetable to remove the clashes. Now close `Timetable.xlsx` in Excel and re-run `twig.py` to re-generate teacherwise timetable.
