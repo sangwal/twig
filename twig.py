@@ -920,7 +920,6 @@ def generate_vacant_sheet(book, context):
     if "TEACHERWISE" not in book:
         raise Exception('TEACHERWISE sheet not found. Stopping.')
     
-    print(f"Writing vacant period info to {VACANT_SHEET} sheet... ", end='')
     input_sheet = book["TEACHERWISE"]
     
     # Load workbook and sheet
@@ -975,9 +974,7 @@ def generate_vacant_sheet(book, context):
         for col, val in data.items():
             out_ws.cell(row=row_idx, column=col+1, value=MAX_PERIODS - val)
 
-    print("done.")
-    # print(f"Vacant periods data written to {VACANT_SHEET} sheet.")
-    return # generate_vacant_sheet()
+    return True # generate_vacant_sheet()
 
 # FREE_TEACHERS sheet:
 # Teachers who are free on a particular day and period
@@ -1257,7 +1254,7 @@ def main():
         teacherwise_sheet = book['TEACHERWISE']
         
         # Highlight possible clashes
-        verbose("Highlighting clashes ...",)
+        verbose("Highlighting clashes in 'TEACHERWISE' sheet ...",)
         total_clashes = highlight_clashes(teacherwise_sheet, context)
 
         # generate vacant periods sheet as well
