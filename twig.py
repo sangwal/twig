@@ -912,7 +912,7 @@ def format_master_ws(ws):
     # end format_master_ws()
 
 def generate_vacant_sheet(book, context):
-    return None
+
     VACANT_SHEET = "VACANT"
 
     if "TEACHERWISE" not in book:
@@ -931,13 +931,15 @@ def generate_vacant_sheet(book, context):
     else:
         out_ws = wb.create_sheet(VACANT_SHEET)
 
+    day_names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     # Loop over rows in TEACHERWISE
     for row_idx, row in enumerate(ws.iter_rows(min_row=1, values_only=True), start=1):
         if row_idx == 1:
             # Header row
             out_ws.cell(row=row_idx, column=1, value="Teacher")
             for col in range(2, 8):
-                out_ws.cell(row=row_idx, column=col, value=col - 1)  # Days 1-6
+                # write headers
+                out_ws.cell(row=row_idx, column=col, value=day_names[col - 1])  # Days 1-6
             continue
         # ------ TODO: problematic code starts here -------
         try:
