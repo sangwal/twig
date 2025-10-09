@@ -90,7 +90,7 @@ The command
 ```
     python twig.py classwise Timetable.xlsx classwise-tmp.xlsx
 ```
-will generate classwise sheets for each of the classes the timetable and save all them in a separate file `classwise-tmp.xlsx'. (`-tmp` is just a reminder that it a temporary file and may be deleted once the sheets for all classes have been generated.)
+will generate classwise sheets for each of the classes the timetable and save all them in a separate file `classwise-tmp.xlsx`. (`-tmp` is just a reminder that it a temporary file and may be deleted once the sheets for all classes have been generated.)
 
 ## Typical workflow
 
@@ -104,7 +104,7 @@ Creating timetable is not a straight forward process; rather it is done step-by-
 
 ## Thanks
 
-I don't claim twig.py is a refined program. It surely contains bugs and may not work to your requirements. I developed it according to my requirements which may be obviously different from mine. It works for me and I hope it will be helpful to you also.
+I don't claim `twig.py` is a refined program. It surely contains bugs and may not work to your requirements. I developed it according to my requirements which may be obviously different from mine. It works for me and I hope it will be helpful to you also.
 In case you run into some issue, you may ask for help using my email [sunil.sangwal@gmail.com](mailto:sunil.sangwal@gmail.com).
 
 If you find `twig.py` useful, please consider buying me a cup of coffee by paying to my UPI address sunil.sangwal@okhdfcbank (Indian users).
