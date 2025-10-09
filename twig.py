@@ -23,6 +23,7 @@ import re
 import time
 import configparser # now settings are in twig.ini
 import openpyxl
+from pathlib import Path
 
 from openpyxl.styles import Alignment, Border, Side
 
@@ -54,37 +55,21 @@ from openpyxl.styles import PatternFill
 
 from openpyxl.utils import get_column_letter
 
-__version__ = '20250927'    # twig.py version YYYYMMDD
 
-# filename = 'C:\\Users\\acer\\Downloads\\CLASSWISE TIMETABLE 2022-23.xlsx'
-# filename = 'C:\\Users\\acer\\Documents\\classwise-timetable.xlsx'
-# output_filename = 'C:\\Users\\acer\\Documents\\TEACHERWISE TIMETABLE-tmp2.xlsx'
+__version__ = '251010'    # twig.py version YYMMDD
 
 # configuration variables before running the script
 
 expand_names = False    # set this to True to write full names of teachers
 MAX_PERIODS = 8       # maximum number of periods in a day
 
-# config = configparser.ConfigParser()
-
-# config.read('twig.ini')
-# exit(0)
-
-def singleton(cls):
-    instances = {}
-
-    def get_instance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    
-    return get_instance
-
-@singleton
 class Config:
     _config = {}
 
     def __init__(self, *args, **kwargs):
+        if len(Config._config) > 0:
+            # already initialized
+            return
         Config._config = {}
         # print(args, kwargs)
         
@@ -92,24 +77,28 @@ class Config:
             self._load(arg)
         # override with kwargs
         for key in kwargs:
-            self._config['app'][key] = kwargs[key]
+            self._config['APP'][key] = kwargs[key]
 
     def _load(self, filename):
         config = configparser.ConfigParser()
         config.read(filename)
-        Config._config = config
+        Config._config = dict(config)  # convert to normal dictionary
+        # print(Config._config)
         
         return None # self._config
 
-    def get(self, key: str, default=None):
-        print(Config._config)
-        if Config._config['app'][key]:
-            return Config._config['app'][key]
+    def get(self, key: str, section='APP', default=None):
+        # print(Config._config)
+        if key in Config._config[section]:
+            return Config._config[section][key]
         else:
             return default
     
-    def set(self, key: str, value):
-        Config._config['app'][key] = value
+    def set(self, key: str, value, section='APP'):
+        Config._config[section][key] = value
+
+    def __repr__(self):
+        return str(Config._config)
 
 
 def escape_special_chars(c):
@@ -189,18 +178,34 @@ def count_periods(teacher, timetable):
         period_count[column].extend(days)   # combine two lists
 
     total_periods = 0
-    
     for column in period_count:
         periods = len(set(period_count[column]))   # remove duplicates
         total_periods += periods
-
+    
     return total_periods
+
+def count_periods_daywise(teacher, timetable):
+    # Build mapping day -> set(periods) to avoid duplicate counting of same period on same day
+    teacher_timetable = timetable.get(teacher, [])
+    day_periods = {}
+    for period, _class, days, subject in teacher_timetable:
+        for day in expand_days(days):
+            day_periods.setdefault(day, set()).add(period)
+
+    # Return counts for days 1..6 (zero if no periods)
+    periods_daywise = {day: len(day_periods.get(day, set())) for day in range(1, 7)}
+
+    # print(f"Teacher {teacher}: periods daywise: {periods_daywise}")
+    return periods_daywise
 
 # def get_formatted_time():
 #     # t = time.localtime()
 #     # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}"
 #     return "Last updated on " + time.ctime()
 def get_formatted_time():
+    """
+        returns a cached time string
+    """
     if not hasattr(get_formatted_time, "_cached_time"):
         get_formatted_time._cached_time = time.ctime() # strftime("%H:%M:%S")
     return get_formatted_time._cached_time
@@ -243,6 +248,8 @@ def load_teacher_details(workbook, ws_name='TEACHERS'):
         details = {}
         for idx, header in enumerate(headers):
             val = ws.cell(row=row, column=idx + 1).value
+            if val is not None:
+                val = str(val).strip()
             details[header] = val
         teacher_details[shortname] = details
         row += 1
@@ -254,7 +261,7 @@ def get_class_number(_class):
 
 def highlight_clashes(sheet, context):
     """
-        reads teacherwise timetable and highlights possible clashes
+        reads teacherwise timetable from the TEACHERWISE sheet and highlights possible clashes
         by prepending **CLASH** to the offending cell
     """
     args = context['ARGS']
@@ -401,7 +408,7 @@ def generate_teacherwise(workbook, context):
 
     # Update timestamp in CLASSWISE
     if not args.keepstamp:
-        input_sheet.cell(row=num_classes + 2, column=2).value = get_formatted_time()
+        input_sheet.cell(row=num_classes + 2, column=2).value = "Last updated on " + get_formatted_time()
 
     return timetable, warnings, total_periods
     # end of generate_teacherwise()
@@ -435,8 +442,19 @@ def load_timetable(input_sheet, SEPARATOR):
         class_name = input_sheet.cell(row, 1).value
         if not class_name:
             break  # no more rows
+        class_name = class_name.strip()
+        
+        if class_name.startswith("#"):
+            row += 1
+            continue  # skip commented rows
 
         print(f"Class: {class_name}... ", end="")
+        
+        # a space after the class name in the CLASSWISE sheet is ignored
+        # space after class name gave me a great deal of headache: 
+        # the incharge name was not being printed properly in the classwise sheets
+
+        input_sheet.cell(row, 1).value = class_name  # trim spaces
         periods_assigned = {}
 
         for column in range(2, 10):  # periods 1-8
@@ -533,7 +551,7 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     clear_sheet(output_sheet)
 
     # Header
-    header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods"]
+    header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods", "Periods Daywise"]
     for col, val in enumerate(header, start=1):
         output_sheet.cell(row=1, column=col).value = val
 
@@ -563,15 +581,18 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
             output_sheet.cell(row, col).value = f"{existing}{SEPARATOR}{entry}" if existing else entry
 
         output_sheet.cell(row, 10).value = total_periods[teacher_code]
-
-        # write daywise period count for every teacher in K column (11th column)
-        # TODO:
         
-        row += 1
+        # write the periods per day in the K column of TEACHERWISE sheet
+        periods_daywise = count_periods_daywise(teacher_code, timetable)
+        periods_daywise = repr(periods_daywise)[1:-1]
+        output_sheet.cell(row, 11).value = periods_daywise
 
+        row += 1 # the last line of the loop
+
+    
     # Timestamp
     if not args.keepstamp:
-        output_sheet.cell(row=len(sorted_teachers) + 2, column=2).value = get_formatted_time()
+        output_sheet.cell(row=len(sorted_teachers) + 2, column=2).value = "Last updated on " + get_formatted_time()
 
     # end of write_teacherwise_sheet()
 
@@ -581,8 +602,7 @@ def generate_classwise(input_book, outfile, context):
         generate individual sheets for all classes to be printed for fixing in classrooms
     """
 
-    config = configparser.ConfigParser()
-    config.read('twig.ini')
+    config = Config()
 
     master_sheet = None
 
@@ -598,7 +618,6 @@ def generate_classwise(input_book, outfile, context):
         master_sheet = output_book.create_sheet('MASTER')
 
         # write the header
-        master_sheet['A1'] = config['SCHOOL']['NAME']   # 'GSSS AMARPURA (FAZILKA)'
         master_sheet['A4'] = 'Mon'
         master_sheet['A5'] = 'Tue'
         master_sheet['A6'] = 'Wed'
@@ -613,6 +632,9 @@ def generate_classwise(input_book, outfile, context):
     else:
         master_sheet = output_book['MASTER']
     
+    # update school name irrespective of whether the sheet was newly created or already existed
+    master_sheet['A1'] = config.get('NAME', 'SCHOOL')   # 'GSSS AMARPURA (FAZILKA)'
+
     # read the names of incharges from the TEACHERS sheet
     teachers_sheet = input_book['TEACHERS']
     class_incharge = {}
@@ -628,21 +650,22 @@ def generate_classwise(input_book, outfile, context):
             break
         cell_value = cell_value.strip()
         column_index[cell_value] = col
-        
-    
+
+    # read the incharge details
     row = 2
     while True:
         teacher_code = teachers_sheet.cell(row, column_index['SHORTNAME']).value
         if teacher_code is None or teacher_code == '':
             break
         klass = teachers_sheet.cell(row, column_index['INCHARGE']).value
-        if klass is not None:
+        
+        teacher_code = teacher_code.strip()
+        klass = klass.strip() if klass is not None else ''
+
+        if klass is not None and klass != '':
             class_incharge[klass] = teacher_code
 
         row += 1
-
-    # print(class_incharge)
-    # exit(1)
 
     # copy/create templates for each class
     row = 2
@@ -652,7 +675,6 @@ def generate_classwise(input_book, outfile, context):
             break
 
         # the following code effectively clears the sheet before writing any data
-
         if klass in output_book:
             # delete old one
             del output_book[klass]
@@ -664,13 +686,10 @@ def generate_classwise(input_book, outfile, context):
 
         row += 1
 
-    # output_book.save(outfile)
-
     # set up loops and process
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
 
     teacher_details = load_teacher_details(input_book)
-    # print(teacher_details)
     
     warnings = 0
     row = 2
@@ -682,20 +701,15 @@ def generate_classwise(input_book, outfile, context):
         
         sheet_name = class_name
         # write class name
-        # print(output_book.worksheets)
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
 
-        # write name of the class in-charge as well
-        # output_book[sheet_name].cell(2, 5).value = "Incharge: "
-        # if class_name in class_incharge:
-        #     output_book[sheet_name].cell(2, 5).value += class_incharge[class_name]
+        # write incharge name    
         if class_name in class_incharge:
-            # print(teacher_details[class_incharge[class_name]])
-            title = 'Ms' if teacher_details[class_incharge[class_name]]['GENDER'] == 'f' else 'Mr'
-            output_book[sheet_name].cell(2, 5).value = f"Class In-charge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
+            title = 'Ms' if teacher_details[class_incharge[class_name]]['GENDER'] in ['f', 'F'] else 'Mr'
+            output_book[sheet_name].cell(2, 5).value = \
+                f"Class In-charge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
         else:
             output_book[sheet_name].cell(2, 5).value = "Class In-charge:" + '_' * 25    # leave space for writing name of the incharge
-        
 
         for column in range(2, 10):
             content = input_sheet.cell(row, column).value
@@ -925,9 +939,13 @@ def generate_vacant_sheet(book, context):
         # Parse string into dictionary
         data = {}
         for item in data_str.split(","):
-            # print("item: ", item)
-            col, val = item.split(":")
-            data[int(col.strip())] = int(val.strip())
+            try:
+                # print("item: ", item)
+                col, val = item.split(":")
+                data[int(col.strip())] = int(val.strip())
+            except Exception as e:
+                print(f"generate_vacant_sheet(): Runtime error: {e}")
+                continue
 
         # Write into VACANT sheet (same row number)
         for col, val in data.items():
@@ -989,8 +1007,6 @@ def generate_adjustment_helper_sheet(timetable, context):
                 busy_periods = teacher_busy_periods[teacher].get(day, set())
                 if period not in busy_periods:
                     free_teachers.append(teacher)
-                # print(f"teacher {teacher}, day {day}, period {period} {busy_periods}")
-            # ws.cell(row=day+1, column=period+1, value=", ".join(sorted(free_teachers)))
             # Sort free_teachers by number of free periods (descending)
             free_teachers_sorted = sorted(
                 free_teachers,
@@ -1005,10 +1021,93 @@ def generate_adjustment_helper_sheet(timetable, context):
             ws.cell(row=day+FIRST_ROW, column=period+1, value=", ".join(formatted))
 
     # Timestamp
-    ws.cell(row=FIRST_ROW + 7, column=2).value = get_formatted_time()
+    if not context['ARGS'].keepstamp:
+        ws.cell(row=FIRST_ROW + 7, column=2).value = "Last updated on " +  get_formatted_time()
 
     print(f"Free teachers sheet written to '{FREE_SHEET}'.")
     return # generate_adjustment_helper_sheet()
+
+def verbose(msg, level=1):
+    if level > 1:
+        print(msg)
+    return
+
+def write_sample_config(filename):
+    CONFIG_FILE = filename
+    DEFAULT_CONFIG = """[SCHOOL]
+SHORTNAME = AP
+NAME = Your School (District, State)
+ADDRESS = Your School Address Line 1
+ADDRESS2 = Your School Address Line 2
+CITY = Your City
+STATE = Your State
+PIN = 000000
+PHONE = +91-0000-000000
+EMAIL = yourschoolname@gmail.com
+WEBSITE = www.yourschool.in
+LOGO = school_logo.png
+; MOTTO = 
+MOTTO_EN = Lead me from darkness to light
+AFFILIATION = XXXXXX
+UDISE = 00000000000
+
+[PRINCIPAL]
+NAME = principal name
+DEGREE = MA, B.Ed.
+DESIGNATION = Principal
+
+[GENERATED_BY]
+NAME = Sunil Sangwal
+EMAIL = sunil.sangwal@gmail.com
+WEBSITE = https://sangwal.in
+GITHUB = https://www.github.com/sangwal/twig.git
+
+; settings regarding Timetable or twig.py
+[APP]
+MAX_PERIODS = 8
+MAX_DAYS = 6
+OUTPUT_FILE = timetable.xlsx
+INPUT_FILE = timetable.xlsx
+LOG_FILE = timetable.log
+RANDOM_SEED = 42
+VERBOSE = true
+DEBUG = true
+
+[SECTION]
+A = Daisy
+B = Lotus
+C = Marigold
+D = Tulip
+E = Rose
+F = Sunflower
+G = Jasmine
+H = Hibiscus
+I = Orchid
+J = Lily
+K = Daffodil
+L = Poppy
+M = Iris
+N = Dahlia
+O = Carnation
+P = Chrysanthemum
+Q = Gardenia
+R = Azalea
+S = Begonia
+T = Camellia
+U = Freesia
+V = Gladiolus
+W = Hydrangea
+X = Lilac
+Y = Magnolia
+Z = Peony
+"""
+    # print(f"Configuration file '{CONFIG_FILE}' not found. Creating a new one with default settings.")
+    with open(CONFIG_FILE, 'w') as config:
+        config.write("; Configuration file for twig.py\n")
+        config.write("; You can modify the settings as needed.\n\n")
+        config.write(DEFAULT_CONFIG)
+        config.close()
+        print(f"Default configuration written to '{CONFIG_FILE}'. You can modify it as needed and rerun the program.")
 
 def main():
     ##########################################################
@@ -1019,9 +1118,12 @@ def main():
     parser = argparse.ArgumentParser(prog='twig.py', description='Generates teacherwise (or classwise) timetable from classwise (or teacherwise) timetable.')
     parser.version = '1.0'
 
+    parser.add_argument('-i', '--config', action='store',
+        help='configuration file; default is twig.ini', default='twig.ini')
     parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
-    parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n')
+    parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n', default="\n")
     parser.add_argument('-v', '--version', action='store_true', help='display version information')
+    parser.add_argument('-b', '--verbose', action='store_true', help='verbose output')
 
     # Create a subparsers object
     subparsers = parser.add_subparsers(dest="command", help="Subcommands")
@@ -1029,7 +1131,6 @@ def main():
     # Subcommand 'teacherwise'
     tw_parser = subparsers.add_parser("teacherwise", help="Generate teacherwise timetable")
     tw_parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
-    # start_parser.add_argument("-p", "--port", type=int, default=8080, help="Port to run the service on")
     tw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
 
     # Subcommand 'classwise'
@@ -1037,11 +1138,10 @@ def main():
     cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
 
-    # subcommand 'vacant'
-    vacant_parser = subparsers.add_parser("vacant", help="show vacant periods for all teachers")
-    vacant_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+    # # subcommand 'vacant'
+    # vacant_parser = subparsers.add_parser("vacant", help="show vacant periods for all teachers")
+    # vacant_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     
-
     # Subcommand 'diff'    
     diff_parser = subparsers.add_parser("diff", help="compare two timetables")
     diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
@@ -1057,30 +1157,39 @@ def main():
 
     # expand_names = getattr(args, "fullname", False)    # True or False; default = False
 
-    if not args.separator:
-        args.separator = "\n"    # multi-line separator
-    else:
-        # args.SEPARATOR = args.separator
-        if args.separator == '\\n':
-            args.separator = '\n'
-        print(f"Using Separator '{escape_special_chars(args.separator)}' ...")
+    # if not args.separator:
+    #     args.separator = "\n"    # multi-line separator
+    # else:
+    #     # args.SEPARATOR = args.separator
+    #     if args.separator == '\\n':
+    #         args.separator = '\n'
+    verbose(f"Using Separator '{escape_special_chars(args.separator)}' ...")
 
     startTime = time.time()
 
     # load settings from twig.ini file
-    CONFIG_FILE = 'twig.ini'
+    CONFIG_FILE = args.config # 'twig.ini'
+
+    # using pathlib (modern, recommended)
+    config_path = Path(CONFIG_FILE)
+    if not config_path.exists():
+        # create a default config file
+        print(f"Configuration file '{CONFIG_FILE}' not found. Creating a new one with default settings.")
+        write_sample_config(CONFIG_FILE)
+        print(f"Sample configuration file '{CONFIG_FILE}' created. Please edit it as needed and run again.")
+        exit(1)
+
+    print(f"Using configuration from {CONFIG_FILE}...")
 
     config = Config(CONFIG_FILE)
 
-    print(f"Configuration loaded from {CONFIG_FILE}.")
     
     DEBUG = config.get('DEBUG')
-    if DEBUG == 'false':
-        DEBUG = False
-        # print("Debug mode is 'OFF'.")
-    else:
+    if DEBUG.lower() == 'true' or DEBUG == '1':
         DEBUG = True
-        print("Debug mode is 'ON'.")
+    else:
+        DEBUG = False
+    verbose(f"DEBUG is {DEBUG}")
     
     warnings = 0
 
@@ -1108,6 +1217,8 @@ def main():
         print("done.")
 
     if args.command == 'classwise':
+        verbose(f"Generating classwise timetable in '{args.outfile}' ...")
+        # read classwise timetable and generate classwise sheets
         warnings = generate_classwise(book, args.outfile, context)
         print(f"Classwise timetables saved to '{args.outfile}'.")
         if warnings:
@@ -1121,27 +1232,31 @@ def main():
         teacherwise_sheet = book['TEACHERWISE']
         
         # Highlight possible clashes
+        verbose("Highlighting clashes ...", level=2)
         total_clashes = highlight_clashes(teacherwise_sheet, context)
 
         # generate vacant periods sheet as well
+        verbose("Generating vacant periods sheet ...", level=2)
         generate_vacant_sheet(book, context)
 
         # generate adjustment helper sheet as well
+        verbose("Generating adjustment helper sheet ...", level=2)
         generate_adjustment_helper_sheet(timetable, context)    # use timetable generated above
 
         # save the teacherwise timetable
+        verbose(f"Saving teacherwise timetable to '{filename}' ...")
         book.save(filename)
-        print(f"Teacherwise timetable saved to TEACHERWISE sheet of '{filename}'.")
+        verbose(f"Teacherwise timetable saved to TEACHERWISE sheet of '{filename}'.", level=2)
 
         print(f"Clashes: {total_clashes}")
         print(f"Warnings: {warnings}")
 
-    elif args.command == 'vacant':
-        # read teacherwise timetable and generate a vacant sheet
-        # containing number of vacant periods for every teacher on each day.
-        generate_vacant_sheet(book, context)
-        book.save(args.infile)
-        print(f"Vacant periods sheet saved to '{args.infile}'.")    
+    # elif args.command == 'vacant':
+    #     # read teacherwise timetable and generate a vacant sheet
+    #     # containing number of vacant periods for every teacher on each day.
+    #     generate_vacant_sheet(book, context)
+    #     book.save(args.infile)
+    #     print(f"Vacant periods sheet saved to '{args.infile}'.")    
 
     elif args.command == 'diff':
         base = args.base
@@ -1160,7 +1275,7 @@ def main():
 
     endTime = time.time()
     print("Finished processing in %.3f seconds." % (endTime - startTime))
-    print("Have a nice day!\n")
+    verbose("Have a nice day!\n", level=2)
     
     return warnings
 
