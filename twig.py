@@ -16,13 +16,14 @@
 
     Written by Sunil Sangwal (sunil.sangwal@gmail.com)
     Date written: 20-Apr-2022
-    Last Modified: 10-Oct-2025
+    Last Modified: 14-Oct-2025
 """
 import argparse
 import re
 import time
 import configparser # now settings are in twig.ini
 import openpyxl
+import sys
 from pathlib import Path
 
 from openpyxl.styles import Alignment, Border, Side
@@ -310,7 +311,7 @@ def highlight_clashes(sheet, context):
                 except:
                     print(f"\nERROR: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) in 'Teacherwise' timetable has formatting issue")
                     print(f"content: {content}, line: {line}")
-                    exit(1)
+                    sys.exit(1)
                 
                 """
                     Ex 1:
@@ -605,7 +606,7 @@ def get_user_input(valid_chars:str, prompt: str):
 
 
 # print('Your choice: ', get_user_input('yYnNcC', 'y)es  n)o  c)ancel? '))
-# exit(0)
+# sys.exit(0)
 
 def generate_classwise(input_book, outfile, context):
     """
@@ -620,7 +621,7 @@ def generate_classwise(input_book, outfile, context):
         response = get_user_input('ynYN', 'Do you want to overwrite? y)es   n)o: ')
         if response.lower() == 'n':    
             print('Stopping prematurely. Re-run with other filename.')
-            exit(1)
+            sys.exit(1)
 
     config = Config()
 
@@ -660,11 +661,11 @@ def generate_classwise(input_book, outfile, context):
     class_incharge = {}
     
     # some settings!!
-    MAX_TEACHER_FIELDS = 12
+    MAX_TEACHER_FIELDS = teachers_sheet.max_column
 
     # find the column indexes for fields in the TEACHERS sheet
     column_index = {}
-    for col in range(1, MAX_TEACHER_FIELDS):
+    for col in range(1, MAX_TEACHER_FIELDS + 1):
         cell_value = teachers_sheet.cell(1, col).value
         if cell_value is None or cell_value == '':
             break
@@ -912,13 +913,14 @@ def format_master_ws(ws):
     # end format_master_ws()
 
 def generate_vacant_sheet(book, context):
-    return None
+    """
+        generates the VACANT sheet with number of free periods for each teacher on each day
+    """
     VACANT_SHEET = "VACANT"
 
     if "TEACHERWISE" not in book:
         raise Exception('TEACHERWISE sheet not found. Stopping.')
     
-    print(f"Writing vacant period info to {VACANT_SHEET} sheet... ", end='')
     input_sheet = book["TEACHERWISE"]
     
     # Load workbook and sheet
@@ -931,13 +933,15 @@ def generate_vacant_sheet(book, context):
     else:
         out_ws = wb.create_sheet(VACANT_SHEET)
 
+    day_names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     # Loop over rows in TEACHERWISE
     for row_idx, row in enumerate(ws.iter_rows(min_row=1, values_only=True), start=1):
         if row_idx == 1:
             # Header row
             out_ws.cell(row=row_idx, column=1, value="Teacher")
             for col in range(2, 8):
-                out_ws.cell(row=row_idx, column=col, value=col - 1)  # Days 1-6
+                # write headers
+                out_ws.cell(row=row_idx, column=col, value=day_names[col - 1])  # Days 1-6
             continue
         # ------ TODO: problematic code starts here -------
         try:
@@ -946,7 +950,7 @@ def generate_vacant_sheet(book, context):
             continue
             print(len(row), row)
             print(e)
-            exit(0)
+            sys.exit(0)
 
         # -----end---- #
         
@@ -971,9 +975,7 @@ def generate_vacant_sheet(book, context):
         for col, val in data.items():
             out_ws.cell(row=row_idx, column=col+1, value=MAX_PERIODS - val)
 
-    print("done.")
-    # print(f"Vacant periods data written to {VACANT_SHEET} sheet.")
-    return # generate_vacant_sheet()
+    return True # generate_vacant_sheet()
 
 # FREE_TEACHERS sheet:
 # Teachers who are free on a particular day and period
@@ -1174,7 +1176,7 @@ def main():
     # print(args)
     if args.version:
         print(f"twig.py: version {__version__} by Sunil Sangwal")
-        exit(0)
+        sys.exit(0)
 
     # expand_names = getattr(args, "fullname", False)    # True or False; default = False
 
@@ -1198,7 +1200,7 @@ def main():
         print(f"Configuration file '{CONFIG_FILE}' not found. Creating a new one with default settings.")
         write_sample_config(CONFIG_FILE)
         print(f"Sample configuration file '{CONFIG_FILE}' created. Please edit it as needed and run again.")
-        exit(1)
+        sys.exit(1)
 
     print(f"Using configuration from {CONFIG_FILE}...")
 
@@ -1211,7 +1213,7 @@ def main():
     else:
         DEBUG = False
     verbose(f"DEBUG is {DEBUG}")
-    
+
     warnings = 0
 
     if DEBUG:
@@ -1253,7 +1255,7 @@ def main():
         teacherwise_sheet = book['TEACHERWISE']
         
         # Highlight possible clashes
-        verbose("Highlighting clashes ...",)
+        verbose("Highlighting clashes in 'TEACHERWISE' sheet ...",)
         total_clashes = highlight_clashes(teacherwise_sheet, context)
 
         # generate vacant periods sheet as well
@@ -1291,7 +1293,7 @@ def main():
         print("twig.py -- timetable manipulation utility")
         print("Copyright (c) 2024 Sunil Sangwal <sunil.sangwal@gmail.com>")
         print("Type 'python twig.py -h' for more information.")
-        exit(0)
+        sys.exit(0)
         
 
     endTime = time.time()
@@ -1304,5 +1306,5 @@ def main():
 if __name__ == '__main__':
     warnings = main()
     if warnings:
-        exit(1)
-    exit(0)
+        sys.exit(1)
+    sys.exit(0)
