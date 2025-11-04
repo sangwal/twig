@@ -1,0 +1,2561 @@
+[Sheet: CLASSWISE]
+A1: [str] Period\\nClass
+B1: [int] 1
+C1: [int] 2
+D1: [int] 3
+E1: [int] 4
+F1: [int] 5
+G1: [int] 6
+H1: [int] 7
+I1: [int] 8
+J1: [str] Assigned
+K1: [str] To be assigned
+A2: [str] 6A
+B2: [str] MATH (1-6) RS
+C2: [str] MATH (2, 6) RS\nPBI (3-4) AB\nHI (1, 5) RL
+D2: [str] PE (3-4) DR\nENG (5) PR\nHI (1) RL\nSCI (6) VS\nSS (2) MB
+E2: [str] PBI (1-2) AB\nSCI (3-4) VS\nAG (5-6) RS
+F2: [str] CS (1-3, 6) SJ\nENG (4-5) PR
+G2: [str] ENG (1-2) PR\nSS (3-6) MB
+H2: [str] PBI (1-2) AB\nSCI (4-5) VS\nSS (6) MB\nAG (3) RS
+I2: [str] ENG (1) PR\nPE (2) DR\nENG (3-4) PR\nSCI (5) VS\nHI (6) RL
+J2: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+K2: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+A3: [str] 6B
+B3: [str] PBI (1-6) GK
+C3: [str] SS (1) MB\nMATH (2) SH\nPE (3) DR\nENG (4, 6) PR\nCS (5) JK
+D3: [str] ENG (1-2) PR\nMATH (3-6) SH
+E3: [str] ENG (1) PR\nHI (2) RL\nPE (3) DR\nSCI (6) SU\nMATH (4) SH\nCS (5) JK
+F3: [str] PE (1) DR\nSCI (2) SU\nENG (3) PR\nCS (4-5) JK\nHI (6) RL
+G3: [str] AG (1) RS\nSS (2) MB\nMATH (3-4) SH\nHI (5) RL\nSCI (6) SU
+H3: [str] AG (1, 5) MK\nSCI (2-4) SU\nHI (6) RL
+I3: [str] ENG (1-2) PR\nSS (3-6) MB
+J3: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+K3: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+A4: [str] 7A
+B4: [str] MATH (1-6) RN
+C4: [str] AG (1, 3) RI\nPBI (2, 4) GK\nENG (5-6) PS
+D4: [str] CS (1-2) JK\nENG (3) PS\nPBI (4-6) GK
+E4: [str] HI (1, 3) MA\nCS (2) JK\nSS (4) MB\nSCI (5) RI\nPBI (6) GK
+F4: [str] SS (1-2, 6) MB\nPE (3-4) DR\nHI (5) MA
+G4: [str] SCI (1-2) RI\nENG (3-6) PS
+H4: [str] ENG (1) PS\nSCI (2) RI\nCS (3) JK\nAG (4) RI\nMATH (5) RN\nPE (6) DR
+I4: [str] MATH (4) RN\nHI (3) MA\nSCI (5-6) RI\nSS (1-2) MB
+J4: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+K4: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+A5: [str] 7B
+B5: [str] ENG (1-6) PS
+C5: [str] AG (1) SU\nPBI (2) AB\nMATH (3-4) MK\nPE (5-6) DR
+D5: [str] SCI (3) SU\nCS (1-2) SJ\nPBI (4-5) AB\nAG (6) SU
+E5: [str] SCI (3) SU\nMATH (1, 4-6) MK\nHI (2) MA
+F5: [str] SS (1-2) SN\nMATH (3) MK\nHI (4, 6) MA\nPBI (5) AB
+G5: [str] SS (3, 5) SN\nSCI (2, 4) SU\nMATH (6) MK\nPBI (1) AB
+H5: [str] ENG (1-2) PS\nPE (4) DR\nSS (5-6) SN\nPBI (3) AB
+I5: [str] SCI (1-2) SU\nAG (3) SU\nCS (4-5) SJ\nHI (6) MA
+J5: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+K5: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+A6: [str] 8A
+B6: [str] MATH (1-6) SH
+C6: [str] ENG (1) SN\nAG (2) DR\nHI (3-4) MA\nPBI (5-6) AB\n
+D6: [str] AG (1) DR\nPBI (2-3) AB\nENG (4, 6) SN\nAG (5) DR
+E6: [str] ENG (1, 2) SN\nSS (3) PS\nPBI (4, 6) AB\nCS (5) SJ
+F6: [str] SS (1, 3-5) PS\nPE (2) DR\nENG (6) SN
+G6: [str] SS (1) PS\nSCI (2-5) VS\nENG (6) SN
+H6: [str] PE (2) DR\nSCI (3) VS\nENG (1) SN\nCS (4-6) SJ
+I6: [str] HI (1, 4) MA\nSCI (3) VS\nMATH (2, 6) SH\nPE (5) DR
+J6: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+K6: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+A7: [str] 8B
+B7: [str] SCI (1-6) RI
+C7: [str] HI (4) RL\nAG (1-2) RK\nENG (3, 5) SN\nMATH (6) RN
+D7: [str] ENG (1-2) SN\nHI (3-4) RL\nMATH (5) RN\nPE (6) DR
+E7: [str] PE (6) DR\nAG (1) RK\nCS (4) JK\nMATH (3, 5) RN\nSS (2) PY
+F7: [str] PBI (3) GK\nSS (5) PY\nMATH (1-2, 4) RN\nCS (6) JK
+G7: [str] HI (1) RL\nPBI (2-6) GK
+H7: [str] ENG (4) SN\nSS (1-3, 6) PY\nPE (5) DR
+I7: [str] CS (1, 4) JK\nMATH (2) RN\nENG (3, 5-6) SN
+J7: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+K7: [str] AG: 3, CS: 4, ENG: 8, HI: 4, MATH: 8, PBI: 6, PE: 3, SCI: 6, SS: 6, TOTAL: 48
+A8: [str] 9A
+B8: [str] ENG (1-4) PR\nCS (5-6) JK
+C8: [str] SS (1, 6) PY\nROT SCI (2) SU\nSCI (3-5) SU
+D8: [str] ROT MATH (1) RN\nHI (2) MA\nMATH (3) RN\nSCI (4) SU\nHI (5-6) MA\n
+E8: [str] ROT ENG (3) PR\nROT SS (6) RN\nSCI (5) SU\nMATH (1-2) RN\nSS (4) PY
+F8: [str] ROT NSQF-CG-YNV (6) RN\nPBI (1-4) AB\nMATH (5) RN
+G8: [str] IT (1-6) AR\nPLB (1-6) JP\nPE (1-6) RK
+H8: [str] MATH (2) RN\nHI (4-5) MA\nCS (6) JK\nENG (1, 3) PR
+I8: [str] SCI (4) SU\nCS (2) JK\nMATH (3) RN\nSS (1) PY\nPBI (5-6) AB
+J8: [str] CS: 4, ENG: 6, HI: 5, IT: 6, MATH: 6, PBI: 6, PE: 6, PLB: 6, ROT ENG: 1, ROT MATH: 1, ROT NSQF-CG-YNV: 1, ROT SCI: 1, ROT SS: 1, SCI: 6, SS: 4, TOTAL: 60
+K8: [str] CS: 4, ENG: 7, HI: 5, MATH: 7, PBI: 6, PE: 6, SCI: 7, SS: 5, WL: 1, TOTAL: 48
+A9: [str] 9B
+B9: [str] MATH (1-6) MK\n
+C9: [str] ROT SCI (2) RI\nENG (3-5) PY\nCS (1) SJ\nSCI (6) RI
+D9: [str] ROT MATH (1) MK\nENG (3) PY\nSCI (2) RI\nCS (4-6) SJ
+E9: [str] ROT ENG (3) SN\nROT SS (6) PS\nSCI (2, 4) RI\nENG (1) PY\nSS (5) PS
+F9: [str] ROT NSQF-CG-YNV (6) MK\nHI (1-5) RL
+G9: [str] IT (1-6) AR\nPLB (1-6) JP\nPE (1-6) RK
+H9: [str] PBI (1-5) GK\nSCI (6) RI
+I9: [str] SS (1, 5-6) PS\nPBI (2) GK\nENG (3) PY\nSCI (4) RI
+J9: [str] CS: 4, ENG: 6, HI: 5, IT: 6, MATH: 6, PBI: 6, PE: 6, PLB: 6, ROT ENG: 1, ROT MATH: 1, ROT NSQF-CG-YNV: 1, ROT SCI: 1, ROT SS: 1, SCI: 6, SS: 4, TOTAL: 60
+K9: [str] CS: 4, ENG: 7, HI: 5, MATH: 7, PBI: 6, PE: 6, SCI: 7, SS: 5, WL: 1, TOTAL: 48
+A10: [str] 9C
+B10: [str] SCI (1-6) VS
+C10: [str] ROT SCI (2) VS\nPBI (1, 5-6) GK\nMATH (3-4) RS
+D10: [str] ROT MATH (1) RS\nENG (2, 4-6) PY\nPBI (3) GK
+E10: [str] ROT ENG (3) PY\nHI (1, 4) RL\nMATH (2) RS\nSS (5) PY\nROT SS (6) PY
+F10: [str] ROT NSQF-CG-YNV (6) RS\nENG (1) PY\nSS (3-4) PY\nPBI (5) GK\nCS (2) JK
+G10: [str] IT (1-6) AR\nPLB (1-6) JP\nPE (1-6) RK
+H10: [str] HI (3-4) RL\nMATH (1-2) RS\nMATH (6) RS\nCS (5) JK
+I10: [str] ENG (2) PY\nHI (1) RL\nCS (3, 5) JK\nSS (4) PY\nPBI (6) GK
+J10: [str] CS: 4, ENG: 6, HI: 5, IT: 6, MATH: 6, PBI: 6, PE: 6, PLB: 6, ROT ENG: 1, ROT MATH: 1, ROT NSQF-CG-YNV: 1, ROT SCI: 1, ROT SS: 1, SCI: 6, SS: 4, TOTAL: 60
+K10: [str] CS: 4, ENG: 7, HI: 5, MATH: 7, PBI: 6, PE: 6, SCI: 7, SS: 5, WL: 1, TOTAL: 48
+A11: [str] 10A
+B11: [str] ENG (1-6) MB
+C11: [str] ROT MATH (1) MK\nROT ENG (6) MB\nHI (2) RL\nSCI (4) RI\nPBI (3) GK\nCS (5) SJ
+D11: [str] ROT SCI (5) RI\nSCI (1) RI\nPBI (2) GK\nSCI (3-4) RI\nSS (6) PR\n
+E11: [str] ROT NSQF-CG-YNV (2) MB\nROT SS (4) RK\nPBI (1, 3) GK\nHI (5) RL\nSCI (6) RI
+F11: [str] IT (1-6) AR\nPLB (1-6) JP\nPE (1-6) RK
+G11: [str] PBI (1) GK\nMATH (2-3) MK\nSCI (4) RI\nSS (5-6) PR
+H11: [str] HI (1-2, 5) RL\nMATH (3-4, 6) MK
+I11: [str] CS (1, 3, 6) SJ\nMATH (2) MK\nPBI (4) GK\nSS (5) PR
+J11: [str] CS: 4, ENG: 6, HI: 5, IT: 6, MATH: 6, PBI: 6, PE: 6, PLB: 6, ROT ENG: 1, ROT MATH: 1, ROT NSQF-CG-YNV: 1, ROT SCI: 1, ROT SS: 1, SCI: 6, SS: 4, TOTAL: 60
+K11: [str] CS: 4, ENG: 7, HI: 5, MATH: 7, PBI: 6, PE: 6, SCI: 7, SS: 5, WL: 1, TOTAL: 48
+A12: [str] 10B
+B12: [str] SCI (1-6) SU
+C12: [str] ROT MATH (1) RS\nROT ENG (6) RK\nCS (2-4) SJ\nENG (5) PR
+D12: [str] ROT SCI (5) SU\nHI (1) MA\nPBI (6) AB\nMATH (2) RS\nENG (3-4) PR
+E12: [str] ROT NSQF-CG-YNV (2) VS\nENG (5-6) PR\nMATH (3) RS\nROT SS (4) SN\nMATH (1) RS
+F12: [str] IT (1-6) AR\nPLB (1-6) JP\nPE (1-6) RK
+G12: [str] MATH (2, 5-6) RS\nSS (1) PY\nCS (3) SJ\nPBI (4) AB
+H12: [str] SS (5) PY\nHI (1-3) MA\nENG (4) PR\nPBI (6) AB
+I12: [str] PBI (1, 3-4) AB\nHI (2) MA\nSS (5-6) PY
+J12: [str] CS: 4, ENG: 6, HI: 5, IT: 6, MATH: 6, PBI: 6, PE: 6, PLB: 6, ROT ENG: 1, ROT MATH: 1, ROT NSQF-CG-YNV: 1, ROT SCI: 1, ROT SS: 1, SCI: 6, SS: 4, TOTAL: 60
+K12: [str] CS: 4, ENG: 7, HI: 5, MATH: 7, PBI: 6, PE: 6, SCI: 7, SS: 5, WL: 1, TOTAL: 48
+A13: [str] 10C
+B13: [str] PBI (1-6) AB
+C13: [str] ROT MATH (1) SH\nROT ENG (6) MA\nSS (2) PS\nCS (3-4) JK\nMATH (5) SH
+D13: [str] ROT SCI (5) VS\nSCI (1-4) VS\nENG (6) MB
+E13: [str] ROT NSQF-CG-YNV (2) RK\nROT SS (4) PS\nMATH (1, 3, 5-6) SH
+F13: [str] IT (1-6) AR\nPLB (1-6) JP\nPE (1-6) RK
+G13: [str] HI (1-4) MA\nCS (5-6) JK
+H13: [str] SCI (6) VS\nENG (1-5) MB
+I13: [str] MATH (1) SH\nSS (2-4) PS\nHI (5) MA\nSCI (6) VS
+J13: [str] CS: 4, ENG: 6, HI: 5, IT: 6, MATH: 6, PBI: 6, PE: 6, PLB: 6, ROT ENG: 1, ROT MATH: 1, ROT NSQF-CG-YNV: 1, ROT SCI: 1, ROT SS: 1, SCI: 6, SS: 4, TOTAL: 60
+K13: [str] CS: 4, ENG: 7, HI: 5, MATH: 7, PBI: 6, PE: 6, SCI: 7, SS: 5, WL: 1, TOTAL: 48
+A14: [str] 11A
+B14: [str] HIS (1, 3-6) MU\nMATH (1, 3-6) SK\nPOL (2) MR
+C14: [str] ENG (2) AA\nPBI (3-6) AS\nCS (1) JK
+D14: [str] IT (1-5) AR\nPLB (1-5) JP\nPE (1-5) MU\nPBI (6) AS
+E14: [str] ROT NSQF-CG-YNV (1) AR\nEVS-YNV (2) SH\nPOL (3-6) MR
+F14: [str] ROT ENG-IELTS (1) AS\nROT HIS (2) AS\nENG (4-6) AA\nCS (3) JK
+G14: [str] ROT POL (1) MR\nMATH (1) SK\nENG (4, 6) AA\nCS (2-3) JK\nPOL (5) MR
+H14: [str] IT (1-4) AR\nPLB (1-4) JP\nPE (1-4) MU\nPBI (5-6) AS
+I14: [str] HIS (3-4) AS\nHIS (5) SH\nMATH (3-5) SK\nENG (2) AA\nPOL (1, 6) MR
+J14: [str] CS: 4, ENG: 7, EVS-YNV: 1, HIS: 8, IT: 9, MATH: 9, PBI: 7, PE: 9, PLB: 9, POL: 8, ROT ENG-IELTS: 1, ROT HIS: 1, ROT NSQF-CG-YNV: 1, ROT POL: 1, TOTAL: 75
+K14: [str] CS: 4, ENG: 8, EVS: 1, HIS: 9, IT: 9, MATH: 9, PBI: 7, PE: 9, PLB: 9, POL: 9, WL: 1 TOTAL: 48
+A15: [str] 11B
+B15: [str] MATH (1, 3-6) SK\nPOL (1, 3-6) MR\nPBI (2) AS
+C15: [str] ENG (1-3, 5) AA\nHIS (4, 6) SN
+D15: [str] IT (1-5) AR\nPLB (1-5) JP\nPE (1-5) MU\nENG (6) AA
+E15: [str] ROT NSQF-CG-YNV (1) AS\nEVS-YNV (2) MK\nCS (3-4, 6) SJ\nHIS (5) SN
+F15: [str] ROT ENG-IELTS (1) AA\nROT HIS (2) VS\nHIS (3-4) SN\nPBI (5-6) AS
+G15: [str] ROT POL (1) RN\nMATH (1) SK\nPBI (2-3, 6) AS\nCS (4) SJ\nENG (5) AA
+H15: [str] IT (1-4) AR\nPLB (1-4) JP\nPE (1-4) MU\nHIS (5) RK\nENG (6) AA
+I15: [str] POL (3-5) MR\nMATH (3-5) SK\nPBI (1) AS\nHIS (2, 6) SK
+J15: [str] CS: 4, ENG: 7, EVS-YNV: 1, HIS: 8, IT: 9, MATH: 9, PBI: 7, PE: 9, PLB: 9, POL: 8, ROT ENG-IELTS: 1, ROT HIS: 1, ROT NSQF-CG-YNV: 1, ROT POL: 1, TOTAL: 75
+K15: [str] CS: 4, ENG: 8, EVS: 1, HIS: 9, IT: 9, MATH: 9, PBI: 7, PE: 9, PLB: 9, POL: 9, WL: 1 TOTAL: 48
+A16: [str] 12A
+B16: [str] PBI (1, 3-6) AS\nCS (2) SJ
+C16: [str] IT (1, 3-6) AR\nPLB (1, 3-6) JP\nPE (1, 3-6) MU\nHIS (2) MU\nMATH (2) SK
+D16: [str] POL (1-3) MR\nENG (4-5) AA\nHIS (6) MU\nMATH (6) SK
+E16: [str] ENG (2, 5-6) AA\nHIS (3-4) MU\nCS (1) SJ
+F16: [str] ROT ENG-IELTS (3) RI\nROT HIS (4) MK\nHIS (1-2, 5) MU\nMATH (1-2, 4-5) SK\nPOL (6) MR
+G16: [str] ROT MATH (2) SK\nROT NSQF-CG-YNV (5) DR\nPOL (3-4) MR\nMATH (4) SK\nEVS-YNV (1) MU\nCS (2, 6) SJ
+H16: [str] HIS (1) MR\nMATH (1) SK\nPBI (2-3) AS\nPOL (4-6) MR
+I16: [str] IT (1-4) AR\nPLB (1-4) JP\nPE (1-4) MU\nENG (5-6) AA
+J16: [str] CS: 4, ENG: 7, EVS-YNV: 1, HIS: 8, IT: 9, MATH: 8, PBI: 7, PE: 9, PLB: 9, POL: 9, ROT ENG-IELTS: 1, ROT HIS: 1, ROT MATH: 1, ROT NSQF-CG-YNV: 1, TOTAL: 75
+K16: [str] CS: 4, ENG: 8, EVS: 1, HIS: 9, IT: 9, MATH: 9, PBI: 7, PE: 9, PLB: 9, POL: 9, WL: 1 TOTAL: 48
+A17: [str] 12B
+B17: [str] ENG (1, 3-6) AA\nCS (2) JK
+C17: [str] IT (1, 3-6) AR\nPLB (1, 3-6) JP\nPE (1, 3-6) MU\nPOL (2) MR\nMATH (2) SK
+D17: [str] HIS (1-3) SK\nPBI (5) AS\nCS (4) JK\nPOL (6) MR\nMATH (6) SK
+E17: [str] POL (1-2) MR\nPBI (3-6) AS
+F17: [str] ROT ENG-IELTS (3) AA\nROT HIS (4) SH\nPOL (1-2, 5) MR\nMATH (1-2, 4-5) SK\nHIS (6) SK
+G17: [str] CS (1) JK\nROT MATH (2) SK\nPOL (2) MR\nROT NSQF-CG-YNV (5) MU\nEVS-YNV (4) RN\nMATH (4) SK\nHIS (3, 6) SK
+H17: [str] POL (6) MR\nMATH (1) SK\nPBI (1, 4) AS\nENG (2-3) AA\nHIS (5) SK
+I17: [str] IT (1-4) AR\nPLB (1-4) JP\nPE (1-4) MU\nHIS (5) AS\nCS (6) JK
+J17: [str] CS: 4, ENG: 7, EVS-YNV: 1, HIS: 8, IT: 9, MATH: 8, PBI: 7, PE: 9, PLB: 9, POL: 9, ROT ENG-IELTS: 1, ROT HIS: 1, ROT MATH: 1, ROT NSQF-CG-YNV: 1, TOTAL: 75
+K17: [str] CS: 4, ENG: 8, EVS: 1, HIS: 9, IT: 9, MATH: 9, PBI: 7, PE: 9, PLB: 9, POL: 9, WL: 1 TOTAL: 48
+B18: [str] Last updated on Wed Oct 22 00:01:56 2025
+---
+[Sheet: TEACHERWISE]
+A1: [str] Name
+B1: [int] 1
+C1: [int] 2
+D1: [int] 3
+E1: [int] 4
+F1: [int] 5
+G1: [int] 6
+H1: [int] 7
+I1: [int] 8
+J1: [str] Periods
+K1: [str] Periods Daywise
+A2: [str] Amit Arora, AA
+B2: [str] 12B (1, 3-6) ENG
+C2: [str] 11B (1-3, 5) ENG\n11A (2) ENG
+D2: [str] 12A (4-5) ENG\n11B (6) ENG
+E2: [str] 12A (2, 5-6) ENG
+F2: [str] 11B (1) ROT ENG-IELTS\n12B (3) ROT ENG-IELTS\n11A (4-6) ENG
+G2: [str] 11A (4, 6) ENG\n11B (5) ENG
+H2: [str] 12B (2-3) ENG\n11B (6) ENG
+I2: [str] 11A (2) ENG\n12A (5-6) ENG
+J2: [int] 29
+K2: [str] 1: 3, 2: 4, 3: 4, 4: 4, 5: 7, 6: 7
+A3: [str] Moti Ram, MR
+B3: [str] 11B (1, 3-6) POL\n11A (2) POL
+C3: [str] 12B (2) POL
+D3: [str] 12A (1-3) POL\n12B (6) POL
+E3: [str] 12B (1-2) POL\n11A (3-6) POL
+F3: [str] 12B (1-2, 5) POL\n12A (6) POL
+G3: [str] 11A (1) ROT POL\n12B (2) POL\n12A (3-4) POL\n11A (5) POL
+H3: [str] 12A (1) HIS\n12A (4-6) POL\n12B (6) POL
+I3: [str] 11A (1, 6) POL\n11B (3-5) POL
+J3: [int] 35
+K3: [str] 1: 7, 2: 6, 3: 5, 4: 5, 5: 6, 6: 6
+A4: [str] Sunil Kumar, SK
+B4: [str] 11A (1, 3-6) MATH\n11B (1, 3-6) MATH
+C4: [str] 12A (2) MATH\n12B (2) MATH
+D4: [str] 12B (1-3) HIS\n12A (6) MATH\n12B (6) MATH
+F4: [str] 12A (1-2, 4-5) MATH\n12B (1-2, 4-5) MATH\n12B (6) HIS
+G4: [str] 11A (1) MATH\n11B (1) MATH\n12A (2) ROT MATH\n12B (2) ROT MATH\n12B (3, 6) HIS\n12A (4) MATH\n12B (4) MATH
+H4: [str] 12A (1) MATH\n12B (1) MATH\n12B (5) HIS
+I4: [str] 11B (2, 6) HIS\n11A (3-5) MATH\n11B (3-5) MATH
+J4: [int] 27
+K4: [str] 1: 5, 2: 5, 3: 4, 4: 4, 5: 4, 6: 5
+A5: [str] Angrej Singh, AS
+B5: [str] 12A (1, 3-6) PBI\n11B (2) PBI
+C5: [str] 11A (3-6) PBI
+D5: [str] 12B (5) PBI\n11A (6) PBI
+E5: [str] 11B (1) ROT NSQF-CG-YNV\n12B (3-6) PBI
+F5: [str] 11A (1) ROT ENG-IELTS\n11A (2) ROT HIS\n11B (5-6) PBI
+G5: [str] 11B (2-3, 6) PBI
+H5: [str] 12B (1, 4) PBI\n12A (2-3) PBI\n11A (5-6) PBI
+I5: [str] 11B (1) PBI\n11A (3-4) HIS\n12B (5) HIS
+J5: [int] 34
+K5: [str] 1: 5, 2: 4, 3: 6, 4: 5, 5: 7, 6: 7
+A6: [str] Mukesh Rajoria, MU
+B6: [str] 11A (1, 3-6) HIS
+C6: [str] 12A (1, 3-6) PE\n12B (1, 3-6) PE\n12A (2) HIS
+D6: [str] 11A (1-5) PE\n11B (1-5) PE\n12A (6) HIS
+E6: [str] 12A (3-4) HIS
+F6: [str] 12A (1-2, 5) HIS
+G6: [str] 12A (1) EVS-YNV\n12B (5) ROT NSQF-CG-YNV
+H6: [str] 11A (1-4) PE\n11B (1-4) PE
+I6: [str] 12A (1-4) PE\n12B (1-4) PE
+J6: [int] 32
+K6: [str] 1: 7, 2: 5, 3: 6, 4: 6, 5: 5, 6: 3
+A7: [str] Mohit Kumar, MK
+B7: [str] 9B (1-6) MATH
+C7: [str] 10A (1) ROT MATH\n7B (3-4) MATH
+D7: [str] 9B (1) ROT MATH
+E7: [str] 7B (1, 4-6) MATH\n11B (2) EVS-YNV
+F7: [str] 7B (3) MATH\n12A (4) ROT HIS\n9B (6) ROT NSQF-CG-YNV
+G7: [str] 10A (2-3) MATH\n7B (6) MATH
+H7: [str] 6B (1, 5) AG\n10A (3-4, 6) MATH
+I7: [str] 10A (2) MATH
+J7: [int] 27
+K7: [str] 1: 5, 2: 4, 3: 5, 4: 5, 5: 3, 6: 5
+A8: [str] Shunty Kumar, SH
+B8: [str] 8A (1-6) MATH
+C8: [str] 10C (1) ROT MATH\n6B (2) MATH\n10C (5) MATH
+D8: [str] 6B (3-6) MATH
+E8: [str] 10C (1, 3, 5-6) MATH\n11A (2) EVS-YNV\n6B (4) MATH
+F8: [str] 12B (4) ROT HIS
+G8: [str] 6B (3-4) MATH
+I8: [str] 10C (1) MATH\n8A (2, 6) MATH\n11A (5) HIS
+J8: [int] 26
+K8: [str] 1: 4, 2: 4, 3: 4, 4: 5, 5: 5, 6: 4
+A9: [str] Rajiv Narang, RN
+B9: [str] 7A (1-6) MATH
+C9: [str] 8B (6) MATH
+D9: [str] 9A (1) ROT MATH\n9A (3) MATH\n8B (5) MATH
+E9: [str] 9A (1-2) MATH\n8B (3, 5) MATH\n9A (6) ROT SS
+F9: [str] 8B (1-2, 4) MATH\n9A (5) MATH\n9A (6) ROT NSQF-CG-YNV
+G9: [str] 11B (1) ROT POL\n12B (4) EVS-YNV
+H9: [str] 9A (2) MATH\n7A (5) MATH
+I9: [str] 8B (2) MATH\n9A (3) MATH\n7A (4) MATH
+J9: [int] 27
+K9: [str] 1: 5, 2: 5, 3: 4, 4: 4, 5: 5, 6: 4
+A10: [str] Raman Sama, RS
+B10: [str] 6A (1-6) MATH
+C10: [str] 10B (1) ROT MATH\n6A (2, 6) MATH\n9C (3-4) MATH
+D10: [str] 9C (1) ROT MATH\n10B (2) MATH
+E10: [str] 10B (1) MATH\n9C (2) MATH\n10B (3) MATH\n6A (5-6) AG
+F10: [str] 9C (6) ROT NSQF-CG-YNV
+G10: [str] 6B (1) AG\n10B (2, 5-6) MATH
+H10: [str] 9C (1-2) MATH\n6A (3) AG\n9C (6) MATH
+J10: [int] 27
+K10: [str] 1: 6, 2: 6, 3: 4, 4: 2, 5: 3, 6: 6
+A11: [str] Gurwinder Kaur, GK
+B11: [str] 6B (1-6) PBI
+C11: [str] 9C (1, 5-6) PBI\n7A (2, 4) PBI\n10A (3) PBI
+D11: [str] 10A (2) PBI\n9C (3) PBI\n7A (4-6) PBI
+E11: [str] 10A (1, 3) PBI\n7A (6) PBI
+F11: [str] 8B (3) PBI\n9C (5) PBI
+G11: [str] 10A (1) PBI\n8B (2-6) PBI
+H11: [str] 9B (1-5) PBI
+I11: [str] 9B (2) PBI\n10A (4) PBI\n9C (6) PBI
+J11: [int] 36
+K11: [str] 1: 5, 2: 6, 3: 7, 4: 6, 5: 6, 6: 6
+A12: [str] Anju Bala, AB
+B12: [str] 10C (1-6) PBI
+C12: [str] 7B (2) PBI\n6A (3-4) PBI\n8A (5-6) PBI
+D12: [str] 8A (2-3) PBI\n7B (4-5) PBI\n10B (6) PBI
+E12: [str] 6A (1-2) PBI\n8A (4, 6) PBI
+F12: [str] 9A (1-4) PBI\n7B (5) PBI
+G12: [str] 7B (1) PBI\n10B (4) PBI
+H12: [str] 6A (1-2) PBI\n7B (3) PBI\n10B (6) PBI
+I12: [str] 10B (1, 3-4) PBI\n9A (5-6) PBI
+J12: [int] 36
+K12: [str] 1: 6, 2: 6, 3: 6, 4: 7, 5: 5, 6: 6
+A13: [str] Vijay Singh, VS
+B13: [str] 9C (1-6) SCI
+C13: [str] 9C (2) ROT SCI
+D13: [str] 10C (1-4) SCI\n10C (5) ROT SCI\n6A (6) SCI
+E13: [str] 10B (2) ROT NSQF-CG-YNV\n6A (3-4) SCI
+F13: [str] 11B (2) ROT HIS
+G13: [str] 8A (2-5) SCI
+H13: [str] 8A (3) SCI\n6A (4-5) SCI\n10C (6) SCI
+I13: [str] 8A (3) SCI\n6A (5) SCI\n10C (6) SCI
+J13: [int] 28
+K13: [str] 1: 2, 2: 6, 3: 6, 4: 5, 5: 5, 6: 4
+A14: [str] Sunita Devi, SU
+B14: [str] 10B (1-6) SCI
+C14: [str] 7B (1) AG\n9A (2) ROT SCI\n9A (3-5) SCI
+D14: [str] 7B (3) SCI\n9A (4) SCI\n10B (5) ROT SCI\n7B (6) AG
+E14: [str] 7B (3) SCI\n9A (5) SCI\n6B (6) SCI
+F14: [str] 6B (2) SCI
+G14: [str] 7B (2, 4) SCI\n6B (6) SCI
+H14: [str] 6B (2-4) SCI
+I14: [str] 7B (1-2) SCI\n7B (3) AG\n9A (4) SCI
+J14: [int] 29
+K14: [str] 1: 3, 2: 6, 3: 6, 4: 6, 5: 4, 6: 4
+A15: [str] Reetika, RI
+B15: [str] 8B (1-6) SCI
+C15: [str] 7A (1, 3) AG\n9B (2) ROT SCI\n10A (4) SCI\n9B (6) SCI
+D15: [str] 10A (1) SCI\n9B (2) SCI\n10A (3-4) SCI\n10A (5) ROT SCI
+E15: [str] 9B (2, 4) SCI\n7A (5) SCI\n10A (6) SCI
+F15: [str] 12A (3) ROT ENG-IELTS
+G15: [str] 7A (1-2) SCI\n10A (4) SCI
+H15: [str] 7A (2) SCI\n7A (4) AG\n9B (6) SCI
+I15: [str] 9B (4) SCI\n7A (5-6) SCI
+J15: [int] 30
+K15: [str] 1: 4, 2: 6, 3: 4, 4: 7, 5: 4, 6: 5
+A16: [str] Meenu Bala, MB
+B16: [str] 10A (1-6) ENG
+C16: [str] 6B (1) SS\n10A (6) ROT ENG
+D16: [str] 6A (2) SS\n10C (6) ENG
+E16: [str] 10A (2) ROT NSQF-CG-YNV\n7A (4) SS
+F16: [str] 7A (1-2, 6) SS
+G16: [str] 6B (2) SS\n6A (3-6) SS
+H16: [str] 10C (1-5) ENG\n6A (6) SS
+I16: [str] 7A (1-2) SS\n6B (3-6) SS
+J16: [int] 32
+K16: [str] 1: 5, 2: 7, 3: 4, 4: 5, 5: 4, 6: 7
+A17: [str] Sanjay Solanki, SN
+C17: [str] 8A (1) ENG\n8B (3, 5) ENG\n11B (4, 6) HIS
+D17: [str] 8B (1-2) ENG\n8A (4, 6) ENG
+E17: [str] 8A (1, 2) ENG\n9B (3) ROT ENG\n10B (4) ROT SS\n11B (5) HIS
+F17: [str] 7B (1-2) SS\n11B (3-4) HIS\n8A (6) ENG
+G17: [str] 7B (3, 5) SS\n8A (6) ENG
+H17: [str] 8A (1) ENG\n8B (4) ENG\n7B (5-6) SS
+I17: [str] 8B (3, 5-6) ENG
+J17: [int] 29
+K17: [str] 1: 5, 2: 3, 3: 5, 4: 5, 5: 5, 6: 6
+A18: [str] Parmila, PR
+B18: [str] 9A (1-4) ENG
+C18: [str] 6B (4, 6) ENG\n10B (5) ENG
+D18: [str] 6B (1-2) ENG\n10B (3-4) ENG\n6A (5) ENG\n10A (6) SS
+E18: [str] 6B (1) ENG\n9A (3) ROT ENG\n10B (5-6) ENG
+F18: [str] 6B (3) ENG\n6A (4-5) ENG
+G18: [str] 6A (1-2) ENG\n10A (5-6) SS
+H18: [str] 9A (1, 3) ENG\n10B (4) ENG
+I18: [str] 6A (1) ENG\n6B (1-2) ENG\n6A (3-4) ENG\n10A (5) SS
+J18: [int] 32
+K18: [str] 1: 6, 2: 4, 3: 6, 4: 6, 5: 6, 6: 4
+A19: [str] Pratibha Setia, PS
+B19: [str] 7B (1-6) ENG
+C19: [str] 10C (2) SS\n7A (5-6) ENG
+D19: [str] 7A (3) ENG
+E19: [str] 8A (3) SS\n10C (4) ROT SS\n9B (5) SS\n9B (6) ROT SS
+F19: [str] 8A (1, 3-5) SS
+G19: [str] 8A (1) SS\n7A (3-6) ENG
+H19: [str] 7A (1) ENG\n7B (1-2) ENG
+I19: [str] 9B (1, 5-6) SS\n10C (2-4) SS
+J19: [int] 31
+K19: [str] 1: 5, 2: 4, 3: 6, 4: 5, 5: 6, 6: 5
+A20: [str] Priyanka, PY
+C20: [str] 9A (1, 6) SS\n9B (3-5) ENG
+D20: [str] 9C (2, 4-6) ENG\n9B (3) ENG
+E20: [str] 9B (1) ENG\n8B (2) SS\n9C (3) ROT ENG\n9A (4) SS\n9C (5) SS\n9C (6) ROT SS
+F20: [str] 9C (1) ENG\n9C (3-4) SS\n8B (5) SS
+G20: [str] 10B (1) SS
+H20: [str] 8B (1-3, 6) SS\n10B (5) SS
+I20: [str] 9A (1) SS\n9C (2) ENG\n9B (3) ENG\n9C (4) SS\n10B (5-6) SS
+J20: [int] 32
+K20: [str] 1: 6, 2: 4, 3: 6, 4: 5, 5: 6, 6: 5
+A21: [str] Maya, MA
+C21: [str] 8A (3-4) HI\n10C (6) ROT ENG
+D21: [str] 10B (1) HI\n9A (2) HI\n9A (5-6) HI
+E21: [str] 7A (1, 3) HI\n7B (2) HI
+F21: [str] 7B (4, 6) HI\n7A (5) HI
+G21: [str] 10C (1-4) HI
+H21: [str] 10B (1-3) HI\n9A (4-5) HI
+I21: [str] 8A (1, 4) HI\n10B (2) HI\n7A (3) HI\n10C (5) HI\n7B (6) HI
+J21: [int] 28
+K21: [str] 1: 5, 2: 5, 3: 5, 4: 5, 5: 4, 6: 4
+A22: [str] Ratan Lal, RL
+C22: [str] 6A (1, 5) HI\n10A (2) HI\n8B (4) HI
+D22: [str] 6A (1) HI\n8B (3-4) HI
+E22: [str] 9C (1, 4) HI\n6B (2) HI\n10A (5) HI
+F22: [str] 9B (1-5) HI\n6B (6) HI
+G22: [str] 8B (1) HI\n6B (5) HI
+H22: [str] 10A (1-2, 5) HI\n9C (3-4) HI\n6B (6) HI
+I22: [str] 9C (1) HI\n6A (6) HI
+J22: [int] 27
+K22: [str] 1: 7, 2: 4, 3: 3, 4: 5, 5: 5, 6: 3
+A23: [str] Ravi Kumar, RK
+C23: [str] 8B (1-2) AG\n10B (6) ROT ENG
+E23: [str] 8B (1) AG\n10C (2) ROT NSQF-CG-YNV\n10A (4) ROT SS
+F23: [str] 10A (1-6) PE\n10B (1-6) PE\n10C (1-6) PE
+G23: [str] 9A (1-6) PE\n9B (1-6) PE\n9C (1-6) PE
+H23: [str] 11B (5) HIS
+J23: [int] 19
+K23: [str] 1: 4, 2: 4, 3: 2, 4: 3, 5: 3, 6: 3
+A24: [str] Daulat Ram, DR
+C24: [str] 8A (2) AG\n6B (3) PE\n7B (5-6) PE
+D24: [str] 8A (1) AG\n6A (3-4) PE\n8A (5) AG\n8B (6) PE
+E24: [str] 6B (3) PE\n8B (6) PE
+F24: [str] 6B (1) PE\n8A (2) PE\n7A (3-4) PE
+G24: [str] 12A (5) ROT NSQF-CG-YNV
+H24: [str] 8A (2) PE\n7B (4) PE\n8B (5) PE\n7A (6) PE
+I24: [str] 6A (2) PE\n8A (5) PE
+J24: [int] 22
+K24: [str] 1: 2, 2: 4, 3: 4, 4: 3, 5: 5, 6: 4
+A25: [str] Jaspreet Kaur, JK
+B25: [str] 12B (2) CS\n9A (5-6) CS
+C25: [str] 11A (1) CS\n10C (3-4) CS\n6B (5) CS
+D25: [str] 7A (1-2) CS\n12B (4) CS
+E25: [str] 7A (2) CS\n8B (4) CS\n6B (5) CS
+F25: [str] 9C (2) CS\n11A (3) CS\n6B (4-5) CS\n8B (6) CS
+G25: [str] 12B (1) CS\n11A (2-3) CS\n10C (5-6) CS
+H25: [str] 7A (3) CS\n9C (5) CS\n9A (6) CS
+I25: [str] 8B (1, 4) CS\n9A (2) CS\n9C (3, 5) CS\n12B (6) CS
+J25: [int] 32
+K25: [str] 1: 4, 2: 6, 3: 5, 4: 5, 5: 7, 6: 5
+A26: [str] Sachin Kumar, SJ
+B26: [str] 12A (2) CS
+C26: [str] 9B (1) CS\n10B (2-4) CS\n10A (5) CS
+D26: [str] 7B (1-2) CS\n9B (4-6) CS
+E26: [str] 12A (1) CS\n11B (3-4, 6) CS\n8A (5) CS
+F26: [str] 6A (1-3, 6) CS
+G26: [str] 12A (2, 6) CS\n10B (3) CS\n11B (4) CS
+H26: [str] 8A (4-6) CS
+I26: [str] 10A (1, 3, 6) CS\n7B (4-5) CS
+J26: [int] 32
+K26: [str] 1: 5, 2: 5, 3: 5, 4: 6, 5: 5, 6: 6
+A27: [str] Anchal Rani, AR
+C27: [str] 12A (1, 3-6) IT\n12B (1, 3-6) IT
+D27: [str] 11A (1-5) IT\n11B (1-5) IT
+E27: [str] 11A (1) ROT NSQF-CG-YNV
+F27: [str] 10A (1-6) IT\n10B (1-6) IT\n10C (1-6) IT
+G27: [str] 9A (1-6) IT\n9B (1-6) IT\n9C (1-6) IT
+H27: [str] 11A (1-4) IT\n11B (1-4) IT
+I27: [str] 12A (1-4) IT\n12B (1-4) IT
+J27: [int] 31
+K27: [str] 1: 7, 2: 5, 3: 6, 4: 6, 5: 4, 6: 3
+A28: [str] Joginderpal, JP
+C28: [str] 12A (1, 3-6) PLB\n12B (1, 3-6) PLB
+D28: [str] 11A (1-5) PLB\n11B (1-5) PLB
+F28: [str] 10A (1-6) PLB\n10B (1-6) PLB\n10C (1-6) PLB
+G28: [str] 9A (1-6) PLB\n9B (1-6) PLB\n9C (1-6) PLB
+H28: [str] 11A (1-4) PLB\n11B (1-4) PLB
+I28: [str] 12A (1-4) PLB\n12B (1-4) PLB
+J28: [int] 30
+K28: [str] 1: 6, 2: 5, 3: 6, 4: 6, 5: 4, 6: 3
+B29: [str] Last updated on Wed Oct 22 00:01:56 2025
+---
+[Sheet: FREE_TEACHERS]
+B1: [str] Free Teachers Sheet
+A2: [str] Day/Period
+B2: [str] Period 1
+C2: [str] Period 2
+D2: [str] Period 3
+E2: [str] Period 4
+F2: [str] Period 5
+G2: [str] Period 6
+H2: [str] Period 7
+I2: [str] Period 8
+A3: [str] Day 1
+B3: [str] DR:6, JK:4, RK:4, SJ:3, MA:3, SN:3, PY:2, JP:2, RL:1, AR:1
+C3: [str] DR:6, VS:6, RN:3, PS:3, MA:3, SK:3, AS:3, AB:2, PR:2, MR:1
+D3: [str] SU:5, AA:5, SH:4, RK:4, MB:3, GK:3, PS:3, AS:3, AB:2, PY:2
+E3: [str] DR:6, VS:6, SU:5, AA:5, JK:4, RI:4, MB:3, PS:3, SK:3, JP:2, MU:1
+F3: [str] VS:6, SU:5, SH:4, JK:4, RI:4, GK:3, MK:3, MA:3, RS:2, PR:2
+G3: [str] DR:6, VS:6, SU:5, AA:5, SH:4, MB:3, SJ:3, MK:3, SN:3, AS:3
+H3: [str] DR:6, VS:6, SU:5, AA:5, SH:4, JK:4, RI:4, RK:4, SJ:3, RN:3
+I3: [str] DR:6, VS:6, AA:5, RI:4, RK:4, GK:3, MK:3, RN:3, SN:3, SK:3, RS:2
+A4: [str] Day 2
+B4: [str] SN:5, RL:4, DR:4, RK:4, PY:4, AA:4, MA:3, AR:3, JP:3, MU:3, SK:3
+C4: [str] SN:5, PR:4, MK:4, PY:4, AS:4, RN:3, MA:3, AR:3, JP:3, JK:2, MB:1
+D4: [str] RL:4, DR:4, SH:4, MK:4, PS:4, RK:4, AA:4, AS:4, RN:3, SU:2
+E4: [str] DR:4, PR:4, PS:4, AS:4, SJ:3, AR:3, JP:3, MU:3, SK:3, GK:2, SU:2
+F4: [str] PR:4, SH:4, MK:4, PS:4, PY:4, AA:4, MA:3, RS:2, GK:2, RI:2
+G4: [str] SN:5, RL:4, DR:4, SH:4, PS:4, PY:4, AA:4, RN:3, MU:3, AB:2
+H4: [str] SN:5, PR:4, SH:4, MK:4, RK:4, SJ:3, SK:3, VS:2, JK:2, MR:2
+I4: [str] SN:5, RL:4, RK:4, AS:4, SJ:3, RS:2, AB:2, VS:2, RI:2, MR:2
+A5: [str] Day 3
+B5: [str] RK:6, RL:5, DR:4, SJ:3, JK:3, MA:3, SN:3, PY:2, AR:2, JP:2
+C5: [str] RK:6, RL:5, MB:4, SH:4, RN:4, SK:4, MR:3, PR:2, VS:2, PS:2
+D5: [str] RK:6, RS:4, MB:4, AA:4, SJ:3, JK:3, MK:3, MA:3, SN:3, AS:2
+E5: [str] RK:6, RL:5, MB:4, RI:4, SK:4, AA:4, JK:3, MK:3, AB:2, AR:2, JP:2
+F5: [str] RS:4, MB:4, SH:4, RN:4, SK:4, MA:3, MR:3, VS:2, SU:2, MU:2, AS:2
+G5: [str] RL:5, RS:4, DR:4, RN:4, RI:4, AA:4, AB:2, PR:2, SU:2, PY:2, MU:2
+H5: [str] RK:6, DR:4, SH:4, RN:4, RI:4, SK:4, SJ:3, SN:3, MR:3, PS:2
+I5: [str] RK:6, RL:5, RS:4, DR:4, SH:4, RI:4, AA:4, MK:3, GK:1
+A6: [str] Day 4
+B6: [str] DR:5, RK:5, RL:3, JK:3, MA:3, SN:3, PY:3, SJ:2, AR:2, JP:2
+C6: [str] DR:5, RK:5, RN:4, SK:4, AA:4, VS:3, MB:3, SH:3, PS:3, MR:3
+D6: [str] RS:6, RK:5, RN:4, SK:4, MB:3, MK:3, PS:3, MA:3, MR:3, AS:3
+E6: [str] RS:6, DR:5, RN:4, SK:4, AA:4, MA:3, PR:2, GK:2, SU:2, AR:2, JP:2
+F6: [str] RS:6, VS:3, MB:3, MR:3, AS:3, SJ:2, GK:2, SU:2, MU:2, RI:1
+G6: [str] RS:6, DR:5, RL:3, JK:3, MK:3, SN:3, PY:3, AS:3, PR:2, MU:2
+H6: [str] RS:6, RK:5, RN:4, SK:4, AA:4, SH:3, JK:3, PS:3, PY:3, AB:1
+I6: [str] RS:6, DR:5, RK:5, AA:4, RL:3, VS:3, SH:3, MK:3, SN:3
+A7: [str] Day 5
+B7: [str] RK:5, MA:4, AR:4, JP:4, RL:3, DR:3, SJ:3, SN:3, PR:2, PY:2
+C7: [str] RS:5, MK:5, RK:5, MB:4, RI:4, MA:4, SK:4, VS:3, RN:3, MR:2
+D7: [str] RS:5, MK:5, RK:5, MB:4, SK:4, RL:3, SN:3, PS:2, MR:2, JK:1
+E7: [str] RK:5, MB:4, MA:4, AR:4, JP:4, SK:4, AB:3, DR:3, VS:3, MU:3, GK:2
+F7: [str] RS:5, MK:5, MB:4, SU:4, RI:4, DR:3, VS:3, SJ:3, SH:3, SN:3
+G7: [str] MK:5, SU:4, RI:4, MA:4, SK:4, AB:3, SJ:3, SH:3, RN:3, PY:2, AS:1
+H7: [str] RS:5, SU:4, RI:4, AR:4, JP:4, AB:3, SH:3, MU:3, PR:2, PS:2, AA:1
+I7: [str] RS:5, MK:5, RK:5, SU:4, AR:4, JP:4, RL:3, RN:3, MU:3, GK:2
+A8: [str] Day 6
+B8: [str] RL:5, RK:5, AR:5, JP:5, DR:4, PR:4, MA:4, PY:3, SJ:2, SN:2
+C8: [str] RL:5, VS:4, SH:4, SU:4, JK:3, MK:3, SK:3, SJ:2, MR:2, AA:1
+D8: [str] RL:5, RK:5, AR:5, JP:5, RN:4, JK:3, MK:3, RI:3, PS:3, RS:2
+E8: [str] RL:5, RK:5, AR:5, JP:5, MU:5, VS:4, MA:4, JK:3, SK:3, SN:2, MB:1
+F8: [str] MU:5, DR:4, PR:4, VS:4, SH:4, SU:4, RI:3, PS:3, PY:3, AB:2, GK:2
+G8: [str] RL:5, MU:5, DR:4, VS:4, SH:4, RN:4, MA:4, RI:3, PY:3, AB:2, MR:2
+H8: [str] RK:5, AR:5, JP:5, MU:5, PR:4, SH:4, SU:4, RN:4, MA:4, PS:3, SK:3, GK:2
+I8: [str] RK:5, AR:5, JP:5, MU:5, DR:4, PR:4, SU:4, RN:4, MK:3, RS:2, AS:1
+B9: [str] Last updated on Wed Oct 22 00:01:56 2025
+---
+[Sheet: TEACHERS]
+A1: [str] SR NO
+B1: [str] EPUNJAB ID
+C1: [str] SHORTNAME
+D1: [str] NAME
+E1: [str] F_H_NAME
+F1: [str] POST
+G1: [str] SUBJECT
+H1: [str] GENDER
+I1: [str] INCHARGE
+J1: [str] MOBILE
+K1: [str] EMAIL
+L1: [str] ADDRESS
+M1: [str] EPIC
+N1: [str] UID
+O1: [str] DOB
+P1: [str] BANK_AC_NO
+Q1: [str] IFSC
+R1: [str] REMARKS
+A2: [int] 1
+C2: [str] PA
+D2: [str] Pardeep Soni
+E2: [formula] =#N/A
+F2: [str] PRINCIPAL
+G2: [str] BIOLOGY
+H2: [str] m
+J2: [formula] =#N/A
+K2: [formula] =#N/A
+L2: [formula] =#N/A
+M2: [formula] =#N/A
+N2: [formula] =#N/A
+O2: [formula] =#N/A
+P2: [formula] =#N/A
+Q2: [formula] =#N/A
+A3: [int] 2
+C3: [str] AA
+D3: [str] Amit Arora
+E3: [str] Ashok Kumar
+F3: [str] LECTURER
+G3: [str] ENGLISH
+H3: [str] m
+J3: [int] 9888963588
+K3: [str] amitarora7280@gmail.com
+L3: [str] House No.40 Aru. Urban Estate Opp. Soni Palace Abohar
+M3: [str] JGK1115765
+N3: [int] 862090928893
+O3: [date] 1980-02-07T00:00:00
+P3: [int] 30116939060
+Q3: [str] SBIN0000600
+A4: [int] 3
+C4: [str] MR
+D4: [str] Moti Ram
+E4: [str] Sheokaran Ram
+F4: [str] LECTURER
+G4: [str] POLITICAL SCIENCE
+H4: [str] m
+I4: [str] 11A
+J4: [int] 9463785545
+K4: [str] rmoti1435@gmail.com
+L4: [str] VPO Amarpura
+M4: [str] TNM1711803
+N4: [int] 218465585096
+O4: [date] 1966-03-05T00:00:00
+P4: [int] 501000060782
+Q4: [str] HDFC0003892
+A5: [int] 4
+C5: [str] SK
+D5: [str] Sunil Kumar
+E5: [str] Keshra Ram
+F5: [str] LECTURER
+G5: [str] MATHEMATICS
+H5: [str] m
+I5: [str] 12B
+J5: [int] 9814017511
+K5: [str] sunil.sangwal@gmail.com
+L5: [str] #7, Old Suraj Nagri, Abohar
+M5: [str] TNM1712421
+N5: [int] 208634161382
+O5: [date] 1978-01-03T00:00:00
+P5: [int] 10386658863
+Q5: [str] SBIN0000600
+A6: [int] 5
+C6: [str] AS
+D6: [str] Angrej Singh
+E6: [str] Dalip Singh
+F6: [str] LECTURER
+G6: [str] PUNJABI
+H6: [str] m
+I6: [str] 12A
+J6: [int] 9501031861
+K6: [str] angrejsingh12169@gmail.com
+L6: [str] Kullar
+M6: [str] TNM 1959006
+N6: [int] 473431329684
+O6: [date] 1969-01-12T00:00:00
+P6: [str] 1334000100026521
+Q6: [str] PUNB0133400
+A7: [int] 6
+C7: [str] MU
+D7: [str] Mukesh Rajoria
+E7: [str] Jaspal Rajoria
+F7: [str] LECTURER
+G7: [str] PHYSICAL EDUCATION
+H7: [str] m
+J7: [int] 8427600136
+K7: [str] mukeshrajoria@hotmail.com
+L7: [str] Gou Shalla Road St No 16-17 Abohar
+M7: [str] JGK2560258
+N7: [int] 798714032165
+O7: [date] 1977-12-01T00:00:00
+P7: [int] 10386652204
+Q7: [str] SBIN0000600
+A8: [int] 7
+C8: [str] MK
+D8: [str] Mohit Kumar
+E8: [str] Surja Ram
+F8: [str] MASTER
+G8: [str] MATH
+H8: [str] m
+I8: [str] 9B
+J8: [int] 7888489901
+K8: [str] mohit.parihar777@gmail.com
+L8: [str] Nai Abadi Bada pull Abohar 
+M8: [str] JGK2102408
+N8: [int] 499850384461
+O8: [date] 1988-03-02T00:00:00
+P8: [int] 499850384461
+Q8: [str] PUNB0466900
+A9: [int] 8
+C9: [str] SH
+D9: [str] Shunty Kumar
+E9: [str] Prahilad Kumar 
+F9: [str] MASTER
+G9: [str] MATH
+H9: [str] m
+I9: [str] 8A
+J9: [int] 9876560551
+K9: [str] justshunty86@gmail.com
+L9: [str] St No. 3, Ramdev Nagri Abohar
+M9: [str] JGK1787852
+N9: [int] 825685642456
+O9: [date] 1986-07-24T00:00:00
+P9: [int] 31552620425
+Q9: [str] SBIN0011899
+A10: [int] 9
+C10: [str] RN
+D10: [str] Rajiv Narang
+E10: [str] Nand Lal
+F10: [str] MASTER
+G10: [str] MATH
+H10: [str] m
+I10: [str] 7A
+J10: [int] 9888450759
+K10: [str] narangmanthan@gmail.com
+L10: [str] Tara Estate Abohar 
+M10: [str] JGK119073
+N10: [int] 454764261512
+O10: [date] 1982-03-21T00:00:00
+P10: [int] 20064504641
+Q10: [str] SBIN0031018
+A11: [int] 10
+C11: [str] RS
+D11: [str] Raman Sama
+E11: [str] Navdeep Kumar Kamboj 
+F11: [str] MASTER
+G11: [str] MATH
+H11: [str] f
+I11: [str] 6A
+J11: [int] 9417262203
+K11: [str] ramanaboharr@gmail.com
+L11: [str] Shaheed Udham Singh Nagar, Opp. Balaji Dham, Abohar 
+M11: [str] WAA1779156
+N11: [int] 241447459350
+O11: [date] 1989-04-09T00:00:00
+P11: [int] 4669000100054360
+Q11: [str] PUNB0466900
+A12: [int] 11
+C12: [str] GK
+D12: [str] Gurwinder Kaur
+E12: [str] Gurcharan singh 
+F12: [str] MASTER
+G12: [str] PUNJABI
+H12: [str] f
+I12: [str] 6B
+J12: [int] 7888930738
+K12: [str] gurvinderkaur00513@gmail.com
+L12: [str] house no.180/A guru kirpa colony street no.4 malout road Abohar 
+M12: [str] WAA1253269
+N12: [int] 650432008927
+O12: [date] 1976-02-12T00:00:00
+P12: [int] 65086556373
+Q12: [str] SBIN0011899
+A13: [int] 12
+C13: [str] AB
+D13: [str] Anju Bala
+E13: [str] Radha Krishàn
+F13: [str] MASTER
+G13: [str] PUNJABI
+H13: [str] f
+I13: [str] 10C
+J13: [int] 9888306440
+K13: [str] Anjubala58305@gmail.com
+L13: [str] Amarpura 
+M13: [str] FDR2077220
+N13: [int] 405465968778
+O13: [date] 1986-05-07T00:00:00
+P13: [int] 55158018908
+Q13: [str] SBIN0011899
+A14: [int] 13
+C14: [str] VS
+D14: [str] Vijay Singh
+E14: [str] Gurjant Singh Sidhu 
+F14: [str] MASTER
+G14: [str] SCIENCE
+H14: [str] m
+I14: [str] 9C
+J14: [int] 8146912300
+K14: [str] vijay7319sidhu@gmail.com
+L14: [str] H.No. B-2-214, Jatinder Chowk , Faridkot 
+M14: [str] FGX1386747
+N14: [int] 814987724074
+O14: [date] 1973-12-23T00:00:00
+P14: [str] o395104000015808
+Q14: [str] IBKL0000395
+A15: [int] 14
+C15: [str] SU
+D15: [str] Sunita Devi
+E15: [str] Neeraj Kumar 
+F15: [str] MASTER
+G15: [str] SCIENCE
+H15: [str] f
+I15: [str] 10B
+J15: [int] 8360655325
+K15: [str] chan2lianeeraj@gmail.com
+L15: [str] House no.274 Ridhi Sidhi Estate Abohar 
+M15: [str] WAA1740406
+N15: [int] 255493562594
+O15: [date] 1985-08-01T00:00:00
+P15: [int] 31014836585
+Q15: [str] SBIN0011899
+A16: [int] 15
+C16: [str] RI
+D16: [str] Reetika
+E16: [str] vijay Kumar 
+F16: [str] MASTER
+G16: [str] SCIENCE
+H16: [str] f
+I16: [str] 8B
+J16: [int] 8146800350
+K16: [str] tinna.reetika@gmail.com
+L16: [str] Jain Nagri Abohar
+M16: [str] WAA1254473
+N16: [int] 566016525582
+O16: [date] 1985-09-11T00:00:00
+P16: [int] 65230641608
+Q16: [str] SBIN0050246
+A17: [int] 18
+C17: [str] MB
+D17: [str] Meenu Bala
+E17: [str] Munish Kumar 
+F17: [str] MASTER
+G17: [str] SOCIAL STUDIES
+H17: [str] f
+I17: [str] 10A
+J17: [int] 8427711001
+K17: [str] manish.vij09@gmail.com
+L17: [str] House No. 24, Ridhi Sidhi Estate Abohar 
+M17: [str] WAA1008887
+N17: [int] 824191248220
+O17: [date] 1984-04-02T00:00:00
+P17: [int] 911010033224141
+Q17: [str] UTIB0000399
+A18: [int] 20
+C18: [str] SN
+D18: [str] Sanjay Solanki
+E18: [str] Krishan kumar
+F18: [str] MASTER
+G18: [str] SOCIAL STUDIES
+H18: [str] m
+I18: [str] 11B
+J18: [int] 8054410687
+K18: [str] sanjaysolanki80544@gmail.com
+L18: [str] Thakur Abadi,street no. -12,Abohar
+M18: [str] JGK1132711
+N18: [int] 715052383296
+O18: [date] 1980-07-29T00:00:00
+P18: [int] 32807757207
+Q18: [str] SBIN0011899
+A19: [int] 21
+C19: [str] PR
+D19: [str] Parmila
+E19: [str] Varinder Kumar 
+F19: [str] MASTER
+G19: [str] SOCIAL STUDIES
+H19: [str] f
+I19: [str] 9A
+J19: [int] 9465629556
+K19: [str] parmilagoriwal@gmail.com
+L19: [str] South Avenue,Sreet No:9,Last Chowk 
+M19: [str] WAA1956267
+N19: [int] 647722993792
+O19: [date] 1995-07-12T00:00:00
+P19: [int] 37492825948
+Q19: [str] SBIN0000600
+A20: [int] 22
+C20: [str] PS
+D20: [str] Pratibha Setia
+E20: [str] Shashi Kant Setia
+F20: [str] MASTER
+G20: [str] SOCIAL STUDIES
+H20: [str] f
+I20: [str] 7B
+J20: [int] 8194866022
+L20: [str] St. no. 9,3rd Chowk Circular Road, Abohar
+M20: [str] JGK2349827
+N20: [int] 332972956890
+O20: [date] 1979-01-24T00:00:00
+P20: [int] 425104000024462
+Q20: [str] IBKL0000425
+R20: [str] joined in August 2025
+A21: [int] 17
+C21: [str] PY
+D21: [str] Priyanka
+E21: [str] Pawan Choudhary 
+F21: [str] MASTER
+G21: [str] SOCIAL STUDIES
+H21: [str] f
+J21: [int] 8054987178
+K21: [str] priyanka7178@gmail.com
+L21: [str] VPO Sayadwala
+M21: [str] TNM0893156
+N21: [int] 624322827807
+O21: [date] 1986-12-28T00:00:00
+P21: [int] 741000100028802
+Q21: [str] PUNB0741100
+R21: [str] joined in September 2025
+A22: [int] 23
+C22: [str] MA
+D22: [str] Maya
+E22: [str] Sunil Kumar 
+F22: [str] MASTER
+G22: [str] HINDI
+H22: [str] f
+J22: [int] 9417870471
+K22: [str] mayamaya58933@gmail.com
+L22: [str] Park street Azimgarh Abohar 
+M22: [str] WAA1256932
+N22: [int] 443824076946
+O22: [date] 1986-11-26T00:00:00
+P22: [int] 32172919203
+Q22: [str] SBIN0000600
+A23: [int] 24
+C23: [str] RL
+D23: [str] Ratan Lal
+E23: [str] Sardara Ram 
+F23: [str] MASTER
+G23: [str] HINDI
+H23: [str] m
+J23: [int] 9465116980
+K23: [str] rattanlalkantiwal430@gmail.com
+L23: [str] Village Amarpura 
+M23: [str] TNM1306083
+N23: [int] 806699408936
+O23: [date] 1979-08-10T00:00:00
+P23: [int] 32279958275
+Q23: [str] SBIN0000600
+A24: [int] 25
+C24: [str] RK
+D24: [str] Ravi Kumar
+E24: [str] SAWAN KUMAR
+F24: [str] MASTER
+G24: [str] PHYSICAL EDUCATION
+H24: [str] m
+J24: [int] 7837998203
+K24: [str] ravikamboj05071991@gmail.com
+L24: [str] Dhani Bisheshar nath
+M24: [str] TNM0909002
+N24: [int] 884069230984
+O24: [date] 1991-07-05T00:00:00
+P24: [int] 34922584292
+Q24: [str] SBIN0011899
+A25: [int] 26
+C25: [str] DR
+D25: [str] Daulat Ram
+E25: [str] Omparkas
+F25: [str] MASTER
+G25: [str] PHYSICAL EDUCATION
+H25: [str] m
+J25: [int] 9464311021
+K25: [str] daulatram2006@gmail.com
+L25: [str] Amarpura
+M25: [str] TNM1349927
+N25: [int] 765686202826
+O25: [date] 1970-05-04T00:00:00
+P25: [int] 31460409304
+Q25: [str] SBIN0000600
+A26: [int] 27
+C26: [str] JK
+D26: [str] Jaspreet Kaur
+E26: [str] Gurbachan Singh
+F26: [str] MASTER
+G26: [str] COMPUTER SCIENCE
+H26: [str] f
+J26: [int] 9460316460
+K26: [str] brarjassy77@gmail.com
+L26: [str] Plot no 13,14,Ward no.23,Shakti nagar, Hanumangarh 
+M26: [str] KVS2143329
+N26: [int] 519898041317
+O26: [date] 1976-04-01T00:00:00
+P26: [int] 20150974084
+Q26: [str] SBIN0001858
+A27: [int] 28
+C27: [str] SJ
+D27: [str] Sachin Kumar
+E27: [str] Kamaljeet Juneja
+F27: [str] MASTER
+G27: [str] COMPUTER SCIENCE
+H27: [str] m
+J27: [int] 9876601312
+K27: [str] junejasahab@gmail.com
+L27: [str] House No. 171 Ridhi Sidhi Estate Abohar 
+M27: [str] JGK1624055
+N27: [int] 481753693883
+O27: [date] 1983-10-08T00:00:00
+P27: [int] 31916643001
+Q27: [str] SBIN0000600
+A28: [int] 29
+C28: [str] MT
+D28: [str] Mamta Tinna
+E28: [str] Niranjan Dass
+F28: [str] MASTER
+G28: [str] COMPUTER SCIENCE
+H28: [str] f
+J28: [int] 8558039194
+K28: [str] mamtatinna12345@gmail.com
+L28: [str] south Avenue st no 4
+M28: [str] WAA1925635
+O28: [date] 1983-04-11T00:00:00
+A29: [int] 30
+C29: [str] AR
+D29: [str] Anchal Rani
+E29: [str] Bhola Ram
+F29: [str] VOC TRAINER
+G29: [str] NSQF-IT
+H29: [str] f
+J29: [int] 9877215331
+K29: [str] anchalchhabra087@gmail.com
+L29: [str] h.no.B 1573 nai abadi bada pull s.no. 1 abohar)
+N29: [int] 591830428658
+O29: [date] 1985-11-13T00:00:00
+P29: [int] 637118210006389
+Q29: [str] BKID0006371
+A30: [int] 31
+C30: [str] JP
+D30: [str] Joginderpal
+E30: [str] Lal chand 
+F30: [str] VOC TRAINER
+G30: [str] NSQF-PLUMBING
+H30: [str] m
+J30: [int] 9464494712
+K30: [str] jpal9574@gmail.com
+L30: [str] h.no 686 bhart nager w.no 19 malout
+M30: [str] NML08726
+N30: [int] 310015235265
+O30: [date] 1993-09-01T00:00:00
+P30: [int] 50100441790576
+Q30: [str] HDFC0003892
+A31: [int] 32
+C31: [str] SR
+D31: [str] Saroj Kumari
+E31: [str] Late Sanjeev Kumar 
+F31: [str] LIBRARIAN
+G31: [str] NA
+H31: [str] f
+J31: [int] 6287097504
+K31: [str] riya.harshita.suthar@gmail.com
+L31: [str] House no 7, Ward no 13, Suratgarh road, hanumangarh 
+N31: [int] 938606996494
+O31: [date] 1984-09-12T00:00:00
+P31: [int] 20267523405
+Q31: [str] SBIN0006404
+---
+[Sheet: Classes allotments]
+A1: [str] Classwise subjects allotment for 2025-26
+A2: [str] Subject
+B2: [str] 6A
+C2: [str] 6B
+D2: [str] 7A
+E2: [str] 7B
+F2: [str] 8A
+G2: [str] 8B
+H2: [str] 9A
+I2: [str] 9B
+J2: [str] 9C
+K2: [str] 10A
+L2: [str] 10B
+M2: [str] 10C
+N2: [str] 11A
+O2: [str] 11B
+P2: [str] 12A
+Q2: [str] 12B
+R2: [str] Order
+A3: [str] Incharge
+B3: [str] RS
+C3: [str] GK
+D3: [str] RN
+E3: [str] PS
+F3: [str] SH
+G3: [str] RI
+H3: [str] PR
+I3: [str] MK
+J3: [str] VS
+K3: [str] MB
+L3: [str] SU
+M3: [str] AB
+N3: [str] MR
+O3: [str] MU
+P3: [str] AS
+Q3: [str] SK
+R3: [int] 1
+A4: [str] ENG
+B4: [str] PR
+C4: [str] SN
+D4: [str] PS
+E4: [str] PS
+F4: [str] SN
+G4: [str] SN
+H4: [str] PR
+I4: [str] PS
+J4: [str] MB
+K4: [str] MB
+L4: [str] PR
+M4: [str] MB
+N4: [str] AA
+O4: [str] AA
+P4: [str] AA
+Q4: [str] AA
+R4: [int] 2
+A5: [str] SS
+B5: [str] PS
+C5: [str] PR
+D5: [str] MK
+E5: [str] PR
+F5: [str] PS
+G5: [str] SN
+H5: [str] SN
+I5: [str] SN
+J5: [str] PS
+K5: [str] MB
+L5: [str] MB
+M5: [str] MB
+N5: [str] --
+O5: [str] --
+P5: [str] --
+Q5: [str] --
+R5: [int] 3
+A6: [str] PBI
+B6: [str] AB
+C6: [str] GK
+D6: [str] GK
+E6: [str] AB
+F6: [str] AB
+G6: [str] GK
+H6: [str] AB
+I6: [str] GK
+J6: [str] GK
+K6: [str] GK
+L6: [str] AB
+M6: [str] AB
+N6: [str] AS
+O6: [str] AS
+P6: [str] AS
+Q6: [str] AS
+R6: [int] 4
+A7: [str] HI
+B7: [str] RL
+C7: [str] MA
+D7: [str] MA
+E7: [str] RL
+F7: [str] MA
+G7: [str] RL
+H7: [str] MA
+I7: [str] RL
+J7: [str] RL
+K7: [str] RL
+L7: [str] MA
+M7: [str] MA
+N7: [str] --
+O7: [str] --
+P7: [str] --
+Q7: [str] --
+R7: [int] 5
+A8: [str] MATH
+B8: [str] RS
+C8: [str] SH
+D8: [str] RN
+E8: [str] MK
+F8: [str] SH
+G8: [str] RN
+H8: [str] RN
+I8: [str] MK
+J8: [str] RS
+K8: [str] MK
+L8: [str] RS
+M8: [str] SH
+N8: [str] SK
+O8: [str] SK
+P8: [str] SK
+Q8: [str] SK
+R8: [int] 6
+A9: [str] SCI
+B9: [str] VS
+C9: [str] SU
+D9: [str] RI
+E9: [str] SU
+F9: [str] VS
+G9: [str] RI
+H9: [str] SU
+I9: [str] RI
+J9: [str] VS
+K9: [str] RI
+L9: [str] SU
+M9: [str] VS
+N9: [str] --
+O9: [str] --
+P9: [str] --
+Q9: [str] --
+R9: [int] 7
+A10: [str] PE
+B10: [str] DR
+C10: [str] RN
+D10: [str] SH
+E10: [str] DR
+F10: [str] RK
+G10: [str] DR
+H10: [str] DR
+I10: [str] DR
+J10: [str] DR
+K10: [str] RK
+L10: [str] RK
+M10: [str] RK
+N10: [str] DR
+O10: [str] RK
+P10: [str] RK
+Q10: [str] DR
+R10: [int] 8
+A11: [str] CS
+B11: [str] SJ
+C11: [str] JK
+D11: [str] JK
+E11: [str] SJ
+F11: [str] SJ
+G11: [str] JK
+H11: [str] JK
+I11: [str] SJ
+J11: [str] JK
+K11: [str] SJ
+L11: [str] SJ
+M11: [str] JK
+N11: [str] JK
+O11: [str] SJ
+P11: [str] SJ
+Q11: [str] JK
+R11: [int] 9
+A12: [str] AG
+B12: [str] RN
+C12: [str] SH
+D12: [str] RI
+E12: [str] SU
+A13: [str] POL
+B13: [str] --
+C13: [str] --
+D13: [str] --
+E13: [str] --
+F13: [str] --
+G13: [str] --
+H13: [str] --
+I13: [str] --
+J13: [str] --
+K13: [str] --
+L13: [str] --
+M13: [str] --
+N13: [str] MR
+O13: [str] MR
+P13: [str] MR
+Q13: [str] MR
+R13: [int] 10
+A14: [str] HIS
+B14: [str] --
+C14: [str] --
+D14: [str] --
+E14: [str] --
+F14: [str] --
+G14: [str] --
+H14: [str] --
+I14: [str] --
+J14: [str] --
+K14: [str] --
+L14: [str] --
+M14: [str] --
+N14: [str] RL/RK
+O14: [str] SN
+P14: [str] SN
+Q14: [str] SK
+R14: [int] 11
+A15: [str] EVS
+B15: [str] --
+C15: [str] --
+D15: [str] --
+E15: [str] --
+F15: [str] --
+G15: [str] --
+H15: [str] --
+I15: [str] --
+J15: [str] --
+K15: [str] --
+L15: [str] --
+M15: [str] --
+R15: [int] 12
+---
+[Sheet: VACANT]
+A1: [str] Teacher
+B1: [str] Mon
+C1: [str] Tue
+D1: [str] Wed
+E1: [str] Thu
+F1: [str] Fri
+G1: [str] Sat
+A2: [str] Amit Arora, AA
+B2: [int] 5
+C2: [int] 4
+D2: [int] 4
+E2: [int] 4
+F2: [int] 1
+G2: [int] 1
+A3: [str] Moti Ram, MR
+B3: [int] 1
+C3: [int] 2
+D3: [int] 3
+E3: [int] 3
+F3: [int] 2
+G3: [int] 2
+A4: [str] Sunil Kumar, SK
+B4: [int] 3
+C4: [int] 3
+D4: [int] 4
+E4: [int] 4
+F4: [int] 4
+G4: [int] 3
+A5: [str] Angrej Singh, AS
+B5: [int] 3
+C5: [int] 4
+D5: [int] 2
+E5: [int] 3
+F5: [int] 1
+G5: [int] 1
+A6: [str] Mukesh Rajoria, MU
+B6: [int] 1
+C6: [int] 3
+D6: [int] 2
+E6: [int] 2
+F6: [int] 3
+G6: [int] 5
+A7: [str] Mohit Kumar, MK
+B7: [int] 3
+C7: [int] 4
+D7: [int] 3
+E7: [int] 3
+F7: [int] 5
+G7: [int] 3
+A8: [str] Shunty Kumar, SH
+B8: [int] 4
+C8: [int] 4
+D8: [int] 4
+E8: [int] 3
+F8: [int] 3
+G8: [int] 4
+A9: [str] Rajiv Narang, RN
+B9: [int] 3
+C9: [int] 3
+D9: [int] 4
+E9: [int] 4
+F9: [int] 3
+G9: [int] 4
+A10: [str] Raman Sama, RS
+B10: [int] 2
+C10: [int] 2
+D10: [int] 4
+E10: [int] 6
+F10: [int] 5
+G10: [int] 2
+A11: [str] Gurwinder Kaur, GK
+B11: [int] 3
+C11: [int] 2
+D11: [int] 1
+E11: [int] 2
+F11: [int] 2
+G11: [int] 2
+A12: [str] Anju Bala, AB
+B12: [int] 2
+C12: [int] 2
+D12: [int] 2
+E12: [int] 1
+F12: [int] 3
+G12: [int] 2
+A13: [str] Vijay Singh, VS
+B13: [int] 6
+C13: [int] 2
+D13: [int] 2
+E13: [int] 3
+F13: [int] 3
+G13: [int] 4
+A14: [str] Sunita Devi, SU
+B14: [int] 5
+C14: [int] 2
+D14: [int] 2
+E14: [int] 2
+F14: [int] 4
+G14: [int] 4
+A15: [str] Reetika, RI
+B15: [int] 4
+C15: [int] 2
+D15: [int] 4
+E15: [int] 1
+F15: [int] 4
+G15: [int] 3
+A16: [str] Meenu Bala, MB
+B16: [int] 3
+C16: [int] 1
+D16: [int] 4
+E16: [int] 3
+F16: [int] 4
+G16: [int] 1
+A17: [str] Sanjay Solanki, SN
+B17: [int] 3
+C17: [int] 5
+D17: [int] 3
+E17: [int] 3
+F17: [int] 3
+G17: [int] 2
+A18: [str] Parmila, PR
+B18: [int] 2
+C18: [int] 4
+D18: [int] 2
+E18: [int] 2
+F18: [int] 2
+G18: [int] 4
+A19: [str] Pratibha Setia, PS
+B19: [int] 3
+C19: [int] 4
+D19: [int] 2
+E19: [int] 3
+F19: [int] 2
+G19: [int] 3
+A20: [str] Priyanka, PY
+B20: [int] 2
+C20: [int] 4
+D20: [int] 2
+E20: [int] 3
+F20: [int] 2
+G20: [int] 3
+A21: [str] Maya, MA
+B21: [int] 3
+C21: [int] 3
+D21: [int] 3
+E21: [int] 3
+F21: [int] 4
+G21: [int] 4
+A22: [str] Ratan Lal, RL
+B22: [int] 1
+C22: [int] 4
+D22: [int] 5
+E22: [int] 3
+F22: [int] 3
+G22: [int] 5
+A23: [str] Ravi Kumar, RK
+B23: [int] 4
+C23: [int] 4
+D23: [int] 6
+E23: [int] 5
+F23: [int] 5
+G23: [int] 5
+A24: [str] Daulat Ram, DR
+B24: [int] 6
+C24: [int] 4
+D24: [int] 4
+E24: [int] 5
+F24: [int] 3
+G24: [int] 4
+A25: [str] Jaspreet Kaur, JK
+B25: [int] 4
+C25: [int] 2
+D25: [int] 3
+E25: [int] 3
+F25: [int] 1
+G25: [int] 3
+A26: [str] Sachin Kumar, SJ
+B26: [int] 3
+C26: [int] 3
+D26: [int] 3
+E26: [int] 2
+F26: [int] 3
+G26: [int] 2
+A27: [str] Anchal Rani, AR
+B27: [int] 1
+C27: [int] 3
+D27: [int] 2
+E27: [int] 2
+F27: [int] 4
+G27: [int] 5
+A28: [str] Joginderpal, JP
+B28: [int] 2
+C28: [int] 3
+D28: [int] 2
+E28: [int] 2
+F28: [int] 4
+G28: [int] 5
+---
+[Sheet: ELECTION DATA]
+A1: [str] CODE
+B1: [str] Sr.No
+C1: [str] Dept.Name
+D1: [str] Office Name
+E1: [str] Name
+F1: [str] Fathers's/Husband Name
+G1: [str] Designation
+H1: [str] Gender
+I1: [str] Class (A/B/C/D)
+J1: [str] Pay Scale/Grade Pay
+K1: [str] Basic Pay
+L1: [str] Office Name &Address
+M1: [str] Home Resd.Address & Phone
+N1: [str] Place Of Posting under Which block
+O1: [str] Place Of Posting under Which Gram Panchayat
+P1: [str] Residence Block
+Q1: [str] Place Of Residence under Which Gram Panchayat
+R1: [str] Already exercise election Duty (if Yes)
+S1: [str] Select As
+T1: [str] Emplopyee Type
+U1: [str] Appointed BLO
+V1: [str] on Long Leave
+W1: [str] Handicapped
+X1: [str] Remarks\nas handicaped details
+Y1: [str] EPIC CARD no 
+Z1: [str] voter registered at AC
+AA1: [str] Part no
+AB1: [str] Sr no. in Part no
+AC1: [str] Aadhar no
+AD1: [str] Date of birth
+AE1: [str] Date Of Retire ment
+AF1: [str] Mobile No
+AG1: [str] Email id
+AH1: [str] Bank Name
+AI1: [str] Bank Account No
+AJ1: [str] IFSC 
+AK1: [str] Bank adddress
+AL1: [str] Sign
+A2: [str] AA
+B2: [int] 1
+C2: [str] Edu. Dept.
+D2: [str] GMS WAHAB  WALA
+E2: [str] AMIT ARORA
+F2: [str] ASHOK KUMAR
+G2: [str] ENGLISH LECTURER
+H2: [str] MALE
+I2: [str] B
+J2: [str] 10300-34800+5400
+K2: [int] 81000
+L2: [str] GSSS AMARPURA
+M2: [str] HOUSE NO.40 ARU. URBAN ESTATE OPP. SONI PALACE ABOHAR
+N2: [str] ABOHAR-1
+P2: [str] ABOHAR-2
+Q2: [str] URBAN
+R2: [str] YES
+S2: [str] MASTER TRAINER/PRO
+T2: [str] LECTURER
+U2: [str] NO
+V2: [str] NO
+W2: [str] NO
+X2: [str] NA
+Y2: [str] JGK1115765
+Z2: [str] 81 ABOHAR
+AA2: [int] 79
+AB2: [int] 1088
+AC2: [int] 862090928893
+AD2: [date] 1980-02-07T00:00:00
+AE2: [date] 2038-02-28T00:00:00
+AF2: [int] 9888963588
+AG2: [str] AMITARORA7280@GMAIL.COM
+AH2: [str] SBI ABOHAR
+AI2: [int] 30116939060
+AJ2: [str] SBIN0000600
+AK2: [str] MAIN BRANCH ABOHAR
+AL2: [str] AMIT ARORA
+A3: [str] SJ
+B3: [int] 2
+C3: [str] Edu. Dept.
+D3: [str] GMS WAHAB  WALA
+E3: [str] SACHIN KUMAR
+F3: [str] KAMALJEET JUNEJA
+G3: [str] COMPUTER FACULTY
+H3: [str] MALE
+I3: [str] C
+J3: [str] 10300-34800 (+5000 GP)
+K3: [int] 27190
+L3: [str] GSSS AMARPURA
+M3: [str] HOUSE NO. 171 RIDHI SIDHI ESTATE ABOHAR 
+N3: [str] ABOHAR
+P3: [str] ABOHAR
+Q3: [str] URBAN 
+R3: [str] YES 
+S3: [str] PO
+T3: [str] MASTER 
+U3: [str] NO
+V3: [str] NO
+W3: [str] NO
+X3: [str] NA
+Y3: [str] JGK1624055
+Z3: [str] 81 ABOHAR
+AA3: [int] 117
+AB3: [int] 1167
+AC3: [int] 481753693883
+AD3: [date] 1983-10-08T00:00:00
+AE3: [date] 2041-10-31T00:00:00
+AF3: [int] 9876601312
+AG3: [str] junejasahab@gmail.com
+AH3: [str] SBI ABOHAR
+AI3: [int] 31916643001
+AJ3: [str] SBIN0000600
+AK3: [str] MAIN BRANCH ABOHAR
+AL3: [str] SACHIN KUMAR 
+A4: [str] MB
+B4: [int] 3
+C4: [str] Edu. Dept.
+D4: [str] GMS WAHAB  WALA
+E4: [str] MEENU BALA
+F4: [str] MUNISH KUMAR 
+G4: [str] SS MISTRESS 
+H4: [str] FEMALE 
+I4: [str] C
+J4: [str] 10300-34800+5000
+K4: [int] 55800
+L4: [str] GSSS AMARPURA
+M4: [str] HOUSE NO. 24, RIDHI SIDHI ESTATE ABOHAR 
+N4: [str] ABOHAR 
+P4: [str] ABOHAR 
+Q4: [str] URBAN 
+R4: [str] Yes
+S4: [str] PO
+T4: [str] MASTER 
+U4: [str] NO 
+V4: [str] NO
+W4: [str] NO
+X4: [str] NA
+Y4: [str] WAA1008887
+Z4: [str] 81 ABOHAR
+AA4: [int] 53
+AB4: [int] 118
+AC4: [int] 824191248220
+AD4: [date] 1984-04-02T00:00:00
+AE4: [date] 2042-04-30T00:00:00
+AF4: [int] 8427711001
+AG4: [str] manish.vij09@gmail.com
+AH4: [str] AXIS BANK ABOHAR 
+AI4: [int] 911010033224141
+AJ4: [str] UTIB0000399
+AK4: [str] MAIN BRANCH ABOHAR 
+AL4: [str] MEENU BALA
+A5: [str] GK
+B5: [int] 4
+C5: [str] Edu. Dept.
+D5: [str] GMS WAHAB  WALA
+E5: [str] GURWINDER KAUR 
+F5: [str] GURCHARAN SINGH 
+G5: [str] Punjabi mistress 
+H5: [str] Female 
+I5: [str] C
+J5: [str] 10300+34800+5000
+K5: [int] 55800
+L5: [str] GSSSS Amarpura 
+M5: [str] house no.180/A guru kirpa colony street no.4 malout road Abohar 
+N5: [str] Abohar 
+P5: [str] Abohar 
+Q5: [str] Urban 
+R5: [str] yes
+S5: [str] PO
+T5: [str] Master 
+U5: [str] No
+V5: [str] No
+W5: [str] No
+X5: [str] NA
+Y5: [str] WAA1253269
+Z5: [str] 81 Abohar 
+AA5: [int] 48
+AB5: [int] 455
+AC5: [int] 650432008927
+AD5: [date] 1976-02-12T00:00:00
+AE5: [date] 1934-02-28T00:00:00
+AF5: [int] 7888930738
+AG5: [str] gurvinderkaur00513@gmail.com
+AH5: [str] SBi abohar 
+AI5: [int] 65086556373
+AJ5: [str] SBIN0011899
+AK5: [str] Bus stand Road Abohar 
+AL5: [str] GURWINDER kaur 
+A6: [str] MU
+B6: [int] 5
+C6: [str] Edu. Dept.
+D6: [str] GMS WAHAB  WALA
+E6: [str]  MUKESH RAJORIA
+F6: [str] JASPAL RAJORIA
+G6: [str] LECTURER PHYSICAL EDUCATION
+H6: [str] MALE
+I6: [str] B
+J6: [str] 10300-34800+5400
+K6: [int] 76300
+L6: [str] GSSSS Amarpura 
+M6: [str] GOU SHALLA ROAD ST NO 16-17 ABOHAR
+N6: [str] ABOHAR 1
+P6: [str] ABOHAR
+Q6: [str] URBAN
+R6: [str] YES
+S6: [str] MASTER TRAINER/PRO
+T6: [str] LECTURER
+U6: [str] NO
+V6: [str] NO
+W6: [str] NO
+X6: [str] NA
+Y6: [str] JGK2560258
+Z6: [str] 81 ABOHAR
+AA6: [int] 38
+AB6: [int] 445
+AC6: [int] 798714032165
+AD6: [date] 1977-12-01T00:00:00
+AE6: [date] 1935-11-30T00:00:00
+AF6: [int] 8427600136
+AG6: [str] MUKESHRAJORIA@HOTMAIL.COM
+AH6: [str] SBI
+AI6: [int] 10386652204
+AJ6: [str] SBIN0000600
+AK6: [str] MAIN BRANCH
+AL6: [str] MUKESH RAJORIA
+A7: [str] JK
+B7: [int] 6
+C7: [str] Edu. Dept.
+D7: [str] GMS WAHAB  WALA
+E7: [str] JASPREET KAUR 
+F7: [str] GURBACHAN SINGH
+G7: [str] COMPUTER FACULTY
+H7: [str] Female 
+I7: [str] C
+J7: [str] 10300-34800 (+5000 GP)
+K7: [int] 27190
+L7: [str] GSSS AMARPURA
+M7: [str] Plot no 13,14,Ward no.23,Shakti nagar, Hanumangarh 
+N7: [str] Abohar-1
+P7: [str] Hanumangarh 
+Q7: [str] URBAN 
+R7: [str] YES
+S7: [str] PO 
+T7: [str] Computer Faculty 
+U7: [str] NO
+V7: [str] NO
+W7: [str] NO
+X7: [str] NA
+Y7: [str] KVS2143329
+Z7: [str] Hanumangarh -8
+AC7: [int] 519898041317
+AD7: [date] 1976-04-01T00:00:00
+AE7: [date] 2034-03-31T00:00:00
+AF7: [int] 9460316460
+AG7: [str] brarjassy77@gmail.com
+AH7: [str] SBI
+AI7: [int] 20150974084
+AJ7: [str] SBIN0001858
+AK7: [str] ADB Hanumangarh 
+AL7: [str] Jaspreet kaur 
+A8: [str] RL
+B8: [int] 7
+E8: [str] Rattan Lal kantiwal 
+F8: [str] Sardara Ram 
+G8: [str] Hindi Master 
+H8: [str] Male 
+I8: [str] c
+J8: [str] 10300-34800+5000
+K8: [int] 70700
+L8: [str] Gsss Amarpura 
+M8: [str] Village Amarpura 
+N8: [str] Abohar -1
+P8: [str] Abohar-1
+Q8: [str] Amarpura 
+R8: [str] Yes 
+S8: [str] APRO
+T8: [str] Master 
+U8: [str] Yes 
+V8: [str] No
+W8: [str] No 
+X8: [str] NA
+Y8: [str] TNM1306083
+Z8: [str] 82 Balluana 
+AA8: [int] 118
+AB8: [int] 588
+AC8: [int] 806699408936
+AD8: [date] 1979-08-10T00:00:00
+AE8: [date] 2037-08-31T00:00:00
+AF8: [int] 9465116980
+AG8: [str] rattanlalkantiwal430@gmail.com
+AH8: [str] SBI
+AI8: [int] 32279958275
+AJ8: [str] SBIN0000600
+AK8: [str] Main Branch Abohar 
+AL8: [str] Rattan Lal 
+A9: [str] RI
+B9: [int] 8
+E9: [str] Reetika 
+F9: [str] vijay Kumar 
+G9: [str] science mistress 
+H9: [str] Female
+I9: [str] C
+J9: [str] 10300-34800+5000
+K9: [int] 51100
+L9: [str] Gsss amarpura 
+M9: [str] jain nagri abohar
+N9: [str] Abohar-1
+P9: [str] abohar-1 
+Q9: [str] urban 
+R9: [str] Yes
+S9: [str] PO
+T9: [str] Master
+U9: [str] No
+V9: [str] No
+W9: [str] No
+X9: [str] NA
+Y9: [str] WAA1254473
+Z9: [str] 81Abohar
+AA9: [int] 47
+AC9: [int] 566016525582
+AD9: [date] 1985-09-11T00:00:00
+AE9: [date] 2043-09-30T00:00:00
+AF9: [int] 8146800350
+AG9: [str] tinna.reetika@gmail.com
+AH9: [str] SBI
+AI9: [int] 65230641608
+AJ9: [str] SBIN0050246
+AK9: [str] Abohar
+AL9: [str] Reetika 
+A10: [str] RN
+B10: [int] 9
+E10: [str] Rajiv Kumar 
+F10: [str] Nand Lal
+G10: [str] Math Master 
+H10: [str] Male 
+I10: [str] C
+J10: [str] 10300-34800+5000
+K10: [int] 52700
+L10: [str] GSSS AMARPURA 
+M10: [str] Tara Estate Abohar 
+N10: [str] Abohar -1
+P10: [str] Abohar -1 
+Q10: [str] Urban 
+R10: [str] yes 
+S10: [str] APRO
+T10: [str] Master 
+U10: [str] No
+V10: [str] No
+W10: [str] No
+X10: [str] NA
+Y10: [str] JGK119073
+Z10: [str] 81-Abohar
+AA10: [int] 53
+AB10: [int] 368
+AC10: [int] 454764261512
+AD10: [date] 1982-03-21T00:00:00
+AE10: [date] 2040-03-31T00:00:00
+AF10: [int] 9888450759
+AG10: [str] narangmanthan@gmail.com
+AH10: [str] SBI 
+AI10: [int] 20064504641
+AJ10: [str] SBIN0031018
+AK10: [str] Near Railway station, Abohar 
+AL10: [str] Rajiv
+A11: [str] MK
+B11: [int] 10
+E11: [str] Mohit Kumar 
+F11: [str] Surja Ram
+G11: [str] Math Master 
+H11: [str] Male
+I11: [str] C
+J11: [str] 10300-34800+5000
+K11: [int] 55800
+L11: [str] GSSS AMARPURA 
+M11: [str] Nai Abadi Bada pull Abohar 
+N11: [str] Abohar-1
+P11: [str] Abohar
+Q11: [str] Urban 
+R11: [str] Yes
+S11: [str] Flying Squat
+T11: [str] Master 
+U11: [str] No
+V11: [str] No
+W11: [str] No
+X11: [str] NA
+Y11: [str] JGK2102408
+Z11: [str] 81-Abohar
+AA11: [int] 292
+AB11: [int] 97
+AC11: [int] 499850384461
+AD11: [date] 1988-03-02T00:00:00
+AE11: [date] 2046-03-31T00:00:00
+AF11: [int] 7888489901
+AG11: [str] mohit.parihar777@gmail.com
+AH11: [str] PNB ABOHAR 
+AI11: [int] 499850384461
+AJ11: [str] PUNB0466900
+AK11: [str] Near D.A.V College Abohar 
+AL11: [str] Mohit Kumar 
+A12: [str] SN
+B12: [int] 11
+E12: [str] SANJAY SOLANKI
+F12: [str] KRISHAN KUMAR
+G12: [str] SST MASTER
+H12: [str] Male
+I12: [str] C
+J12: [str] 10300-34800+5000
+K12: [int] 55800
+L12: [str] GSSS AMARPURA 
+M12: [str] Thakur Abadi,street no. -12,Abohar
+N12: [str] Abohar -1
+P12: [str] Abohar-1
+Q12: [str] Urban 
+R12: [str] yes 
+S12: [str] APRO
+T12: [str] Master
+U12: [str] No
+V12: [str] No
+W12: [str] No
+X12: [str] NA
+Y12: [str] JGK1132711
+Z12: [str] 81-Abohar
+AA12: [int] 82
+AB12: [int] 268
+AC12: [int] 715052383296
+AD12: [date] 1980-07-29T00:00:00
+AE12: [date] 1938-07-31T00:00:00
+AF12: [int] 8054410687
+AG12: [str] sanjaysolanki80544@gmail.com
+AH12: [str] SBI
+AI12: [int] 32807757207
+AJ12: [str] SBIN0011899
+AK12: [str] Near Sandeep cinema bus stand
+AL12: [str] sanjay
+A13: [str] SH
+B13: [int] 12
+C13: [str] Edu. Deptt
+E13: [str] SHUNTY KUMAR 
+F13: [str] PRAHILAD KUMAR 
+G13: [str] MATH MASTER
+H13: [str] MALE
+I13: [str] C
+J13: [str] 10300-34800+5000
+K13: [int] 51100
+L13: [str] GSSS AMARPURA 
+M13: [str] st no. 3, Ramdev nagri abohar
+N13: [str] Abohar-1
+P13: [str] Abohar-1
+Q13: [str] URBAN 
+R13: [str] yes
+S13: [str] APRO/PRO
+T13: [str] master
+U13: [str] no
+V13: [str] no
+W13: [str] no
+X13: [str] NA
+Y13: [str] JGK1787852
+Z13: [str] 81-Abohar
+AA13: [int] 82
+AB13: [int] 897
+AC13: [int] 825685642456
+AD13: [date] 1986-07-24T00:00:00
+AE13: [date] 2044-07-31T00:00:00
+AF13: [int] 9876560551
+AG13: [str] justshunty86@gmail.com
+AH13: [str] SBI 
+AI13: [int] 31552620425
+AJ13: [str] SBIN0011899
+AK13: [str] near Sandeep cinema bus stand road abohar
+AL13: [str] shunty kumar 
+A14: [str] SK
+B14: [int] 13
+E14: [str] SUNIL KUMAR SANGWAL
+F14: [str] KESHRA RAM
+G14: [str] LECTURER MATH
+H14: [str] MALE
+I14: [str] B
+J14: [str] 10300-34800+5400
+K14: [int] 63100
+L14: [str] GSSS AMARPURA
+M14: [str] #7, Old Suraj Nagri, Abohar
+N14: [str] Abohar -1
+P14: [str] Abohar-1
+Q14: [str] URBAN
+R14: [str] Yes
+S14: [str] PRO
+T14: [str] LECTURER
+U14: [str] no
+V14: [str] no
+W14: [str] no
+X14: [str] na
+Y14: [str] TNM1712421
+Z14: [str] 82-Balluana
+AA14: [int] 117
+AB14: [int] 800
+AC14: [int] 208634161382
+AD14: [date] 1978-01-03T00:00:00
+AE14: [date] 2036-01-31T00:00:00
+AF14: [int] 9814017511
+AG14: [str] sunil.sangwal@gmail.com
+AH14: [str] SBI
+AI14: [int] 10386658863
+AJ14: [str] SBIN0000600
+AK14: [str] Main Branch, Abohar
+AL14: [str] Sunil
+A15: [str] MR
+B15: [int] 14
+E15: [str] MOTI RAM
+F15: [str] SHEOKARAN RAM
+G15: [str] LECTURE POL SCI
+H15: [str] MALE
+I15: [str] B
+J15: [str] 10300-34800+5400
+K15: [int] 102250
+L15: [str] GSSS AMARPURA
+M15: [str] VPO Amarpura
+N15: [str] Abohar - 1
+P15: [str] Abohar - 1
+Q15: [str] RURAL
+R15: [str] No
+S15: [str] NA
+T15: [str] LECTURER
+U15: [str] NO
+V15: [str] NO
+W15: [str] YES
+X15: [str] 55%, ORTHO
+Y15: [str] TNM1711803
+Z15: [str] 82-Balluana
+AA15: [int] 117
+AB15: [int] 499
+AC15: [int] 218465585096
+AD15: [date] 1966-03-05T00:00:00
+AE15: [date] 2026-03-31T00:00:00
+AF15: [int] 9463785545
+AG15: [str] rmoti1435@gmail.com
+AH15: [str] HDFC
+AI15: [int] 501000060782
+AJ15: [str] HDFC0003892
+AK15: [str] Wahab Wala
+AL15: [str] Moti Ram
+A16: [str] VS
+B16: [int] 14
+C16: [str] Edu. Dept
+E16: [str] VIJAY SINGH SIDHU 
+F16: [str] GURJANT SINGH SIDHU 
+G16: [str] SCIENCE MASTER 
+H16: [str] MALE
+I16: [str] C
+J16: [str] 10300+34800+5000
+K16: [int] 66700
+L16: [str] GSSS AMARPURA 
+M16: [str] H.No. B-2-214, JATINDER CHOWK , FARIDKOT 
+N16: [str] ABOHAR -1
+P16: [str] FARIDKOT -1
+Q16: [str] URBAN 
+R16: [str] YES
+S16: [str] PRO
+T16: [str] MASTER CADRE
+U16: [str] NO
+V16: [str] NO
+W16: [str] NO
+X16: [str] NA
+Y16: [str] FGX1386747
+Z16: [str]   87 FARIDKOT 
+AA16: [int] 172
+AB16: [int] 630
+AC16: [int] 814987724074
+AD16: [date] 1973-12-23T00:00:00
+AE16: [date] 2031-12-31T00:00:00
+AF16: [int] 8146912300
+AG16: [str] vijay7319sidhu@gmail.com
+AH16: [str] IDBI , Bank , FARIDKOT 
+AI16: [str] o395104000015808
+AJ16: [str] IBKL0000395
+AK16: [str] TALWANDI ROAD, FARIDKOT 
+AL16: [str] VIJAY SINGH 
+A17: [str] PR
+B17: [int] 15
+C17: [str] Edu. Dep.
+E17: [str] PARMILA 
+F17: [str] VARINDER KUMAR 
+G17: [str] SS MISTRESS 
+H17: [str] FEMALE 
+I17: [str] C
+J17: [str] 10300+34800+5000
+K17: [int] 51100
+L17: [str] GSSSS AMARPURA 
+M17: [str] SOUTH AVENUE,SREET NO:9,LAST CHOWK 
+N17: [str] ABOHAR -1
+P17: [str] Abohar 
+Q17: [str] URBAN 
+R17: [str] YES 
+S17: [str] PO
+T17: [str] MASTER CADRE 
+U17: [str] NO
+V17: [str] NO
+W17: [str] NO
+X17: [str] NA
+Y17: [str] WAA1956267
+Z17: [str] 81 ABOHAR
+AA17: [int] 72
+AB17: [int] 72
+AC17: [int] 647722993792
+AD17: [date] 1995-07-12T00:00:00
+AE17: [date] 2053-07-30T00:00:00
+AF17: [int] 9465629556
+AG17: [str] parmilagoriwal@gmail.com
+AH17: [str] SBI 
+AI17: [int] 37492825948
+AJ17: [str] SBIN0000600
+AK17: [str] MAIN BRANCH 
+AL17: [str] Parmila 
+A18: [str] RS
+B18: [int] 16
+C18: [str] EDU.DEP.
+E18: [str] RAMAN SAMA 
+F18: [str] NAVDEEP KUMAR KAMBOJ 
+G18: [str] MATH MISTRESS 
+H18: [str] FEMALE
+I18: [str] C
+J18: [str] 10300-34800+5000
+K18: [int] 51100
+L18: [str] GSSS AMARPURA 
+M18: [str] SHAHEED UDHAM SINGH NAGAR, OPP. BALAJI DHAM, ABOHAR 
+N18: [str] ABOHAR -1
+P18: [str] ABOHAR 
+Q18: [str] URBAN
+R18: [str] YES
+S18: [str] PO
+T18: [str] MASTER CADRE
+U18: [str] NO
+V18: [str] NO
+W18: [str] NO
+X18: [str] NA
+Y18: [str] WAA1779156
+Z18: [str] 81 Abohar 
+AA18: [int] 77
+AB18: [int] 972
+AC18: [int] 241447459350
+AD18: [date] 1989-04-09T00:00:00
+AE18: [date] 2047-04-30T00:00:00
+AF18: [int] 9417262203
+AG18: [str] ramanaboharr@gmail.com
+AH18: [str] PNB
+AI18: [int] 4669000100054360
+AJ18: [str] PUNB0466900
+AK18: [str] DAV COLLEGE, ABOHAR 
+AL18: [str] Raman 
+A19: [str] SU
+B19: [int] 17
+C19: [str] Edu.Dept.
+E19: [str] Sunita Devi 
+F19: [str] Neeraj Kumar 
+G19: [str] Science Mistress 
+H19: [str] Female 
+I19: [str] C
+J19: [str] 10300-34800+5000
+K19: [int] 52700
+L19: [str] GSSSS Amarpura 
+M19: [str] House no.274 Ridhi Sidhi Estate Abohar 
+N19: [str] Abohar -1
+P19: [str] Abohar 
+Q19: [str] Urban 
+R19: [str] Yes 
+S19: [str] APRO
+T19: [str] Master cadre
+U19: [str] NO
+V19: [str] No
+W19: [str] No
+X19: [str] NA
+Y19: [str] WAA1740406
+Z19: [str] 81 Abohar 
+AA19: [int] 102
+AC19: [int] 255493562594
+AD19: [date] 1985-08-01T00:00:00
+AE19: [date] 2043-08-31T00:00:00
+AF19: [int] 8360655325
+AG19: [str] chan2lianeeraj@gmail.com
+AH19: [str] SBI
+AI19: [int] 31014836585
+AJ19: [str] SBIN0011899
+AK19: [str] Bus stand Road, Abohar 
+AL19: [str] Sunita Devi 
+A20: [str] MA
+B20: [int] 18
+C20: [str] Edu.dep 
+E20: [str] Maya 
+F20: [str] Sunil Kumar 
+G20: [str] Hindi mistress 
+H20: [str] female 
+I20: [str] c
+J20: [str] 10300-34800+5000
+K20: [int] 52700
+L20: [str] Gsss Amarpura 
+M20: [str] Park street Azimgarh Abohar 
+N20: [str] Abohar -1
+P20: [str] Abohar 
+Q20: [str] urban 
+R20: [str] Yes 
+S20: [str] Po
+T20: [str] Master cader
+U20: [str] No
+V20: [str] No
+W20: [str] No
+X20: [str] NA
+Y20: [str] WAA1256932
+Z20: [str] 81-Abohar
+AA20: [int] 66
+AB20: [int] 910
+AC20: [int] 443824076946
+AD20: [date] 1986-11-26T00:00:00
+AE20: [date] 2044-11-30T00:00:00
+AF20: [int] 9417870471
+AG20: [str] mayamaya58933@gmail.com
+AH20: [str] SBI 
+AI20: [int] 32172919203
+AJ20: [str] SBIN0000600
+AK20: [str] Main branch Abohar 
+AL20: [str] Maya 
+A21: [str] MT
+B21: [int] 19
+E21: [str] Mamta Tinna
+F21: [str] Niranjan Dass
+G21: [str] computer faculty 
+H21: [str] female 
+I21: [str] c
+J21: [str] 10300-34800+5001
+K21: [int] 27190
+L21: [str] Gsss Amarpura 
+M21: [str] south Avenue st no 4
+N21: [str] Abohar -1
+P21: [str] Abohar 
+Q21: [str] Urban 
+R21: [str] yes
+S21: [str] PO
+T21: [str] Master Cadre
+U21: [str] No
+V21: [str] No
+W21: [str] No
+X21: [str] NA
+Y21: [str] WAA1925635
+Z21: [str] 81 Abohar 
+AA21: [int] 72
+AB21: [int] 642
+AD21: [date] 1983-04-11T00:00:00
+AE21: [date] 2041-04-30T00:00:00
+AF21: [int] 8558039194
+AG21: [str] mamtatinna12345@gmail.com
+AH21: [str] SBI Abohar 
+A22: [str] PS
+B22: [int] 20
+E22: [str] Pratibha Setia
+F22: [str] Shashi Kant Setia
+G22: [str] SS Mistress
+H22: [str] female 
+I22: [str] C
+J22: [str] 10300-34800+5000
+L22: [str] GSSSS Amarpura 
+M22: [str] St. no. 9,3rd Chowk Circular Road, Abohar
+N22: [str] Abohar -1
+P22: [str] Abohar
+Q22: [str] Urban 
+R22: [str] yes
+S22: [str] Po
+T22: [str] Master cader
+U22: [str] No
+V22: [str] No
+W22: [str] No
+X22: [str] REMARKS as DIVORCE
+Y22: [str] JGK2349827
+Z22: [str] 81 Abohar 
+AA22: [int] 36
+AB22: [int] 63
+AC22: [int] 332972956890
+AD22: [date] 1979-01-24T00:00:00
+AE22: [date] 2037-01-31T00:00:00
+AF22: [int] 8194866022
+AH22: [str] IDBI BANK Abohar
+AI22: [int] 425104000024462
+AJ22: [str] IBKL0000425
+AK22: [str] IDBI BANK Gaushala Road, Abohar
+AL22: [str] Pratibha
+A23: [str] AB
+B23: [int] 21
+E23: [str] Anju Bala
+F23: [str] Radha Krishàn
+G23: [str] Punjabi Mistress 
+H23: [str] female
+I23: [str] C
+J23: [str] 10300-34800+5001
+K23: [int] 54200
+L23: [str] Gssss Amarpura 
+M23: [str] Amarpura 
+N23: [str] Abohar -1
+P23: [str] Abohar
+Q23: [str] Urban
+R23: [str] yes
+S23: [str] PO
+T23: [str] Master cader
+U23: [str] No
+V23: [str] No
+W23: [str] No
+X23: [str] NA
+Y23: [str] FDR2077220
+Z23: [str] 81 Abohar
+AA23: [int] 117
+AB23: [int] 311
+AC23: [int] 405465968778
+AD23: [date] 1986-05-07T00:00:00
+AE23: [date] 2044-05-31T00:00:00
+AF23: [int] 9888306440
+AG23: [str] Anjubala58305@gmail.com
+AH23: [str] SBI Abohar
+AI23: [int] 55158018908
+AJ23: [str] SBIN0011899
+AK23: [str] Bus Stand Road Abohar
+AL23: [str] Anju Bala
+A24: [str] AS
+B24: [int] 22
+E24: [str] Angrej singh
+F24: [str] Dalip singh
+G24: [str] Lecturer Punjabi
+H24: [str] Male
+I24: [str] B
+J24: [str] 10300-34800+5400
+L24: [str] Gssss Amarpura
+M24: [str] Kullar
+N24: [str] Abohar-1
+P24: [str] Abohar-1
+Q24: [str] Rural
+R24: [str] yes
+S24: [str] PRO
+T24: [str] lecturar
+U24: [str] No
+V24: [str] No
+W24: [str] No
+X24: [str] NA
+Y24: [str] TNM 1959006
+Z24: [str] 82 Baluana
+AA24: [int] 162
+AC24: [int] 473431329684
+AD24: [date] 1969-01-12T00:00:00
+AE24: [date] 2027-01-31T00:00:00
+AF24: [int] 9501031861
+AG24: [str] angrejsingh12169@gmail.com
+AH24: [str] PNB Ramsara
+AI24: [str] 1334000100026521
+AJ24: [str] PUNB0133400
+AK24: [str] Ramsara
+AL24: [str] Angrej Singh
+A25: [str] PY
+B25: [int] 23
+C25: [str] Edu.Dept.
+E25: [str] Priyanka 
+F25: [str] Pawan choudhary 
+G25: [str] SST Mistress
+H25: [str] female 
+I25: [str] C
+J25: [str] 10300-34800+5000
+K25: [int] 51100
+L25: [str] Gssss Amar pura 
+M25: [str] VPO Sayadwala
+N25: [str] Abohar -1
+P25: [str] khuana sarwar 
+Q25: [str] Rural
+R25: [str] yes
+S25: [str] PO
+T25: [str] Master
+U25: [str] No
+V25: [str] No
+W25: [str] No
+X25: [str] NA
+Y25: [str] TNM0893156
+Z25: [str] 82  baluana
+AA25: [int] 129
+AB25: [int] 356
+AC25: [int] 624322827807
+AD25: [date] 1986-12-28T00:00:00
+AE25: [date] 2044-12-31T00:00:00
+AF25: [int] 8054987178
+AG25: [str] priyanka7178@gmail.com
+AH25: [str] PNB saiyadwala
+AI25: [int] 741000100028802
+AJ25: [str] PUNB0741100
+AK25: [str] Saiyadwala 
+AL25: [str] Priyanka 
+A26: [str] AK
+B26: [int] 24
+C26: [str] Education department
+E26: [str] AKASH KUMAR
+F26: [str] Ashok kumar
+G26: [str] clerk
+H26: [str] male
+I26: [str] C
+J26: [str] 10300-32400+2800
+K26: [int] 19900
+L26: [str] Gsss Amarpura
+M26: [str] Ram dev nagri st no 2 Abohar
+N26: [str] Abohar1
+P26: [str] Abohar
+Q26: [str] urban
+R26: [str] Yes
+S26: [str] PO
+T26: [str] clerk
+U26: [str] No
+V26: [str] no
+W26: [str] no
+X26: [str] NA
+Y26: [str] WAA1024173
+Z26: [str] 81 Abohar
+AA26: [int] 78
+AB26: [int] 910
+AC26: [int] 49272601126
+AD26: [date] 1993-06-16T00:00:00
+AE26: [date] 2052-06-30T00:00:00
+AF26: [int] 7232081082
+AG26: [str] akashtaank03@gmail.com
+AH26: [str] SBI
+AI26: [int] 36136436730
+AJ26: [str] SBIN0011899
+AK26: [str] Bus Stand Road Abohar
+AL26: [str] akash kumar
+A27: [str] DR
+B27: [int] 25
+E27: [str] Daulat Ram
+F27: [str] OMPARKAS
+G27: [str] PTI
+H27: [str] Male
+I27: [str] C
+J27: [str] 10300-34800+4200
+K27: [int] 66600
+L27: [str] Gsss Amarpura
+M27: [str] Amarpura
+N27: [str] Abohar 1
+P27: [str] Abohar 1
+Q27: [str] Rural
+R27: [str] yes BLO
+S27: [str] BLO
+T27: [str] C&V
+U27: [str] Yes
+V27: [str] No
+W27: [str] No
+X27: [str] NA
+Y27: [str] TNM1349927
+Z27: [str] 82 balluana
+AA27: [int] 119
+AB27: [int] 460
+AC27: [int] 765686202826
+AD27: [date] 1970-05-04T00:00:00
+AE27: [date] 2028-05-31T00:00:00
+AF27: [int] 9464311021
+AG27: [str] daulatram2006@gmail.com
+AH27: [str] SBI
+AI27: [int] 31460409304
+AJ27: [str] SBIN0000600
+AK27: [str] VPO AMARPURA
+AL27: [str] daulat ram
+A28: [str] RK
+B28: [int] 26
+E28: [str] Ravi kumar
+F28: [str] sawan kumar
+G28: [str] DPE
+H28: [str] Male
+I28: [str] C
+J28: [str] 10300-34800+5000
+K28: [int] 48200
+L28: [str] Gsss Amarpura
+M28: [str] Dhani Bisheshar nath
+N28: [str] Abohar
+P28: [str] Abohar
+Q28: [str] Rural
+R28: [str] No
+S28: [str] No
+T28: [str] Master
+U28: [str] No
+V28: [str] No
+W28: [str] No
+X28: [str] NA
+Y28: [str] TNM0909002
+Z28: [str] 82 BALLUANA
+AA28: [int] 128
+AB28: [int] 889
+AC28: [int] 884069230984
+AD28: [date] 1991-07-05T00:00:00
+AE28: [date] 1949-07-31T00:00:00
+AF28: [int] 7837998203
+AG28: [str] RAVIKAMBOJ05071991@GMAIL.COM
+AH28: [str] SBI
+AI28: [int] 34922584292
+AJ28: [str] SBIN0011899
+AK28: [str] BUS STAND BRANCH
+AL28: [str] RAVI KUMAR
+A29: [str] SR
+B29: [int] 27
+E29: [str] SAROJ KUMARI 
+F29: [str] LATE SANJEEV KUMAR 
+G29: [str] LIBRARIAN 
+H29: [str] FEMALE 
+I29: [str] C
+J29: [int] 2400
+K29: [int] 25500
+L29: [str] GSSSS AMARPURA 
+M29: [str] House no 7, Ward no 13, Suratgarh road, hanumangarh 
+N29: [str] ABOHAR -1
+P29: [str] HANUMANGARH rajasthan 
+Q29: [str] URBAN 
+R29: [str] Yes 
+S29: [str] PO
+T29: [str] LIBRARIAN 
+U29: [str] NO
+V29: [str] NO
+W29: [str] NO
+X29: [str] Single Parent 
+Z29: [str] Hanumangarh 
+AC29: [int] 938606996494
+AD29: [date] 1984-09-12T00:00:00
+AE29: [date] 2042-09-30T00:00:00
+AF29: [int] 6287097504
+AG29: [str] riya.harshita.suthar@gmail.com
+AH29: [str] SBI
+AI29: [int] 20267523405
+AJ29: [str] SBIN0006404
+AK29: [str] New dhan mandi Hanumangarh junction 
+AL29: [str] Saroj
+A30: [str] JP
+B30: [int] 28
+E30: [str] Joginder pal 
+F30: [str] Lal chand 
+G30: [str] NSQF Plumbing 
+H30: [str] mala
+I30: [str] c
+K30: [int] 10300
+L30: [str] Gsss Amarpura 
+M30: [str] h.no 686 bhart nager w.no 19 malout
+N30: [str] malout
+P30: [str] malout
+Q30: [str] urban
+R30: [str] yes
+S30: [str] Po
+T30: [str] vocational 
+U30: [str] no
+V30: [str] no
+W30: [str] no
+X30: [str] no
+Y30: [str] NML08726
+Z30: [str] 85-Malout
+AA30: [int] 154
+AB30: [int] 265
+AC30: [int] 310015235265
+AD30: [date] 1993-09-01T00:00:00
+AE30: [date] 2052-08-30T00:00:00
+AF30: [int] 9464494712
+AG30: [str] jpal9574@gmail.com
+AH30: [str] HDFC bank
+AI30: [int] 50100441790576
+AJ30: [str] HDFC0003892
+AK30: [str] wahabwala 
+AL30: [str] Joginder pal 
+A31: [str] AR
+B31: [int] 29
+E31: [str] Anchal Rani
+F31: [str] Bhola Ram
+G31: [str] NSQF( IT Trainer)
+H31: [str] Female
+I31: [str] c
+K31: [int] 10300
+L31: [str] GSSSS AMARPURA 
+M31: [str] h.no.B 1573 nai abadi bada pull s.no. 1 abohar)
+N31: [str] ABOHAR -1
+P31: [str] Abohar
+Q31: [str] URBAN 
+R31: [str] yes
+S31: [str] APRO
+T31: [str] Vocational 
+U31: [str] No
+V31: [str] No
+W31: [str] No
+X31: [str] No
+Z31: [str] 81 Abohar
+AC31: [int] 591830428658
+AD31: [date] 1985-11-13T00:00:00
+AE31: [date] 1943-11-30T00:00:00
+AF31: [int] 9877215331
+AG31: [str] anchalchhabra087@gmail.com
+AH31: [str] BANK OF INDIA
+AI31: [int] 637118210006389
+AJ31: [str] BKID0006371
+AK31: [str] gaushala road abohar
+AL31: [str] Anchal Rani
+---
