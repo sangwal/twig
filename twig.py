@@ -17,7 +17,7 @@
 
     Written by Sunil Sangwal (sunil.sangwal@gmail.com)
     Date written: 20-Apr-2022
-    Last Modified: 13-Oct-2025
+    Last Modified: 14-Oct-2025
 """
 import argparse
 import re
@@ -1171,11 +1171,7 @@ def main():
     # process command line arguments
     #
     #
-    parser = argparse.ArgumentParser(
-        prog='twig.py',
-        description='Generates teacherwise (or classwise) timetable from '
-        'classwise (or teacherwise) timetable.'
-    )
+    parser = argparse.ArgumentParser(prog='twig.py', description='Generates teacherwise (or detailed classwise) timetable from concise classwise timetable in xlsx format.')
     parser.version = '1.0'
 
     parser.add_argument('-i', '--config',
