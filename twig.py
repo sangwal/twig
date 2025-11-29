@@ -57,7 +57,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '251010'    # twig.py version YYMMDD
+__version__ = '251129'    # twig.py version YYMMDD
 
 # configuration variables before running the script
 
@@ -270,6 +270,9 @@ def highlight_clashes(sheet, context):
     CLASH_MARK = '**CLASH** '
     total_clashes = 0
 
+    # if args.noclash:
+    #     print("--clashes--")
+
     # format of line is "CLASS (1-3,5-6) SUBJECT", e.g., 10A (1-2, 4) MATH
     p = re.compile(r'^(?P<class_name>[\w]+)\s*\((?P<days>.*)\)\s*(?P<subject>[\w \-.]+)$')
     
@@ -349,7 +352,14 @@ def highlight_clashes(sheet, context):
                 total_clashes += len(clash_days)
                 # converts list [1, 2, 5] into a string
                 clash_days = repr(clash_days)
-                sheet.cell(row=row, column=column).value = CLASH_MARK + f"{clash_days}:\n" + sheet.cell(row=row, column=column).value
+
+                if not args.noclash:
+                    # mark clashes in the teacherwise sheet
+                    sheet.cell(row=row, column=column).value = CLASH_MARK + f"{clash_days}:\n" + sheet.cell(row=row, column=column).value
+                else:
+                    # -c or --noclash -- don't write in the code
+                    # rather just show the message in terminal
+                    print(f"{CLASH_MARK} {clash_days} in cell {get_column_letter(column)}{row}: {sheet.cell(row=row, column=column).value}")
 
         row += 1
 
@@ -554,7 +564,7 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     # Header
     header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods", "Periods Daywise"]
     for col, val in enumerate(header, start=1):
-        output_sheet.cell(row=1, column=col).value = val
+        output_sheet.cell(row=1, column=col).value = f"Period {val}" if type(val) == int else val
 
     # Teachers ordering
     timetable_teachers = set(timetable.keys())
@@ -597,7 +607,7 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
 
     # end of write_teacherwise_sheet()
 
-def get_user_input(valid_chars:str, prompt: str):
+def get_user_input(valid_chars: str, prompt: str) -> str:
     while True:
         response = input(prompt)
         if response in valid_chars:
@@ -1145,8 +1155,8 @@ def main():
         help='configuration file; default is twig.ini', default='twig.ini')
     parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
     parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n', default="\n")
-    parser.add_argument('-v', '--version', action='store_true', help='display version information')
     parser.add_argument('-b', '--verbose', action='store_true', help='verbose output')
+    parser.add_argument('-v', '--version', action='store_true', help='display version information')
 
     # Create a subparsers object
     subparsers = parser.add_subparsers(dest="command", help="Subcommands")
@@ -1154,6 +1164,7 @@ def main():
     # Subcommand 'teacherwise'
     tw_parser = subparsers.add_parser("teacherwise", help="Generate teacherwise timetable")
     tw_parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
+    tw_parser.add_argument('-c', '--noclash', action='store_true', default=False, help='suppress **CLASH** marks in TEACHERWISE output')
     tw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
 
     # Subcommand 'classwise'
