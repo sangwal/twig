@@ -2,12 +2,13 @@
 
 """
     twig.py -- TeacherWIse [timetable] Generator
-    
-    A python script to generate Teacherwise timetable from Classwise timetable
-    and individual classwise sheets for all classes.
-    
-    The classwise timetable is read from CLASSWISE sheet and the generated teacherwise
-    timetable is saved in TEACHERWISE sheet of the same input workbook.
+
+    A python script to generate Teacherwise timetable from Classwise
+    timetable and individual classwise sheets for all classes.
+
+    The classwise timetable is read from CLASSWISE sheet and the
+    generated teacherwise timetable is saved in TEACHERWISE sheet
+    of the same input workbook.
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,7 +22,7 @@
 import argparse
 import re
 import time
-import configparser # now settings are in twig.ini
+import configparser     # now settings are in twig.ini
 import openpyxl
 import sys
 from pathlib import Path
@@ -57,12 +58,13 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '251129'    # twig.py version YYMMDD
+__version__ = '251204'    # twig.py version YYMMDD
 
 # configuration variables before running the script
 
 expand_names = False    # set this to True to write full names of teachers
 MAX_PERIODS = 8       # maximum number of periods in a day
+
 
 class Config:
     _config = {}
@@ -86,7 +88,7 @@ class Config:
         Config._config = dict(config)  # convert to normal dictionary
         # print(Config._config)
         
-        return None # self._config
+        return None     # self._config
 
     def get(self, key: str, section='APP', default=None):
         # print(Config._config)
@@ -118,12 +120,13 @@ def escape_special_chars(c):
         return replacements[c]
     return c
 
+
 # chatgpt version
 def expand_days(days):
     """
         Parameter
             days : eg. "1-2, 3, 4-6"
-        
+
         Returns:
             [1, 2, 3, 4, 5, 6]
     """
@@ -141,12 +144,13 @@ def expand_days(days):
                 continue
     return ret
 
+
 # chatgpt version
 def compress_days(days):
     """
         Parameter:
             days -- a list containing days in expanded form eg [1,2,3,5,6]
-        
+
         Returns:
             a string of the form "1-3, 5-6"
     """
@@ -164,8 +168,10 @@ def compress_days(days):
     ranges.append(f"{start}-{prev}" if start != prev else f"{start}")
     return ", ".join(ranges)
 
+
 def count_days(days):
     return len(set(expand_days(days)))
+
 
 def count_periods(teacher, timetable):
     period_count = {}
@@ -185,6 +191,7 @@ def count_periods(teacher, timetable):
     
     return total_periods
 
+
 def count_periods_daywise(teacher, timetable):
     # Build mapping day -> set(periods) to avoid duplicate counting of same period on same day
     teacher_timetable = timetable.get(teacher, [])
@@ -199,17 +206,20 @@ def count_periods_daywise(teacher, timetable):
     # print(f"Teacher {teacher}: periods daywise: {periods_daywise}")
     return periods_daywise
 
+
 # def get_formatted_time():
 #     # t = time.localtime()
-#     # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}"
+#     # return f"{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}{t.tm_hour:02d}"
+#               "{t.tm_min:02d}{t.tm_sec:02d}"
 #     return "Last updated on " + time.ctime()
 def get_formatted_time():
     """
         returns a cached time string
     """
     if not hasattr(get_formatted_time, "_cached_time"):
-        get_formatted_time._cached_time = time.ctime() # strftime("%H:%M:%S")
+        get_formatted_time._cached_time = time.ctime()      # strftime("%H:%M:%S")
     return get_formatted_time._cached_time
+
 
 # alternate implementation without using pandas
 def load_teacher_details(workbook, ws_name='TEACHERS'):
@@ -243,7 +253,7 @@ def load_teacher_details(workbook, ws_name='TEACHERS'):
         if shortname is None or str(shortname).strip() == '':
             break
         shortname = str(shortname).strip()
-        if shortname.startswith('#'): # ignore entries starting with '#'
+        if shortname.startswith('#'):   # ignore entries starting with '#'
             row += 1
             continue
         details = {}
@@ -257,8 +267,11 @@ def load_teacher_details(workbook, ws_name='TEACHERS'):
 
     return teacher_details
 
+
 def get_class_number(_class):
-    return _class[:len(_class) - 1] # remove section (for example, 'A' from '10A')
+    # remove section (for example, 'A' from '10A')
+    return _class[:len(_class) - 1]
+
 
 def highlight_clashes(sheet, context):
     """
@@ -275,7 +288,7 @@ def highlight_clashes(sheet, context):
 
     # format of line is "CLASS (1-3,5-6) SUBJECT", e.g., 10A (1-2, 4) MATH
     p = re.compile(r'^(?P<class_name>[\w]+)\s*\((?P<days>.*)\)\s*(?P<subject>[\w \-.]+)$')
-    
+
     row = 2
     while True:
         if not sheet.cell(row=row, column=1).value:
@@ -291,8 +304,8 @@ def highlight_clashes(sheet, context):
                 continue
             # content = content.replace('\n', ';')
             # lines = content.split(";")
-            lines = content.split(SEPARATOR) # SEPARATOR is "\n" or ;
-            
+            lines = content.split(SEPARATOR)    # SEPARATOR is "\n" or ;
+
             entry = {}
 
             for line in lines:
@@ -311,16 +324,16 @@ def highlight_clashes(sheet, context):
                 subject = subject.strip()
                 try:
                     days = expand_days(days)
-                except:
+                except Exception as e:
                     print(f"\nERROR: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) in 'Teacherwise' timetable has formatting issue")
-                    print(f"content: {content}, line: {line}")
+                    print(f"content: {content}, line: {line}, {e}")
                     sys.exit(1)
-                
+
                 """
                     Ex 1:
                         10A (1-2) MATH
                         10B (2-3) MATH
-                    
+
                     is not a clash; but
 
                     Ex 2:
@@ -334,10 +347,13 @@ def highlight_clashes(sheet, context):
                 """
 
                 for day in days:
-                    if not day in entry:
+                    if day not in entry:
                         entry[day] = []
-                    entry[day].append(get_class_number(class_name)+ '-' + subject)    # Eg., '10-SCI' (from 10A (1-6) SCI)
-                    # the above code now ensures that the case "7A (1) PE, 7B (1-4) MATH" is marked as a clash
+                    # Eg., '10-SCI' (from 10A (1-6) SCI)
+                    # the above code now ensures that the case
+                    # "7A (1) PE, 7B (1-4) MATH"
+                    # is marked as a clash
+                    entry[day].append(get_class_number(class_name) + '-' + subject)
 
             # after all lines in a cell have been processed
             clash_days = []
@@ -364,6 +380,7 @@ def highlight_clashes(sheet, context):
         row += 1
 
     return total_clashes
+
 
 def clear_sheet(sheet):
     # clear the sheet before starting writing...
@@ -404,7 +421,6 @@ def generate_teacherwise(workbook, context):
     input_sheet = workbook["CLASSWISE"]
 
     # Load teacher names if available
-    teacher_names = {}
     if "TEACHERS" in workbook:
         print("Reading teacher details from 'TEACHERS' sheet... ", end="")
         # teacher_names = load_teacher_names(workbook)
@@ -454,15 +470,15 @@ def load_timetable(input_sheet, SEPARATOR):
         if not class_name:
             break  # no more rows
         class_name = class_name.strip()
-        
+
         if class_name.startswith("#"):
             row += 1
             continue  # skip commented rows
 
         print(f"Class: {class_name}... ", end="")
-        
+
         # a space after the class name in the CLASSWISE sheet is ignored
-        # space after class name gave me a great deal of headache: 
+        # space after class name gave me a great deal of headache:
         # the incharge name was not being printed properly in the classwise sheets
 
         input_sheet.cell(row, 1).value = class_name  # trim spaces
@@ -547,7 +563,8 @@ def write_period_summary(sheet, row, periods_assigned):
     # end of write_period_summary()
 
 
-def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, context):  # context has SEPARATOR, args
+def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, context):
+    # context has SEPARATOR, args
     """
     Create or update the TEACHERWISE sheet with the timetable data.
     """
@@ -592,15 +609,14 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
             output_sheet.cell(row, col).value = f"{existing}{SEPARATOR}{entry}" if existing else entry
 
         output_sheet.cell(row, 10).value = total_periods[teacher_code]
-        
+
         # write the periods per day in the K column of TEACHERWISE sheet
         periods_daywise = count_periods_daywise(teacher_code, timetable)
         periods_daywise = repr(periods_daywise)[1:-1]
         output_sheet.cell(row, 11).value = periods_daywise
 
-        row += 1 # the last line of the loop
+        row += 1    # the last line of the loop
 
-    
     # Timestamp
     if not args.keepstamp:
         output_sheet.cell(row=len(sorted_teachers) + 2, column=2).value = "Last updated on " + get_formatted_time()
@@ -618,6 +634,7 @@ def get_user_input(valid_chars: str, prompt: str) -> str:
 # print('Your choice: ', get_user_input('yYnNcC', 'y)es  n)o  c)ancel? '))
 # sys.exit(0)
 
+
 def generate_classwise(input_book, outfile, context):
     """
         generate individual sheets for all classes to be printed for fixing in classrooms
@@ -629,7 +646,7 @@ def generate_classwise(input_book, outfile, context):
         # outfile already exists
         print(f"File {outfile} already exists.")
         response = get_user_input('ynYN', 'Do you want to overwrite? y)es   n)o: ')
-        if response.lower() == 'n':    
+        if response.lower() == 'n':
             print('Stopping prematurely. Re-run with other filename.')
             sys.exit(1)
 
@@ -640,11 +657,11 @@ def generate_classwise(input_book, outfile, context):
     input_sheet = input_book['CLASSWISE']
 
     try:
-        output_book = openpyxl.load_workbook(outfile) # Workbook()
-    except:
+        output_book = openpyxl.load_workbook(outfile)
+    except Exception as e:
         # create an empty book if there is no workbook already
         output_book = openpyxl.Workbook()
-        
+
     if 'MASTER' not in output_book:
         master_sheet = output_book.create_sheet('MASTER')
 
@@ -662,14 +679,14 @@ def generate_classwise(input_book, outfile, context):
         format_master_ws(master_sheet)
     else:
         master_sheet = output_book['MASTER']
-    
+
     # update school name irrespective of whether the sheet was newly created or already existed
     master_sheet['A1'] = config.get('NAME', 'SCHOOL')   # 'GSSS AMARPURA (FAZILKA)'
 
     # read the names of incharges from the TEACHERS sheet
     teachers_sheet = input_book['TEACHERS']
     class_incharge = {}
-    
+
     # some settings!!
     MAX_TEACHER_FIELDS = teachers_sheet.max_column
 
@@ -689,7 +706,7 @@ def generate_classwise(input_book, outfile, context):
         if teacher_code is None or teacher_code == '':
             break
         klass = teachers_sheet.cell(row, column_index['INCHARGE']).value
-        
+
         teacher_code = teacher_code.strip()
         klass = klass.strip() if klass is not None else ''
 
@@ -721,7 +738,7 @@ def generate_classwise(input_book, outfile, context):
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
 
     teacher_details = load_teacher_details(input_book)
-    
+
     warnings = 0
     row = 2
     while True:
@@ -729,18 +746,19 @@ def generate_classwise(input_book, outfile, context):
         class_name = input_sheet.cell(row, 1).value
         if not class_name:
             break       # we have reached the end of CLASSWISE sheet, so stop further processing
-        
+
         sheet_name = class_name
         # write class name
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
 
-        # write incharge name    
+        # write incharge name
         if class_name in class_incharge:
             title = 'Ms' if teacher_details[class_incharge[class_name]]['GENDER'] in ['f', 'F'] else 'Mr'
             output_book[sheet_name].cell(2, 5).value = \
                 f"Class In-charge: {title} {teacher_details[class_incharge[class_name]]['NAME']}"
         else:
-            output_book[sheet_name].cell(2, 5).value = "Class In-charge:" + '_' * 25    # leave space for writing name of the incharge
+            # leave space for writing name of the incharge
+            output_book[sheet_name].cell(2, 5).value = "Class In-charge:" + '_' * 25
 
         for column in range(2, 10):
             content = input_sheet.cell(row, column).value
@@ -750,16 +768,19 @@ def generate_classwise(input_book, outfile, context):
                 print(f"Warning: Cell {get_column_letter(column)}{row} is empty.")
                 continue
 
-            lines = content.split(context['ARGS'].separator) # SEPARATOR is "\n" or ;
-            
+            # SEPARATOR is "\n" or ;
+            lines = content.split(context['ARGS'].separator)
+
             for line in lines:
                 line = line.strip()
-                if line == '' or line.startswith('#'):  # ignore empty lines and the ones starting with '#' -- used as comment
+                if line == '' or line.startswith('#'):
+                    # ignore empty lines and the ones starting with '#' -- used as comment
                     continue
 
                 m = p.match(line)
                 if m is None:   # no match
-                    # print(f"\nWarning: (row={row}, column={column}) (Cell {get_column_letter(column)}{row}) has some formatting issue")
+                    # print(f"\nWarning: (row={row}, column={column}) "
+                    #   "(Cell {get_column_letter(column)}{row}) has some formatting issue")
                     print(f"Warning: Cell {get_column_letter(column)}{row} in CLASSWISE sheet has some formatting issue.")
                     print("    >>> ", line)
                     warnings += 1
@@ -776,7 +797,7 @@ def generate_classwise(input_book, outfile, context):
                     if output_book[sheet_name].cell(r, column).value is None:
                         output_book[sheet_name].cell(r, column).value = ''
                     output_book[sheet_name].cell(r, column).value += f"{subject} ({teacher})\n"
-        
+
         row += 1
         # end of while True loop
 
@@ -788,18 +809,19 @@ def generate_classwise(input_book, outfile, context):
 
     # save everything to the file
     output_book.save(outfile)
-    
+
     return warnings
     # end generate_classwise(filename)
+
 
 def get_teachers_in_cell(ws, cell_name):
     config = Config()
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
     content = ws[cell_name].value
     if config.get('ARGS'):
-        lines = content.split(config.get('ARGS').separator) # SEPARATOR is "\n" or ;
+        lines = content.split(config.get('ARGS').separator)     # SEPARATOR is "\n" or ;
     else:
-        lines = content.split('\n') # SEPARATOR is "\n"
+        lines = content.split('\n')     # SEPARATOR is "\n"
     teachers = []
     for line in lines:
         line = line.strip()
@@ -814,9 +836,11 @@ def get_teachers_in_cell(ws, cell_name):
 
     return teachers
 
+
 def get_affected_teachers(ws_base, ws_current, cell_name):
-    # simplest implementation is to consider every teacher in the corresponding cells as affected
-    
+    # simplest implementation is to consider every teacher in the
+    # corresponding cells as affected
+
     # read names of teachers in both sheets
     teachers = []
     # first, read from base sheet
@@ -826,7 +850,8 @@ def get_affected_teachers(ws_base, ws_current, cell_name):
 
     return teachers   # re-convert to list
     # read from the current sheet
-    
+
+
 def show_differences(base, current):
     """
         Shows difference between base and current timetables
@@ -863,29 +888,30 @@ def show_differences(base, current):
 
         row += 1
 
-    affected_teachers = set(affected_teachers)  # remove duplicates
-    affected_teachers = list(affected_teachers) # re-convert to list
+    affected_teachers = set(affected_teachers)      # remove duplicates
+    affected_teachers = list(affected_teachers)     # re-convert to list
     print("Differences found in cells: ", ', '.join(differences))
-    print(f"Likely affected teachers are: ", ', '.join(affected_teachers)+'.')
+    print(f"Likely affected teachers are: {', '.join(affected_teachers)}.")
 
     # save the changes to "current" file
     wb_current.save(current)
     # return number of differences found
     return len(differences)
 
+
 def format_master_ws(ws):
-    ws.column_dimensions['A'].width = 16 # first column
+    ws.column_dimensions['A'].width = 16    # first column
     for col in range(2, 10):
-        ws.column_dimensions[get_column_letter(col)].width = 14 # all other columns
+        ws.column_dimensions[get_column_letter(col)].width = 14     # all other columns
 
     # first three rows
     for row in range(1, 4):
         ws.row_dimensions[row].height = 34
-    
+
     # rows 4 to 9
     for row in range(4, 10):
         ws.row_dimensions[row].height = 54
-    
+
     # shade the row showing periods (3rd row)
     for col in range(1, 10):
         ws[get_column_letter(col)+'3'].fill = PatternFill(start_color="c3c3c3", end_color="c3c3c3", fill_type="solid")
@@ -903,7 +929,7 @@ def format_master_ws(ws):
     ws['E2'].font = Font(size=16)
 
     alignment = Alignment(horizontal='center', vertical='top', wrap_text=True)
-    ws['A1'].alignment = alignment # school name
+    ws['A1'].alignment = alignment      # school name
     ws['A2'].alignment = Alignment(horizontal='left', vertical='top')   # Class
     ws['E2'].alignment = Alignment(horizontal='right', vertical='top')  # Incharge
 
@@ -922,6 +948,7 @@ def format_master_ws(ws):
     return
     # end format_master_ws()
 
+
 def generate_vacant_sheet(book, context):
     """
         generates the VACANT sheet with number of free periods for each teacher on each day
@@ -930,9 +957,9 @@ def generate_vacant_sheet(book, context):
 
     if "TEACHERWISE" not in book:
         raise Exception('TEACHERWISE sheet not found. Stopping.')
-    
+
     input_sheet = book["TEACHERWISE"]
-    
+
     # Load workbook and sheet
     ws = input_sheet    # book["TEACHERWISE"]
     wb = book           # openpyxl.load_workbook(filename)
@@ -963,7 +990,7 @@ def generate_vacant_sheet(book, context):
             sys.exit(0)
 
         # -----end---- #
-        
+
         if not data_str:
             continue  # skip empty cells
 
@@ -985,7 +1012,8 @@ def generate_vacant_sheet(book, context):
         for col, val in data.items():
             out_ws.cell(row=row_idx, column=col+1, value=MAX_PERIODS - val)
 
-    return True # generate_vacant_sheet()
+    return True     # generate_vacant_sheet()
+
 
 # FREE_TEACHERS sheet:
 # Teachers who are free on a particular day and period
@@ -1054,16 +1082,18 @@ def generate_adjustment_helper_sheet(timetable, context):
 
     # Timestamp
     if not context['ARGS'].keepstamp:
-        ws.cell(row=FIRST_ROW + 7, column=2).value = "Last updated on " +  get_formatted_time()
+        ws.cell(row=FIRST_ROW + 7, column=2).value = "Last updated on " + get_formatted_time()
 
     verbose(f"Free teachers sheet written to '{FREE_SHEET}'.")
 
-    return # generate_adjustment_helper_sheet()
+    return None     # generate_adjustment_helper_sheet()
+
 
 def verbose(msg, level=1):
     if level > 1:
         print(msg)
     return
+
 
 def write_sample_config(filename):
     CONFIG_FILE = filename
@@ -1079,7 +1109,7 @@ PHONE = +91-0000-000000
 EMAIL = yourschoolname@gmail.com
 WEBSITE = www.yourschool.in
 LOGO = school_logo.png
-; MOTTO = 
+; MOTTO =
 MOTTO_EN = Lead me from darkness to light
 AFFILIATION = XXXXXX
 UDISE = 00000000000
@@ -1142,6 +1172,7 @@ Z = Peony
         config.close()
         print(f"Default configuration written to '{CONFIG_FILE}'. You can modify it as needed and rerun the program.")
 
+
 def main():
     ##########################################################
     #
@@ -1151,12 +1182,23 @@ def main():
     parser = argparse.ArgumentParser(prog='twig.py', description='Generates teacherwise (or detailed classwise) timetable from concise classwise timetable in xlsx format.')
     parser.version = '1.0'
 
-    parser.add_argument('-i', '--config', action='store',
-        help='configuration file; default is twig.ini', default='twig.ini')
-    parser.add_argument('-k', '--keepstamp', action='store_true', help='keep time stamp intact')
-    parser.add_argument('-s', '--separator', action='store', help='newline separator; default is \\n', default="\n")
-    parser.add_argument('-b', '--verbose', action='store_true', help='verbose output')
-    parser.add_argument('-v', '--version', action='store_true', help='display version information')
+    parser.add_argument('-i', '--config',
+                        action='store',
+                        help='configuration file; default is twig.ini',
+                        default='twig.ini')
+    parser.add_argument('-k', '--keepstamp',
+                        action='store_true',
+                        help='keep time stamp intact')
+    parser.add_argument('-s', '--separator',
+                        action='store',
+                        help='newline separator; default is \\n',
+                        default="\n")
+    parser.add_argument('-v', '--version',
+                        action='store_true',
+                        help='display version information')
+    parser.add_argument('-b', '--verbose',
+                        action='store_true',
+                        help='verbose output')
 
     # Create a subparsers object
     subparsers = parser.add_subparsers(dest="command", help="Subcommands")
@@ -1175,8 +1217,8 @@ def main():
     # # subcommand 'vacant'
     # vacant_parser = subparsers.add_parser("vacant", help="show vacant periods for all teachers")
     # vacant_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
-    
-    # Subcommand 'diff'    
+
+    # Subcommand 'diff'
     diff_parser = subparsers.add_parser("diff", help="compare two timetables")
     diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
     diff_parser.add_argument("current", type=str, action="store", help="current timetable to be compared against base timetable")
@@ -1202,7 +1244,7 @@ def main():
     startTime = time.time()
 
     # load settings from twig.ini file
-    CONFIG_FILE = args.config # 'twig.ini'
+    CONFIG_FILE = args.config       # 'twig.ini'
 
     # using pathlib (modern, recommended)
     config_path = Path(CONFIG_FILE)
@@ -1210,14 +1252,14 @@ def main():
         # create a default config file
         print(f"Configuration file '{CONFIG_FILE}' not found. Creating a new one with default settings.")
         write_sample_config(CONFIG_FILE)
-        print(f"Sample configuration file '{CONFIG_FILE}' created. Please edit it as needed and run again.")
+        print(f"Sample configuration file '{CONFIG_FILE}' created."
+              " Please edit it as needed and run again.")
         sys.exit(1)
 
     print(f"Using configuration from {CONFIG_FILE}...")
 
     config = Config(CONFIG_FILE)
 
-    
     DEBUG = config.get('DEBUG')
     if DEBUG.lower() == 'true' or DEBUG == '1':
         DEBUG = True
@@ -1228,15 +1270,15 @@ def main():
     warnings = 0
 
     if DEBUG:
-        filename = "timetable.xlsx" # input file
+        filename = "timetable.xlsx"     # input file
         args.fullname = True
         args.keepstamp = False
         # args.separator = '\n'
 
     context = {
-        'ARGS' : args
+        'ARGS': args
     }
- 
+
     args.command = args.command.lower() if args.command else None
 
     if args.command in ['teacherwise', 'classwise', 'vacant']:
@@ -1264,7 +1306,7 @@ def main():
         # print("context is: ", context)
         timetable, warnings, total_periods = generate_teacherwise(book, context)
         teacherwise_sheet = book['TEACHERWISE']
-        
+
         # Highlight possible clashes
         verbose("Highlighting clashes in 'TEACHERWISE' sheet ...",)
         total_clashes = highlight_clashes(teacherwise_sheet, context)
@@ -1290,14 +1332,14 @@ def main():
     #     # containing number of vacant periods for every teacher on each day.
     #     generate_vacant_sheet(book, context)
     #     book.save(args.infile)
-    #     print(f"Vacant periods sheet saved to 'git {args.infile}'.")    
+    #     print(f"Vacant periods sheet saved to 'git {args.infile}'.")
 
     elif args.command == 'diff':
         base = args.base
         current = args.current
 
         # compare "base" with "current"
-        print(f"Comparing '{base}' with '{current}' ..." )
+        print(f"Comparing '{base}' with '{current}' ...")
         differences = show_differences(base, current)
         print(f"Found {differences} differences between {base} and {current}.")
     else:
@@ -1305,12 +1347,11 @@ def main():
         print("Copyright (c) 2024 Sunil Sangwal <sunil.sangwal@gmail.com>")
         print("Type 'python twig.py -h' for more information.")
         sys.exit(0)
-        
 
     endTime = time.time()
     print("Finished processing in %.3f seconds." % (endTime - startTime))
     verbose("Have a nice day!\n", level=2)
-    
+
     return warnings
 
 
