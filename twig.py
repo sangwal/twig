@@ -273,7 +273,7 @@ def get_class_number(_class):
     return _class[:len(_class) - 1]
 
 
-def highlight_clashes(sheet, context):
+def highlight_clashes(sheet, context) -> int:
     """
         reads teacherwise timetable from the TEACHERWISE sheet and highlights possible clashes
         by prepending **CLASH** to the offending cell
@@ -382,7 +382,7 @@ def highlight_clashes(sheet, context):
     return total_clashes
 
 
-def clear_sheet(sheet):
+def clear_sheet(sheet) -> None:
     # clear the sheet before starting writing...
     row = 2
     while True:
@@ -423,9 +423,11 @@ def generate_teacherwise(workbook, context):
     # Load teacher names if available
     if "TEACHERS" in workbook:
         print("Reading teacher details from 'TEACHERS' sheet... ", end="")
-        # teacher_names = load_teacher_names(workbook)
         teacher_details = load_teacher_details(workbook)
         print("done.")
+    else:
+        print("TEACHERS sheet not found. Please add details to the TEACHERS sheet.")
+        sys.exit(1)
 
     # Build timetable (core logic moved to helper)
     num_classes, timetable, total_periods, warnings = load_timetable(input_sheet, SEPARATOR)
@@ -543,8 +545,9 @@ def process_class_cell(content, row, column, SEPARATOR, pattern, timetable, clas
         timetable.setdefault(teacher, []).append((period, class_name, days, subject))
 
     # Warn if some days are missing
+    days_assigned = set(days_assigned)
     if set(days_assigned) != days_in_week:
-        missing_days = list(days_in_week - set(days_assigned))
+        missing_days = list(days_in_week - days_assigned)
         print(f"Warning: Missing days {missing_days} in cell {get_column_letter(column)}{row}.")
         warnings += 1
 
@@ -980,14 +983,15 @@ def generate_vacant_sheet(book, context):
                 # write headers
                 out_ws.cell(row=row_idx, column=col, value=day_names[col - 1])  # Days 1-6
             continue
+        # end if
+
         # ------ TODO: problematic code starts here -------
         try:
+            # this K column contains daywise periods for a teacher
             data_str = row[10]  # 11th column (0-based index = 10)
         except Exception as e:
-            continue
-            print(len(row), row)
-            print(e)
-            sys.exit(0)
+            print(f"Daywise Periods not written in column K of TEACHERWISE sheet! Ignored.")
+            pass
 
         # -----end---- #
 
@@ -1097,7 +1101,13 @@ def verbose(msg, level=1):
 
 def write_sample_config(filename):
     CONFIG_FILE = filename
-    DEFAULT_CONFIG = """[SCHOOL]
+    DEFAULT_CONFIG = """
+; Configuration file for twig.py
+; You can modify the settings as needed.
+; Not all settings are useful. May be used in future.
+;
+
+[SCHOOL]
 SHORTNAME = AP
 NAME = Your School (District, State)
 ADDRESS = Your School Address Line 1
@@ -1166,8 +1176,6 @@ Z = Peony
 """
     # print(f"Configuration file '{CONFIG_FILE}' not found. Creating a new one with default settings.")
     with open(CONFIG_FILE, 'w') as config:
-        config.write("; Configuration file for twig.py\n")
-        config.write("; You can modify the settings as needed.\n\n")
         config.write(DEFAULT_CONFIG)
         config.close()
         print(f"Default configuration written to '{CONFIG_FILE}'. You can modify it as needed and rerun the program.")
@@ -1201,7 +1209,11 @@ def main():
                         help='verbose output')
 
     # Create a subparsers object
-    subparsers = parser.add_subparsers(dest="command", help="Subcommands")
+    subparsers = parser.add_subparsers(
+        dest="command", 
+        # choices=['teacherwise', 'classwise', 'diff'], 
+        help="Subcommands"
+    )
 
     # Subcommand 'teacherwise'
     tw_parser = subparsers.add_parser("teacherwise", help="Generate teacherwise timetable")
@@ -1239,9 +1251,18 @@ def main():
     #     # args.SEPARATOR = args.separator
     #     if args.separator == '\\n':
     #         args.separator = '\n'
-    verbose(f"Using Separator '{escape_special_chars(args.separator)}' ...")
 
-    startTime = time.time()
+    if len(args.separator) > 2:
+        raise("Invalid separator specified. Maybe '\n' or ';'")
+
+    if args.separator.startswith("\\"):
+        separator_translation_dict = {'n': "\n"}
+        args.separator = separator_translation_dict.get(args.separator[1], ';')
+        verbose(f"Using Separator '{escape_special_chars(args.separator)}' ...")
+
+
+    # start timing the execution for reporting purpose
+    start_time = time.time()
 
     # load settings from twig.ini file
     CONFIG_FILE = args.config       # 'twig.ini'
@@ -1250,10 +1271,11 @@ def main():
     config_path = Path(CONFIG_FILE)
     if not config_path.exists():
         # create a default config file
-        print(f"Configuration file '{CONFIG_FILE}' not found. Creating a new one with default settings.")
+        print(f"Configuration file '{CONFIG_FILE}' not found.\n"
+            "Creating a new one with default settings.")
         write_sample_config(CONFIG_FILE)
-        print(f"Sample configuration file '{CONFIG_FILE}' created."
-              " Please edit it as needed and run again.")
+        print(f"Sample configuration file '{CONFIG_FILE}' created.\n"
+              "Please edit it as needed and run again.")
         sys.exit(1)
 
     print(f"Using configuration from {CONFIG_FILE}...")
@@ -1270,7 +1292,7 @@ def main():
     warnings = 0
 
     if DEBUG:
-        filename = "timetable.xlsx"     # input file
+        filename = "Timetable.xlsx"     # input file
         args.fullname = True
         args.keepstamp = False
         # args.separator = '\n'
@@ -1348,8 +1370,11 @@ def main():
         print("Type 'python twig.py -h' for more information.")
         sys.exit(0)
 
-    endTime = time.time()
-    print("Finished processing in %.3f seconds." % (endTime - startTime))
+    # finish timing exection
+    end_time = time.time()
+
+    print("Finished processing in %.3f seconds." % (end_time - start_time))
+    
     verbose("Have a nice day!\n", level=2)
 
     return warnings
