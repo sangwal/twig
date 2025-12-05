@@ -186,7 +186,7 @@ H17: [str] POL (6) MR\nMATH (1) SK\nPBI (1, 4) AS\nENG (2-3) AA\nHIS (5) SK
 I17: [str] IT (1-4) AR\nPLB (1-4) JP\nPE (1-4) MU\nHIS (5) AS\nCS (6) JK
 J17: [str] CS: 4, ENG: 7, EVS-YNV: 1, HIS: 8, IT: 9, MATH: 8, PBI: 7, PE: 9, PLB: 9, POL: 9, ROT ENG-IELTS: 1, ROT HIS: 1, ROT MATH: 1, ROT NSQF-CG-YNV: 1, TOTAL: 75
 K17: [str] CS: 4, ENG: 8, EVS: 1, HIS: 9, IT: 9, MATH: 9, PBI: 7, PE: 9, PLB: 9, POL: 9, WL: 1 TOTAL: 48
-B18: [str] Last updated on Wed Oct 22 00:01:56 2025
+B18: [str] Last updated on Wed Nov  5 15:35:09 2025
 ---
 [Sheet: TEACHERWISE]
 A1: [str] Name
@@ -483,7 +483,7 @@ H28: [str] 11A (1-4) PLB\n11B (1-4) PLB
 I28: [str] 12A (1-4) PLB\n12B (1-4) PLB
 J28: [int] 30
 K28: [str] 1: 6, 2: 5, 3: 6, 4: 6, 5: 4, 6: 3
-B29: [str] Last updated on Wed Oct 22 00:01:56 2025
+B29: [str] Last updated on Wed Nov  5 15:35:09 2025
 ---
 [Sheet: FREE_TEACHERS]
 B1: [str] Free Teachers Sheet
@@ -550,7 +550,7 @@ F8: [str] MU:5, DR:4, PR:4, VS:4, SH:4, SU:4, RI:3, PS:3, PY:3, AB:2, GK:2
 G8: [str] RL:5, MU:5, DR:4, VS:4, SH:4, RN:4, MA:4, RI:3, PY:3, AB:2, MR:2
 H8: [str] RK:5, AR:5, JP:5, MU:5, PR:4, SH:4, SU:4, RN:4, MA:4, PS:3, SK:3, GK:2
 I8: [str] RK:5, AR:5, JP:5, MU:5, DR:4, PR:4, SU:4, RN:4, MK:3, RS:2, AS:1
-B9: [str] Last updated on Wed Oct 22 00:01:56 2025
+B9: [str] Last updated on Wed Nov  5 15:35:09 2025
 ---
 [Sheet: TEACHERS]
 A1: [str] SR NO

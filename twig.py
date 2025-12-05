@@ -413,8 +413,7 @@ def generate_teacherwise(workbook, context):
     """
     args = context['ARGS']
     SEPARATOR = args.separator
-    # print(args)
-
+    
     if "CLASSWISE" not in workbook:
         raise Exception("CLASSWISE sheet not found. Stopping.")
 
@@ -1226,10 +1225,6 @@ def main():
     cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
 
-    # # subcommand 'vacant'
-    # vacant_parser = subparsers.add_parser("vacant", help="show vacant periods for all teachers")
-    # vacant_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
-
     # Subcommand 'diff'
     diff_parser = subparsers.add_parser("diff", help="compare two timetables")
     diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
@@ -1239,6 +1234,7 @@ def main():
     args = parser.parse_args()
 
     # print(args)
+
     if args.version:
         print(f"twig.py: version {__version__} by Sunil Sangwal")
         sys.exit(0)
@@ -1294,12 +1290,13 @@ def main():
     if DEBUG:
         filename = "Timetable.xlsx"     # input file
         args.fullname = True
-        args.keepstamp = False
+        # args.keepstamp = False
         # args.separator = '\n'
 
     context = {
         'ARGS': args
     }
+    # print(context)
 
     args.command = args.command.lower() if args.command else None
 
