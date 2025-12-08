@@ -58,7 +58,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '251204'    # twig.py version YYMMDD
+__version__ = '251208'   # twig.py version YYMMDD
 
 # configuration variables before running the script
 
