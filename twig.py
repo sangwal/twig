@@ -58,7 +58,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '251204'    # twig.py version YYMMDD
+__version__ = '251208'   # twig.py version YYMMDD
 
 # configuration variables before running the script
 
@@ -291,7 +291,8 @@ def highlight_clashes(sheet, context) -> int:
 
     row = 2
     while True:
-        if not sheet.cell(row=row, column=1).value:
+        teacher_name = sheet.cell(row=row, column=1).value
+        if not teacher_name:
             break
 
         for column in range(2, 10):
@@ -373,9 +374,10 @@ def highlight_clashes(sheet, context) -> int:
                     # mark clashes in the teacherwise sheet
                     sheet.cell(row=row, column=column).value = CLASH_MARK + f"{clash_days}:\n" + sheet.cell(row=row, column=column).value
                 else:
-                    # -c or --noclash -- don't write in the code
+                    # -c or --noclash -- don't write in the TEACHERWISE
                     # rather just show the message in terminal
-                    print(f"{CLASH_MARK} {clash_days} in cell {get_column_letter(column)}{row}: {sheet.cell(row=row, column=column).value}")
+                    print(f"{CLASH_MARK} {clash_days} in cell {get_column_letter(column)}{row}:\n"
+                        f"Teacher {teacher_name}: {sheet.cell(row=row, column=column).value}")
 
         row += 1
 
@@ -1206,6 +1208,9 @@ def main():
     parser.add_argument('-b', '--verbose',
                         action='store_true',
                         help='verbose output')
+    parser.add_argument('-d', '--dry-run',
+                        action='store_true',
+                        help='dry run -- skip writing changes to the original file(s)')
 
     # Create a subparsers object
     subparsers = parser.add_subparsers(
@@ -1338,10 +1343,13 @@ def main():
         verbose("Generating adjustment helper sheet 'FREE_TEACHERS' ...", level=2)
         generate_adjustment_helper_sheet(timetable, context)    # use timetable generated above
 
-        # save the teacherwise timetable
-        verbose(f"Saving teacherwise timetable to '{filename}' ...")
-        book.save(filename)
-        verbose(f"Teacherwise timetable saved to 'TEACHERWISE' sheet of '{filename}'.", level=2)
+        if args.dry_run:
+            print(f"Dry run mode: No changes made to {filename}")
+        else:
+            # save the teacherwise timetable
+            verbose(f"Saving teacherwise timetable to '{filename}' ...")
+            book.save(filename)
+            verbose(f"Teacherwise timetable saved to 'TEACHERWISE' sheet of '{filename}'.", level=2)
 
         verbose(f"Clashes: {total_clashes}", level=2)
         verbose(f"Warnings: {warnings}", level=2)
@@ -1362,9 +1370,11 @@ def main():
         differences = show_differences(base, current)
         print(f"Found {differences} differences between {base} and {current}.")
     else:
-        print("twig.py -- timetable manipulation utility")
-        print("Copyright (c) 2024 Sunil Sangwal <sunil.sangwal@gmail.com>")
-        print("Type 'python twig.py -h' for more information.")
+        print(
+            "twig.py -- timetable manipulation utility\n"
+            "Copyright (c) 2024 Sunil Sangwal <sunil.sangwal@gmail.com>\n"
+            "Type 'python twig.py -h' for more information."
+        )
         sys.exit(0)
 
     # finish timing exection
