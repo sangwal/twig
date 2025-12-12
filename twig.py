@@ -17,7 +17,6 @@
 
     Written by Sunil Sangwal (sunil.sangwal@gmail.com)
     Date written: 20-Apr-2022
-    Last Modified: 14-Oct-2025
 """
 import argparse
 import re
@@ -58,7 +57,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '251208'   # twig.py version YYMMDD
+__version__ = '251212'   # twig.py version YYMMDD
 
 # configuration variables before running the script
 
