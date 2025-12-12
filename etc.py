@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-
 """
+    etc.py - excel to text converter and vice versa
+    ---------------------------------------------------
     Convert Excel (.xlsx) files to a structured text format and vice versa.
     Usage:
         To convert Excel to text:
