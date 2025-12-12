@@ -619,7 +619,8 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
         periods_daywise = repr(periods_daywise)[1:-1]
         output_sheet.cell(row, 11).value = periods_daywise
 
-        row += 1    # the last line of the loop
+        row += 1
+    # end for teacher_code in sorted_teachers
 
     # Timestamp
     if not args.keepstamp:
@@ -627,12 +628,25 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
 
     # end of write_teacherwise_sheet()
 
-def get_user_input(valid_chars: str, prompt: str) -> str:
+def get_user_input(valid_chars: str, prompt: str, default: str | None) -> str:
+    print(prompt, end='', flush=True)
+    if default is not None:
+        print(default)
+        return default
+    
+    # default is None; read response from user
     while True:
-        response = input(prompt)
+        response = input().strip()
+        if response == '':
+            print(prompt, end='', flush=True)
+            continue
+
         if response in valid_chars:
-            return response
-        print("Invalid choice. Try again.")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+    return response
 
 
 # print('Your choice: ', get_user_input('yYnNcC', 'y)es  n)o  c)ancel? '))
@@ -643,13 +657,14 @@ def generate_classwise(input_book, outfile, context):
     """
         generate individual sheets for all classes to be printed for fixing in classrooms
     """
+    args = context['ARGS']
 
     # check if outfile already exists. If it exists, prompt user for confirmation
     outfile_path = Path(outfile)
     if outfile_path.exists():
         # outfile already exists
         print(f"File {outfile} already exists.")
-        response = get_user_input('ynYN', 'Do you want to overwrite? y)es   n)o: ')
+        response = get_user_input('ynYN', 'Do you want to overwrite? y)es   n)o: ', args.yes)
         if response.lower() == 'n':
             print('Stopping prematurely. Re-run with other filename.')
             sys.exit(1)
@@ -805,6 +820,19 @@ def generate_classwise(input_book, outfile, context):
         row += 1
         # end of while True loop
 
+    # remove trailing newlines from all classwise sheets
+    for ws in output_book:
+        if ws.title[0].isdigit():   # for classwise sheets only
+            for r in range(4, 10):
+                for c in range(2, 10):
+                    cell = ws.cell(r, c)
+                    if cell.value is not None:
+                        cell.value = cell.value.rstrip('\n')
+
+    ####################################################################################
+    # finally, copy the timestamp to all classwise sheets
+    ####################################################################################    
+
     # get the time stamp from the CLASSWISE sheet
     timestamp = input_sheet.cell(row, 2).value
     for ws in output_book:
@@ -854,6 +882,37 @@ def get_affected_teachers(ws_base, ws_current, cell_name):
 
     return teachers   # re-convert to list
     # read from the current sheet
+
+def find_teachers_with_multiple_periods_same_class_day(timetable):
+    """
+    Find teachers who have more than 2 periods in the same class on the same day.
+    
+    Args:
+        timetable (dict): {teacher: [(period, class_name, days, subject), ...]}
+    
+    Returns:
+        list: of tuples (teacher, class_name, day, period_count, periods_list)
+    """
+    issues = []
+    
+    for teacher, entries in timetable.items():
+        # Group by (class, day)
+        class_day_periods = {}
+        for period, class_name, days, subject in entries:
+            expanded_days = expand_days(days)
+            for day in expanded_days:
+                key = (class_name, day)
+                if key not in class_day_periods:
+                    class_day_periods[key] = []
+                class_day_periods[key].append((period, subject))
+        
+        # Check for more than 2 periods in same class on same day
+        for (class_name, day), periods in class_day_periods.items():
+            if len(periods) > 2:
+                period_list = [f"P{p[0]} ({p[1]})" for p in periods]
+                issues.append((teacher, class_name, day, len(periods), period_list))
+    
+    return issues
 
 
 def show_differences(base, current):
@@ -1224,9 +1283,11 @@ def main():
     tw_parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
     tw_parser.add_argument('-c', '--noclash', action='store_true', default=False, help='suppress **CLASH** marks in TEACHERWISE output')
     tw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+    tw_parser.add_argument("-o", "--outfile", type=str, action="store", help="teacherwise timetable file name (default: overwrite infile)")
 
     # Subcommand 'classwise'
     cw_parser = subparsers.add_parser("classwise", help="Generate classwise timetable")
+    cw_parser.add_argument("-y", "--yes", action="store_true", help="overwrite existing output file without prompting")
     cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
 
@@ -1237,6 +1298,12 @@ def main():
 
     # Parse the arguments
     args = parser.parse_args()
+
+    # convert -y flag to yes='y' for get_user_input()
+    if hasattr(args, 'yes') and args.yes:
+        args.yes = 'y'
+    else:
+        args.yes = None
 
     # print(args)
 
@@ -1335,6 +1402,18 @@ def main():
         verbose("Highlighting clashes in 'TEACHERWISE' sheet ...",)
         total_clashes = highlight_clashes(teacherwise_sheet, context)
 
+        # Check for teachers with multiple periods in same class on same day
+        verbose("Checking for teachers with multiple periods in same class on same day ...", level=2)
+        multiple_period_issues = find_teachers_with_multiple_periods_same_class_day(timetable)
+        if multiple_period_issues:
+            print("\n⚠️  Teachers with more than 2 periods in same class on same day:")
+            for teacher, class_name, day, count, period_list in multiple_period_issues:
+                print(f"  • {teacher} → {class_name} on Day {day} ({count} periods):")
+                for p in period_list:
+                    print(f"    - {p}")
+        else:
+            verbose("No teachers with multiple periods in same class on same day found.", level=2)
+
         # generate vacant periods sheet as well
         verbose("Generating vacant periods sheet 'VACANT' ...", level=2)
         generate_vacant_sheet(book, context)
@@ -1346,6 +1425,10 @@ def main():
         if args.dry_run:
             print(f"Dry run mode: No changes made to {filename}")
         else:
+            if args.outfile:
+                filename = args.outfile
+            else:
+                filename = args.infile
             # save the teacherwise timetable
             verbose(f"Saving teacherwise timetable to '{filename}' ...")
             book.save(filename)
