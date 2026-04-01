@@ -488,6 +488,13 @@ def load_timetable(input_sheet, SEPARATOR):
 
         for column in range(2, 10):  # periods 1-8
             content = input_sheet.cell(row, column).value
+            
+            if content and isinstance(content, str):
+                content = content.strip()
+                if content.startswith("-"):
+                    # the cell is deliberately marked as "no class" for that period; skip it without warning
+                    continue  # skip commented cells
+
             if not content:
                 warnings += 1
                 print(f"Warning: Cell {get_column_letter(column)}{row} is empty.")
