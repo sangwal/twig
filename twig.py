@@ -536,7 +536,9 @@ def process_class_cell(content, row, column, SEPARATOR, pattern, timetable, clas
         if not match:
             print(f"Warning: Cell {get_column_letter(column)}{row} has formatting issue.")
             print("    >>> ", line)
-            return 1  # one warning
+            # continue processing other lines in the cell even if one line has formatting issue
+            warnings += 1
+            continue
 
         subject, days, teacher = match.groups()
         subject = subject.strip()
@@ -595,6 +597,7 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
 
     # Teachers ordering
     timetable_teachers = set(timetable.keys())
+    # add teachers in the order they appear in the TEACHERS sheet, followed by any remaining teachers in timetable
     sorted_teachers = [t for t in teacher_details if t in timetable_teachers]
     sorted_teachers.extend(t for t in timetable_teachers if t not in sorted_teachers)
 
