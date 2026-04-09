@@ -57,7 +57,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '251212'   # twig.py version YYMMDD
+__version__ = '260409'   # twig.py version YYMMDD
 
 # configuration variables before running the script
 
@@ -353,7 +353,12 @@ def highlight_clashes(sheet, context) -> int:
                     # the above code now ensures that the case
                     # "7A (1) PE, 7B (1-4) MATH"
                     # is marked as a clash
-                    entry[day].append(get_class_number(class_name) + '-' + subject)
+                    if args.strict:
+                        # eg. 11A Eng and 11B Eng are considered different classes in strict mode, so considered a clash
+                        entry[day].append(class_name + '-' + subject)   
+                    else:
+                        # eg. 11A Eng and 11B Eng are considered the same class in non-strict mode, so not considered a clash
+                        entry[day].append(get_class_number(class_name) + '-' + subject)
 
             # after all lines in a cell have been processed
             clash_days = []
@@ -531,6 +536,10 @@ def process_class_cell(content, row, column, SEPARATOR, pattern, timetable, clas
         line = line.strip()
         if not line or line.startswith("#"):
             continue
+
+        if '#' in line:
+            # if there is a '#' in the line, consider it as a comment and ignore the part after '#'
+            line = line.split('#', 1)[0].strip()
 
         match = pattern.match(line.upper())
         if not match:
@@ -1290,6 +1299,7 @@ def main():
     # Subcommand 'teacherwise'
     tw_parser = subparsers.add_parser("teacherwise", help="Generate teacherwise timetable")
     tw_parser.add_argument('-f', '--fullname', action='store_true', help='replace short names with full names')
+    tw_parser.add_argument('-s', '--strict', action='store_true', help='strict mode - consider 11A Eng and 11B Eng as different classes for clash detection')
     tw_parser.add_argument('-c', '--noclash', action='store_true', default=False, help='suppress **CLASH** marks in TEACHERWISE output')
     tw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     tw_parser.add_argument("-o", "--outfile", type=str, action="store", help="teacherwise timetable file name (default: overwrite infile)")
