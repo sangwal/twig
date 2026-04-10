@@ -452,6 +452,23 @@ def generate_teacherwise(workbook, context):
 # Helper Functions
 # ----------------------------------------------------------
 
+def get_class_name(cell_value, SEPARATOR='\n'):
+    """
+    Extracts the class name from the cell value in CLASSWISE sheet.
+    """
+    # get all lines without comments and empty lines, and consider the first non-comment line as class name
+    class_name = [line.strip() for line in cell_value.split(SEPARATOR) if not line.strip().startswith("#")]
+
+    if len(class_name) != 1:
+        class_name = None
+    else:
+        class_name = class_name[0]   # take the first non-comment line as class name
+        # strip comments starting with '#' from the class name, if any
+        if '#' in class_name:
+            class_name = class_name.split('#', 1)[0].strip()
+    return class_name
+
+
 def load_timetable(input_sheet, SEPARATOR):
     """
     Build the timetable dictionary from the CLASSWISE sheet.
@@ -477,13 +494,7 @@ def load_timetable(input_sheet, SEPARATOR):
         if not class_name:
             break  # no more rows
         
-        # get all lines without comments and empty lines, and consider the first non-comment line as class name
-        class_name = [line.strip() for line in class_name.split('\n') if not line.strip().startswith("#")]
-
-        if len(class_name) != 1:
-            class_name = None
-        else:
-            class_name = class_name[0]   # take the first non-comment line as class name
+        class_name = get_class_name(class_name, SEPARATOR=SEPARATOR)
 
         if not class_name:
             warnings += 1
@@ -491,14 +502,14 @@ def load_timetable(input_sheet, SEPARATOR):
             row += 1
             continue
         
-
         print(f"Class: {class_name}... ", end="")
 
         # a space after the class name in the CLASSWISE sheet is ignored
         # space after class name gave me a great deal of headache:
         # the incharge name was not being printed properly in the classwise sheets
 
-        input_sheet.cell(row, 1).value = class_name  # trim spaces
+        # input_sheet.cell(row, 1).value = class_name  # trim spaces
+
         periods_assigned = {}
 
         for column in range(2, 10):  # periods 1-8
@@ -685,6 +696,9 @@ def generate_classwise(input_book, outfile, context):
     """
         generate individual sheets for all classes to be printed for fixing in classrooms
     """
+    # print(context)
+    # exit(1)
+
     args = context['ARGS']
 
     # check if outfile already exists. If it exists, prompt user for confirmation
@@ -769,15 +783,17 @@ def generate_classwise(input_book, outfile, context):
         if klass is None or klass == '':
             break
 
+        sheet_name = get_class_name(klass, SEPARATOR=args.separator)
+
         # the following code effectively clears the sheet before writing any data
         if klass in output_book:
             # delete old one
             del output_book[klass]
 
         # create new by copying from the master
-        print(f"creating sheet {klass} ...")
+        print(f"creating sheet {sheet_name} ...")
         copy = output_book.copy_worksheet(master_sheet)
-        copy.title = klass
+        copy.title = sheet_name
 
         row += 1
 
@@ -794,7 +810,8 @@ def generate_classwise(input_book, outfile, context):
         if not class_name:
             break       # we have reached the end of CLASSWISE sheet, so stop further processing
 
-        sheet_name = class_name
+        sheet_name = class_name = get_class_name(class_name, SEPARATOR=args.separator)
+
         # write class name
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
 
