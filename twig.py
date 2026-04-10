@@ -811,6 +811,11 @@ def generate_classwise(input_book, outfile, context):
             break       # we have reached the end of CLASSWISE sheet, so stop further processing
 
         sheet_name = class_name = get_class_name(class_name, SEPARATOR=args.separator)
+        if class_name is None:
+            warnings += 1
+            print(f"Warning: Cell A{row} of CLASSWISE sheet has no valid class name. Skipping this row.")
+            row += 1
+            continue
 
         # write class name
         output_book[sheet_name].cell(2, 1).value = f"Class: {class_name}"
