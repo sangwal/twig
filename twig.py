@@ -476,11 +476,21 @@ def load_timetable(input_sheet, SEPARATOR):
         class_name = input_sheet.cell(row, 1).value
         if not class_name:
             break  # no more rows
-        class_name = class_name.strip()
+        
+        # get all lines without comments and empty lines, and consider the first non-comment line as class name
+        class_name = [line.strip() for line in class_name.split('\n') if not line.strip().startswith("#")]
 
-        if class_name.startswith("#"):
+        if len(class_name) != 1:
+            class_name = None
+        else:
+            class_name = class_name[0]   # take the first non-comment line as class name
+
+        if not class_name:
+            warnings += 1
+            print(f"Warning: Cell A{row} has no valid class name. Skipping this row.")
             row += 1
-            continue  # skip commented rows
+            continue
+        
 
         print(f"Class: {class_name}... ", end="")
 
