@@ -130,6 +130,7 @@ def expand_days(days):
             [1, 2, 3, 4, 5, 6]
     """
     ret = []
+    
     for group in re.split(r',\s*', days):
         if '-' in group:
             start_day, end_day = map(int, group.split('-'))
@@ -269,7 +270,7 @@ def load_teacher_details(workbook, ws_name='TEACHERS'):
 
 def get_class_number(_class):
     # remove section (for example, 'A' from '10A')
-    return _class[:len(_class) - 1]
+    return _class[:-1] if _class[-1].isalpha() else _class
 
 
 def highlight_clashes(sheet, context) -> int:
@@ -457,7 +458,7 @@ def get_class_name(cell_value, SEPARATOR='\n'):
     Extracts the class name from the cell value in CLASSWISE sheet.
     """
     # get all lines without comments and empty lines, and consider the first non-comment line as class name
-    class_name = [line.strip() for line in cell_value.split(SEPARATOR) if not line.strip().startswith("#")]
+    class_name = [line.strip() for line in cell_value.split(SEPARATOR) if not line.strip().startswith("#") and not line.strip() == '']
 
     if len(class_name) != 1:
         class_name = None
@@ -483,7 +484,7 @@ def load_timetable(input_sheet, SEPARATOR):
     days_in_week = {1, 2, 3, 4, 5, 6}
 
     pattern = re.compile(
-        r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$'
+        r'^(?P<subject>[\w \-\.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$'
     )
 
     # print("Processing timetable ...")
@@ -786,9 +787,9 @@ def generate_classwise(input_book, outfile, context):
         sheet_name = get_class_name(klass, SEPARATOR=args.separator)
 
         # the following code effectively clears the sheet before writing any data
-        if klass in output_book:
+        if sheet_name in output_book:
             # delete old one
-            del output_book[klass]
+            del output_book[sheet_name]
 
         # create new by copying from the master
         print(f"creating sheet {sheet_name} ...")
@@ -1203,6 +1204,120 @@ def generate_adjustment_helper_sheet(timetable, context):
     return None     # generate_adjustment_helper_sheet()
 
 
+def beautify_sheet(sheet):
+    print(f"Beautifying sheet '{sheet.title}'... ", end="")
+    # Apply some basic formatting to the sheet
+    for row in sheet.iter_rows():
+        for cell in row:
+            if cell.value is not None:
+                cell.value = beautify_sheet_cell(cell)
+
+    print("Done.")
+    return
+
+def beautify_sheet_cell(cell):
+    """
+    Apply basic formatting to a cell value, such as
+    stripping extra spaces,
+    arranging lines,
+    removing redundant information,
+    removing comments, etc.
+    """
+    content =  cell.value
+    # content=  """HI (2) RL
+    #         PE (1) DR
+    #         HI (4) RL
+    #         SS (3) SH
+    #         CS (5) MT
+    #         HI (6) RL"""
+
+    # process content
+    if type(content) != str:
+        return content
+    
+    # else process the string content
+    content = content.splitlines()
+    # remove comments and empty lines and trim
+    content = [line.split('#', 1)[0].strip() for line in content if line.strip() != '']
+
+    pattern = re.compile(r'^(?P<subject>[\w \-\.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
+
+    processed_lines = {}
+    for line in content:
+        if line.startswith('#'):
+            continue    # ignore comment lines
+
+        m = pattern.match(line)
+        if m:
+            subject, days, teacher = m.groups()
+            subject = subject.strip()
+            days = expand_days(days)
+            # processed_lines.append(f"{subject} ({days}) {teacher}")
+            """
+            HI (2) RL
+            PE (1) DR
+            HI (4) RL
+            SS (3) SH
+            CS (5) MT
+            HI (6) RL
+
+            should be formatted as
+            
+            PE (1) DR
+            HI (2, 4, 6) RL
+            SS (3) SH
+            CS (5) MT
+            """
+            # we can further beautify the line by grouping the periods for the same subject-teacher combination
+            
+            """
+            {
+                ('HI', 'RL'): [2, 4, 6],
+                ('PE', 'DR'): [1],
+                ('SS', 'SH'): [3],
+                ('CS', 'MT'): [5]
+            }
+            """
+            # we can use a dictionary to group the days for the same subject-teacher combination
+            key = (subject, teacher)
+            if key not in processed_lines:
+                processed_lines[key] = days
+            else: # if the same subject-teacher combination already exists, append the days to the existing entry
+                existing_days = processed_lines[key]
+                existing_days.extend(days)
+                processed_lines[key] = existing_days
+
+        else:
+            # processed_lines.append(line)   # keep the line as is if it doesn't match the pattern
+            processed_lines[line] = None   # keep the line as is if it doesn't match the pattern
+
+    # We can further beautify the line by grouping the periods for the same subject-teacher combination        
+    """
+    {
+        ('HI', 'RL'): [2, 4, 6],
+        ('PE', 'DR'): [1],
+        ('SS', 'SH'): [3],
+        ('CS', 'MT'): [5]
+    }
+    """
+    for key, days in processed_lines.items():
+        if days is not None:
+            subject, teacher = key
+            # days_str = ', '.join(map(str, sorted(days)))
+            days_str = compress_days(days)
+            processed_lines[key] = f"{subject} ({days_str}) {teacher}"
+        else:
+            # keep the line as is if it doesn't match the pattern
+            processed_lines[key] = key
+
+    # sort the processed lines by the days of the week (if available), otherwise keep the original order
+    processed_lines = sorted(processed_lines.values(), key=lambda x: expand_days(re.search(r'\((?P<days>[1-6,\- ]+)\)', x).group('days')) if re.search(r'\((?P<days>[1-6,\- ]+)\)', x) else [7])
+
+    return '\n'.join(processed_lines)   # lines are already processed and joined with newline
+    # end of beautify_sheet_cell()
+
+
+
 def verbose(msg, level=1):
     if level > 1:
         print(msg)
@@ -1342,6 +1457,11 @@ def main():
     cw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
 
+    # Subcommand 'beautify'
+    bw_parser = subparsers.add_parser("beautify", help="Beautify timetable")
+    bw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+    bw_parser.add_argument("-w", "--overwrite", action="store_true", help="overwrite existing output file without prompting")
+
     # Subcommand 'diff'
     diff_parser = subparsers.add_parser("diff", help="compare two timetables")
     diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
@@ -1423,7 +1543,11 @@ def main():
 
     args.command = args.command.lower() if args.command else None
 
-    if args.command in ['teacherwise', 'classwise', 'vacant']:
+    if args.command in ['teacherwise',
+                        'classwise',
+                        'vacant', 
+                        # 'diff', 
+                        'beautify']:
         if not args.infile:
             filename = 'Timetable.xlsx'
         else:
@@ -1503,6 +1627,17 @@ def main():
         print(f"Comparing '{base}' with '{current}' ...")
         differences = show_differences(base, current)
         print(f"Found {differences} differences between {base} and {current}.")
+    elif args.command == 'beautify':
+        beautify_sheet(book['CLASSWISE'])
+        if args.overwrite:
+            # overwrite the original file
+            new_filename = args.infile
+        else:
+            # don't overwrite the original file; instead, save to a new file with "-beautified" suffix
+            new_filename = args.infile[:-5] + "-beautified.xlsx"
+        # book.save(args.infile)
+        book.save(new_filename)
+        print(f"Beautified timetable saved to '{new_filename}'.")
     else:
         print(
             "twig.py -- timetable manipulation utility\n"
