@@ -26,6 +26,8 @@ import openpyxl
 import sys
 from pathlib import Path
 
+from openpyxl import workbook
+from openpyxl import workbook
 from openpyxl.styles import Alignment, Border, Side
 
 # change styles
@@ -436,7 +438,7 @@ def generate_teacherwise(workbook, context):
         sys.exit(1)
 
     # Build timetable (core logic moved to helper)
-    num_classes, timetable, total_periods, warnings = load_timetable(input_sheet, SEPARATOR)
+    num_classes, timetable, total_periods, warnings = load_timetable(input_sheet, SEPARATOR, context)
 
     # Write teacherwise sheet
     write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods, context)
@@ -470,7 +472,7 @@ def get_class_name(cell_value, SEPARATOR='\n'):
     return class_name
 
 
-def load_timetable(input_sheet, SEPARATOR):
+def load_timetable(input_sheet, SEPARATOR, context):
     """
     Build the timetable dictionary from the CLASSWISE sheet.
 
@@ -482,6 +484,8 @@ def load_timetable(input_sheet, SEPARATOR):
     timetable = {}
     warnings = 0
     days_in_week = {1, 2, 3, 4, 5, 6}
+
+    subject_allotment_sheet = context['book']['SUBJECT ALLOTMENTS'] if 'SUBJECT ALLOTMENTS' in context['book'] else None
 
     pattern = re.compile(
         r'^(?P<subject>[\w \-\.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$'
@@ -528,7 +532,7 @@ def load_timetable(input_sheet, SEPARATOR):
                 continue
 
             warnings += process_class_cell(
-                content, row, column, SEPARATOR, pattern, timetable, class_name, periods_assigned, days_in_week
+                content, row, column, SEPARATOR, pattern, timetable, class_name, periods_assigned, days_in_week, subject_allotment_sheet=subject_allotment_sheet
             )
 
         # Write subject-period summary in column 10
@@ -545,8 +549,47 @@ def load_timetable(input_sheet, SEPARATOR):
     return num_classes, timetable, total_periods, warnings
 # end of load_timetable()
 
+def get_subject_allotment_teacher(class_name, subject, subject_allotment_sheet):
+    # read the subject allotment from the SUBJECT_ALLOTMENT sheet, if it exists
+    # returns the teacher code to which the subject is allotted for the class, or None if not found
+    # if 'SUBJECT ALLOTMENT' not in workbook:
+    #     return None
+    
+    # cache subject allotments in a dictionary for faster lookup
+    if not hasattr(get_subject_allotment_teacher, 'subject_allotments'):
+        get_subject_allotment_teacher.subject_allotments = {}
 
-def process_class_cell(content, row, column, SEPARATOR, pattern, timetable, class_name, periods_assigned, days_in_week):
+
+    if not get_subject_allotment_teacher.subject_allotments:
+        print("Loading subject allotments from 'SUBJECT ALLOTMENTS' sheet... ", end="")
+        
+        # load subject allotments into a dictionary for faster lookup and caching results for faster subsequent lookups
+        sheet = subject_allotment_sheet
+        row = 3
+        col = 3
+        while True:
+            if sheet.cell(row=row, column=1).value is None:
+                break   # we have reached the end of the sheet
+            while sheet.cell(row=row, column=col).value is not None:
+                klass = sheet.cell(row=row, column=1).value
+                subject = sheet.cell(row=2, column=col).value
+                teacher_code = sheet.cell(row=row, column=col).value
+                get_subject_allotment_teacher.subject_allotments[(klass, subject)] = teacher_code
+                col += 1
+                if col > 12:  # sanity check to avoid infinite loop in case of malformed sheet
+                    print(f"Warning: More than 10 subjects found for class {klass} in 'SUBJECT ALLOTMENTS' sheet. Stopping further reading of this row.")
+                    break
+
+            row += 1
+            col = 3
+
+        # END if not subject_allotments
+        print("done.")
+
+    return get_subject_allotment_teacher.subject_allotments.get((class_name, subject), None)
+
+
+def process_class_cell(content, row, column, SEPARATOR, pattern, timetable, class_name, periods_assigned, days_in_week, subject_allotment_sheet=None):
     """
     Process a single CLASSWISE cell (one period block for a class).
     Returns number of warnings.
@@ -583,6 +626,13 @@ def process_class_cell(content, row, column, SEPARATOR, pattern, timetable, clas
         # Track teacherwise timetable
         period = column - 1
         timetable.setdefault(teacher, []).append((period, class_name, days, subject))
+        
+        # ensure correct subject allotment to the teacher
+        teacher_per_allotment = get_subject_allotment_teacher(class_name, subject, subject_allotment_sheet)
+        if teacher_per_allotment and teacher_per_allotment != teacher:
+            print(f"Warning: Possibly wrong allotment: {class_name} {subject} ~{teacher}~ {teacher_per_allotment} in cell {get_column_letter(column)}{row}.")
+            warnings += 1
+
 
     # Warn if some days are missing
     days_assigned = set(days_assigned)
