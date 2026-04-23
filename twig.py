@@ -1203,19 +1203,34 @@ def generate_adjustment_helper_sheet(timetable, context):
 
     return None     # generate_adjustment_helper_sheet()
 
-
-def beautify_sheet(sheet):
-    print(f"Beautifying sheet '{sheet.title}'... ", end="")
-    # Apply some basic formatting to the sheet
+def sheet_processor(sheet, callback) -> None:
+    """
+    A generic function to process a sheet with a given callback function.
+    The callback function takes a cell as input and returns the processed value.
+    """
+    # print(f"Processing sheet '{sheet.title}'... ", end="")
     for row in sheet.iter_rows():
         for cell in row:
             if cell.value is not None:
-                cell.value = beautify_sheet_cell(cell)
+                cell.value = callback(cell)
+    # print("Done.")
+    return
 
+def beautify_sheet(sheet) -> None:
+    """
+    beautify the sheet by applying some formatting to the cell values, such as stripping extra spaces, arranging lines, removing redundant information, removing comments, etc.
+    """
+    print(f"Beautifying sheet '{sheet.title}'... ", end="")
+    # # Apply some basic formatting to the sheet
+    # for row in sheet.iter_rows():
+    #     for cell in row:
+    #         if cell.value is not None:
+    #             cell.value = beautify_sheet_cell(cell)
+    sheet_processor(sheet, beautify_sheet_cell)
     print("Done.")
     return
 
-def beautify_sheet_cell(cell):
+def beautify_sheet_cell(cell) -> str:
     """
     Apply basic formatting to a cell value, such as
     stripping extra spaces,
@@ -1482,15 +1497,6 @@ def main():
         print(f"twig.py: version {__version__} by Sunil Sangwal")
         sys.exit(0)
 
-    # expand_names = getattr(args, "fullname", False)    # True or False; default = False
-
-    # if not args.separator:
-    #     args.separator = "\n"    # multi-line separator
-    # else:
-    #     # args.SEPARATOR = args.separator
-    #     if args.separator == '\\n':
-    #         args.separator = '\n'
-
     if len(args.separator) > 2:
         raise("Invalid separator specified. Maybe '\n' or ';'")
 
@@ -1565,6 +1571,7 @@ def main():
         verbose(f"Classwise timetables saved to '{args.outfile}'.")
         if warnings:
             print(f"Warnings: {warnings}")
+
     elif args.command == 'teacherwise':
         # read classwise timetable and generate teacherwise timetable
         context['book'] = book
@@ -1612,13 +1619,6 @@ def main():
         verbose(f"Clashes: {total_clashes}", level=2)
         verbose(f"Warnings: {warnings}", level=2)
 
-    # elif args.command == 'vacant':
-    #     # read teacherwise timetable and generate a vacant sheet
-    #     # containing number of vacant periods for every teacher on each day.
-    #     generate_vacant_sheet(book, context)
-    #     book.save(args.infile)
-    #     print(f"Vacant periods sheet saved to 'git {args.infile}'.")
-
     elif args.command == 'diff':
         base = args.base
         current = args.current
@@ -1627,17 +1627,19 @@ def main():
         print(f"Comparing '{base}' with '{current}' ...")
         differences = show_differences(base, current)
         print(f"Found {differences} differences between {base} and {current}.")
+    
     elif args.command == 'beautify':
         beautify_sheet(book['CLASSWISE'])
         if args.overwrite:
             # overwrite the original file
-            new_filename = args.infile
+            output_filename = args.infile
         else:
             # don't overwrite the original file; instead, save to a new file with "-beautified" suffix
-            new_filename = args.infile[:-5] + "-beautified.xlsx"
+            output_filename = args.infile[:-5] + "-beautified.xlsx"
         # book.save(args.infile)
-        book.save(new_filename)
-        print(f"Beautified timetable saved to '{new_filename}'.")
+        book.save(output_filename)
+        print(f"Beautified timetable saved to '{output_filename}'.")
+    
     else:
         print(
             "twig.py -- timetable manipulation utility\n"
