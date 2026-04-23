@@ -57,7 +57,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '260409'   # twig.py version YYMMDD
+__version__ = '260424'   # twig.py version YYMMDD
 
 # configuration variables before running the script
 
@@ -1042,10 +1042,10 @@ def format_master_ws(ws):
     ws['A2'].font = Font(size=16)
     ws['E2'].font = Font(size=16)
 
-    alignment = Alignment(horizontal='center', vertical='top', wrap_text=True)
+    alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
     ws['A1'].alignment = alignment      # school name
-    ws['A2'].alignment = Alignment(horizontal='left', vertical='top')   # Class
-    ws['E2'].alignment = Alignment(horizontal='right', vertical='top')  # Incharge
+    ws['A2'].alignment = Alignment(horizontal='left', vertical='center')   # Class
+    ws['E2'].alignment = Alignment(horizontal='right', vertical='center')  # Incharge
 
     # Define the border style
     thin_border = Border(
