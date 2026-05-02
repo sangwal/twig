@@ -547,13 +547,13 @@ def load_timetable(input_sheet, SEPARATOR, context):
     num_classes = row - 2  # number of classes processed
 
     return num_classes, timetable, total_periods, warnings
-# end of load_timetable()
+    # end of load_timetable()
 
+    
 def get_subject_allotment_teacher(class_name, subject, subject_allotment_sheet):
-    # read the subject allotment from the SUBJECT_ALLOTMENT sheet, if it exists
-    # returns the teacher code to which the subject is allotted for the class, or None if not found
-    # if 'SUBJECT ALLOTMENT' not in workbook:
-    #     return None
+    """
+    returns the teacher code to which the subject is allotted for the class, or None if not found
+    """
     
     # cache subject allotments in a dictionary for faster lookup
     if not hasattr(get_subject_allotment_teacher, 'subject_allotments'):
@@ -594,6 +594,7 @@ def process_class_cell(content, row, column, SEPARATOR, pattern, timetable, clas
     Process a single CLASSWISE cell (one period block for a class).
     Returns number of warnings.
     """
+
     warnings = 0
     days_assigned = []
 
