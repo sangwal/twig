@@ -471,6 +471,29 @@ def get_class_name(cell_value, SEPARATOR='\n'):
             class_name = class_name.split('#', 1)[0].strip()
     return class_name
 
+def get_max_periods(input_sheet):
+    """
+    Determine the maximum number of periods in a day by scanning the CLASSWISE sheet.
+    """
+    max_periods = 0
+    
+
+    column = 2
+
+    while True:
+        content = input_sheet.cell(1, column).value
+        if content is None:
+            break  # we have reached the end of the row, so stop further processing
+
+        if isinstance(content, int):
+            max_periods += 1
+            break  # stop at the first non-integer cell, assuming periods are numbered sequentially from 1
+
+        column += 1
+    # end of while True
+
+    return max_periods
+
 
 def load_timetable(input_sheet, SEPARATOR, context):
     """
@@ -517,7 +540,9 @@ def load_timetable(input_sheet, SEPARATOR, context):
 
         periods_assigned = {}
 
-        for column in range(2, 10):  # periods 1-8
+        max_periods = get_max_periods(input_sheet)
+
+        for column in range(2, max_periods + 1):  # periods 1-8 are in columns 2-9
             content = input_sheet.cell(row, column).value
             
             if content and isinstance(content, str):
@@ -536,7 +561,7 @@ def load_timetable(input_sheet, SEPARATOR, context):
             )
 
         # Write subject-period summary in column 10
-        write_period_summary(input_sheet, row, periods_assigned)
+        write_period_summary(input_sheet, row, periods_assigned, max_periods)
 
         print("done.")
         row += 1
@@ -644,14 +669,14 @@ def process_class_cell(content, row, column, SEPARATOR, pattern, timetable, clas
     return warnings
 
 
-def write_period_summary(sheet, row, periods_assigned):
+def write_period_summary(sheet, row, periods_assigned, max_periods = 8):
     """
     Write the summary of subject-period counts into column 10 of CLASSWISE.
     """
     summary = [f"{subj}: {count}" for subj, count in sorted(periods_assigned.items())]
     total = sum(periods_assigned.values())
     summary.append(f"TOTAL: {total}")
-    sheet.cell(row=row, column=10).value = ", ".join(summary)
+    sheet.cell(row=row, column=max_periods + 2).value = ", ".join(summary)
 
     # end of write_period_summary()
 
@@ -669,10 +694,13 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
         output_sheet = workbook.create_sheet(title="TEACHERWISE", index=1)
         print("done.")
 
+    input_sheet = workbook['CLASSWISE']
+    max_periods = get_max_periods(input_sheet)    # to determine the number of periods for header and summary
     clear_sheet(output_sheet)
 
     # Header
-    header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods", "Periods Daywise"]
+    # header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods", "Periods Daywise"]
+    header = ["Name"] + [f"Period {i}" for i in range(1, max_periods + 1)] + ["Periods", "Periods Daywise"]
     for col, val in enumerate(header, start=1):
         output_sheet.cell(row=1, column=col).value = f"Period {val}" if type(val) == int else val
 
@@ -702,12 +730,12 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
             entry = f"{class_name.strip()} ({days}) {subject}"
             output_sheet.cell(row, col).value = f"{existing}{SEPARATOR}{entry}" if existing else entry
 
-        output_sheet.cell(row, 10).value = total_periods[teacher_code]
+        output_sheet.cell(row, max_periods + 2).value = total_periods[teacher_code]
 
         # write the periods per day in the K column of TEACHERWISE sheet
         periods_daywise = count_periods_daywise(teacher_code, timetable)
         periods_daywise = repr(periods_daywise)[1:-1]
-        output_sheet.cell(row, 11).value = periods_daywise
+        output_sheet.cell(row, max_periods + 3).value = periods_daywise
 
         row += 1
     # end for teacher_code in sorted_teachers
