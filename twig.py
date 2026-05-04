@@ -19,9 +19,11 @@
     Date written: 20-Apr-2022
 """
 import argparse
+from ast import arguments
 import re
 import time
-import configparser     # now settings are in twig.ini
+import configparser
+from turtle import setup     # now settings are in twig.ini
 import openpyxl
 import sys
 from pathlib import Path
@@ -59,14 +61,10 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '260424'   # twig.py version YYMMDD
-
-# configuration variables before running the script
-
-expand_names = False    # set this to True to write full names of teachers
-MAX_PERIODS = 8       # maximum number of periods in a day
+__version__ = '260504'   # twig.py version YYMMDD
 
 
+# manage configuration from twig.ini file and command line arguments
 class Config:
     _config = {}
 
@@ -216,7 +214,9 @@ def count_periods_daywise(teacher, timetable):
 #     return "Last updated on " + time.ctime()
 def get_formatted_time():
     """
-        returns a cached time string
+        returns a cached time string to avoid multiple calls to time.ctime() which can
+        lead to different timestamps in different cells if the function is called
+        multiple times during the execution of the script
     """
     if not hasattr(get_formatted_time, "_cached_time"):
         get_formatted_time._cached_time = time.ctime()      # strftime("%H:%M:%S")
@@ -291,13 +291,14 @@ def highlight_clashes(sheet, context) -> int:
     # format of line is "CLASS (1-3,5-6) SUBJECT", e.g., 10A (1-2, 4) MATH
     p = re.compile(r'^(?P<class_name>[\w]+)\s*\((?P<days>.*)\)\s*(?P<subject>[\w \-.]+)$')
 
+    max_periods = get_max_periods()    # to determine the number of periods for header and summary
     row = 2
     while True:
         teacher_name = sheet.cell(row=row, column=1).value
         if not teacher_name:
             break
 
-        for column in range(2, 10):
+        for column in range(2, max_periods + 2):
             content = sheet.cell(row, column).value
             # skip empty cells in class timetable with a warning
             if not content:
@@ -394,9 +395,10 @@ def highlight_clashes(sheet, context) -> int:
 def clear_sheet(sheet) -> None:
     # clear the sheet before starting writing...
     row = 2
+    max_column = sheet.max_column
     while True:
 
-        for column in range(1, 11):
+        for column in range(1, max_column + 1):
             sheet.cell(row=row, column=column).value = ""
 
         row += 1
@@ -471,12 +473,16 @@ def get_class_name(cell_value, SEPARATOR='\n'):
             class_name = class_name.split('#', 1)[0].strip()
     return class_name
 
-def get_max_periods(input_sheet):
+def get_max_periods(input_sheet = None):
     """
     Determine the maximum number of periods in a day by scanning the CLASSWISE sheet.
     """
-    max_periods = 0
+    if hasattr(get_max_periods, 'cached_max_periods'):
+        return get_max_periods.cached_max_periods
+
+    assert input_sheet is not None, "Input sheet must be provided to determine max periods."
     
+    max_periods = 0
 
     column = 2
 
@@ -487,10 +493,12 @@ def get_max_periods(input_sheet):
 
         if isinstance(content, int):
             max_periods += 1
+        else:
             break  # stop at the first non-integer cell, assuming periods are numbered sequentially from 1
 
         column += 1
     # end of while True
+    get_max_periods.cached_max_periods = max_periods    # cache the result for future calls
 
     return max_periods
 
@@ -516,6 +524,9 @@ def load_timetable(input_sheet, SEPARATOR, context):
 
     # print("Processing timetable ...")
 
+    max_periods = get_max_periods(input_sheet)
+    # assert max_periods == 9, "Less than 9 periods found in CLASSWISE sheet. Please ensure the first row of CLASSWISE sheet has period numbers starting from 1."
+
     row = 2
     while True:
         class_name = input_sheet.cell(row, 1).value
@@ -540,9 +551,8 @@ def load_timetable(input_sheet, SEPARATOR, context):
 
         periods_assigned = {}
 
-        max_periods = get_max_periods(input_sheet)
-
-        for column in range(2, max_periods + 1):  # periods 1-8 are in columns 2-9
+        max_columns = max_periods + 2
+        for column in range(2, max_columns):  # periods 1-8 are in columns 2-9
             content = input_sheet.cell(row, column).value
             
             if content and isinstance(content, str):
@@ -650,6 +660,10 @@ def process_class_cell(content, row, column, SEPARATOR, pattern, timetable, clas
 
         # Track teacherwise timetable
         period = column - 1
+        # if period == 9:
+        #     print(f"period 9 found in cell {get_column_letter(column)}{row}.")
+        #     sys.exit(1)
+
         timetable.setdefault(teacher, []).append((period, class_name, days, subject))
         
         # ensure correct subject allotment to the teacher
@@ -697,6 +711,8 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     input_sheet = workbook['CLASSWISE']
     max_periods = get_max_periods(input_sheet)    # to determine the number of periods for header and summary
     clear_sheet(output_sheet)
+    # assert max_periods == 9, f"Expected 9 periods, got {max_periods}."
+    print("Writing teacherwise timetable... ", end="")
 
     # Header
     # header = ["Name", 1, 2, 3, 4, 5, 6, 7, 8, "Periods", "Periods Daywise"]
@@ -744,6 +760,7 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     if not args.keepstamp:
         output_sheet.cell(row=len(sorted_teachers) + 2, column=2).value = "Last updated on " + get_formatted_time()
 
+    print("done.")
     # end of write_teacherwise_sheet()
 
 def get_user_input(valid_chars: str, prompt: str, default: str | None) -> str:
@@ -802,6 +819,8 @@ def generate_classwise(input_book, outfile, context):
         # create an empty book if there is no workbook already
         output_book = openpyxl.Workbook()
 
+    max_periods = get_max_periods(input_sheet)    # to determine the number of periods for header and summary
+
     if 'MASTER' not in output_book:
         master_sheet = output_book.create_sheet('MASTER')
 
@@ -813,7 +832,7 @@ def generate_classwise(input_book, outfile, context):
         master_sheet['A8'] = 'Fri'
         master_sheet['A9'] = 'Sat'
 
-        for col in range(2, 10):
+        for col in range(2, max_periods + 2):
             master_sheet.cell(3, col).value = col - 1   # periods 1 - 8
 
         format_master_ws(master_sheet)
@@ -880,7 +899,7 @@ def generate_classwise(input_book, outfile, context):
     p = re.compile(r'^(?P<subject>[\w \-.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$')
 
     teacher_details = load_teacher_details(input_book)
-
+    max_periods = get_max_periods(input_sheet)    # to determine the number of periods for header and summary
     warnings = 0
     row = 2
     while True:
@@ -908,7 +927,7 @@ def generate_classwise(input_book, outfile, context):
             # leave space for writing name of the incharge
             output_book[sheet_name].cell(2, 5).value = "Class In-charge:" + '_' * 25
 
-        for column in range(2, 10):
+        for column in range(2, max_periods + 2):  # periods 1-8 are in columns 2-9
             content = input_sheet.cell(row, column).value
             # skip empty cells in class timetable with a warning
             if not content:
@@ -921,7 +940,7 @@ def generate_classwise(input_book, outfile, context):
 
             for line in lines:
                 line = line.strip()
-                if line == '' or line.startswith('#'):
+                if line == '' or line.startswith('#') or line == '-':
                     # ignore empty lines and the ones starting with '#' -- used as comment
                     continue
 
@@ -951,12 +970,17 @@ def generate_classwise(input_book, outfile, context):
 
     # remove trailing newlines from all classwise sheets
     for ws in output_book:
-        if ws.title[0].isdigit():   # for classwise sheets only
-            for r in range(4, 10):
-                for c in range(2, 10):
-                    cell = ws.cell(r, c)
-                    if cell.value is not None:
-                        cell.value = cell.value.rstrip('\n')
+        ws.title = ws.title.strip()   # strip spaces from sheet names
+        
+        # skip the MASTER and Sheet sheets, which are templates for classwise sheets and not meant for printing in classrooms
+        if ws.title in ["Sheet", "MASTER"]:   # for classwise sheets only
+            continue
+        # remove trailing newlines from all cells in all the classwise sheets
+        for r in range(4, 10):
+            for c in range(2, max_periods + 2):
+                cell = ws.cell(r, c)
+                if cell.value is not None:
+                    cell.value = cell.value.rstrip('\n')
 
     ####################################################################################
     # finally, copy the timestamp to all classwise sheets
@@ -1092,8 +1116,11 @@ def show_differences(base, current):
 
 
 def format_master_ws(ws):
-    ws.column_dimensions['A'].width = 16    # first column
-    for col in range(2, 10):
+    max_periods = get_max_periods()
+    assert max_periods == 9, f"Expected 9 periods, got {max_periods}."
+
+    ws.column_dimensions['A'].width = 14    # first column
+    for col in range(2, max_periods + 2):   # columns for periods and summary
         ws.column_dimensions[get_column_letter(col)].width = 14     # all other columns
 
     # first three rows
@@ -1105,16 +1132,17 @@ def format_master_ws(ws):
         ws.row_dimensions[row].height = 54
 
     # shade the row showing periods (3rd row)
-    for col in range(1, 10):
+    for col in range(1, max_periods + 2):
         ws[get_column_letter(col)+'3'].fill = PatternFill(start_color="c3c3c3", end_color="c3c3c3", fill_type="solid")
     # shade the days in Column A
     for row in range(4, 10):
         ws['A'+str(row)].fill = PatternFill(start_color="c3c3c3", end_color="c3c3c3", fill_type="solid")
 
     # format header
-    ws.merge_cells('A1:I1')
+    last_column_letter = get_column_letter(max_periods + 1)
+    ws.merge_cells(f'A1:{last_column_letter}1')
     ws.merge_cells('A2:D2')
-    ws.merge_cells('E2:I2')
+    ws.merge_cells(f'E2:{last_column_letter}2')
 
     ws['A1'].font = Font(size=25)
     ws['A2'].font = Font(size=16)
@@ -1133,9 +1161,10 @@ def format_master_ws(ws):
         bottom=Side(style='thin')
     )
     for row in range(3, 10):
-        for col in range(1, 10):
+        for col in range(1, max_periods + 2):
             ws.cell(row, col).border = thin_border
             ws.cell(row, col).alignment = alignment
+            ws.cell(row, col).font = Font(size=14)
 
     return
     # end format_master_ws()
@@ -1177,14 +1206,17 @@ def generate_vacant_sheet(book, context):
         # ------ TODO: problematic code starts here -------
         try:
             # this K column contains daywise periods for a teacher
-            data_str = row[10]  # 11th column (0-based index = 10)
+            # data_column_index = 10   # K column (0-based index)
+            max_periods = get_max_periods() # 8 or 9 periods, depending on the input sheet
+            data_column_index = max_periods + 2
+            data_str = row[data_column_index]  # 11th column (0-based index = 10)
         except Exception as e:
             print(f"Daywise Periods not written in column K of TEACHERWISE sheet! Ignored.")
             pass
 
         # -----end---- #
 
-        if not data_str:
+        if not data_str or type(data_str) != str:
             continue  # skip empty cells
 
         # copy teacher name in first column
@@ -1203,7 +1235,7 @@ def generate_vacant_sheet(book, context):
 
         # Write into VACANT sheet (same row number)
         for col, val in data.items():
-            out_ws.cell(row=row_idx, column=col+1, value=MAX_PERIODS - val)
+            out_ws.cell(row=row_idx, column=col+1, value=max_periods - val)
 
     return True     # generate_vacant_sheet()
 
@@ -1222,8 +1254,10 @@ def generate_adjustment_helper_sheet(timetable, context):
     FREE_SHEET = "FREE_TEACHERS"
     if FREE_SHEET in book.sheetnames:
         ws = book[FREE_SHEET]
+
         # Clear previous content
-        for row in ws.iter_rows(min_row=1, max_row=7, min_col=1, max_col=9):
+        # for row in ws.iter_rows(min_row=1, max_row=7, min_col=1, max_col=9):
+        for row in ws.iter_rows():
             for cell in row:
                 cell.value = None
     else:
@@ -1231,10 +1265,11 @@ def generate_adjustment_helper_sheet(timetable, context):
 
     ws.cell(row=1, column=2, value='Free Teachers Sheet')
     FIRST_ROW = 2
+    max_periods = get_max_periods()
 
     # Write header: periods on top
     ws.cell(row=FIRST_ROW, column=1, value="Day/Period")
-    for period in range(1, MAX_PERIODS+1):
+    for period in range(1, max_periods + 1):
         ws.cell(row=FIRST_ROW, column=period+1, value=f"Period {period}")
 
     # Write days on left
@@ -1254,7 +1289,7 @@ def generate_adjustment_helper_sheet(timetable, context):
 
     # For each day and period, find free teachers
     for day in range(1, 7):
-        for period in range(1, MAX_PERIODS+1):
+        for period in range(1, max_periods + 1):
             free_teachers = []
             for teacher in timetable:
                 busy_periods = teacher_busy_periods[teacher].get(day, set())
@@ -1263,12 +1298,12 @@ def generate_adjustment_helper_sheet(timetable, context):
             # Sort free_teachers by number of free periods (descending)
             free_teachers_sorted = sorted(
                 free_teachers,
-                key=lambda t: MAX_PERIODS - len(teacher_busy_periods[t].get(day, set())),
+                key=lambda t: max_periods - len(teacher_busy_periods[t].get(day, set())),
                 reverse=True
             )
             # Format as "teacher_code : number_of_free_periods"
             formatted = [
-                f"{t}:{MAX_PERIODS - len(teacher_busy_periods[t].get(day, set()))}"
+                f"{t}:{max_periods - len(teacher_busy_periods[t].get(day, set()))}"
                 for t in free_teachers_sorted
             ]
             ws.cell(row=day+FIRST_ROW, column=period+1, value=", ".join(formatted))
@@ -1455,14 +1490,13 @@ GITHUB = https://www.github.com/sangwal/twig.git
 
 ; settings regarding Timetable or twig.py
 [APP]
-MAX_PERIODS = 8
 MAX_DAYS = 6
 OUTPUT_FILE = timetable.xlsx
 INPUT_FILE = timetable.xlsx
 LOG_FILE = timetable.log
 RANDOM_SEED = 42
 VERBOSE = true
-DEBUG = true
+DEBUG = false
 
 [SECTION]
 A = Daisy
@@ -1588,7 +1622,7 @@ def main():
     start_time = time.time()
 
     # load settings from twig.ini file
-    CONFIG_FILE = args.config       # 'twig.ini'
+    CONFIG_FILE = args.config       # 'twig.ini' is injected as default value for --config argument in argparse setup above
 
     # using pathlib (modern, recommended)
     config_path = Path(CONFIG_FILE)
@@ -1608,6 +1642,7 @@ def main():
     DEBUG = config.get('DEBUG')
     if DEBUG.lower() == 'true' or DEBUG == '1':
         DEBUG = True
+        print("Alert: DEBUG mode is ON. Using hardcoded values for testing and debugging. Change DEBUG to false in twig.ini config file for normal execution.")
     else:
         DEBUG = False
     verbose(f"DEBUG is {DEBUG}")
@@ -1615,8 +1650,12 @@ def main():
     warnings = 0
 
     if DEBUG:
+        # setup arguments for debugging
         filename = "Timetable.xlsx"     # input file
+        args.command = 'teacherwise'
         args.fullname = True
+        args.strict = False
+        args.outfile = "Timetable.xlsx"
         # args.keepstamp = False
         # args.separator = '\n'
 
@@ -1632,6 +1671,10 @@ def main():
                         'vacant', 
                         # 'diff', 
                         'beautify']:
+        if DEBUG:
+            args.infile = "Timetable.xlsx"
+
+        # access args.infile as filename variable for backward compatibility with existing code
         if not args.infile:
             filename = 'Timetable.xlsx'
         else:
