@@ -1165,7 +1165,7 @@ def format_master_ws(ws):
         for col in range(1, max_periods + 2):
             ws.cell(row, col).border = thin_border
             ws.cell(row, col).alignment = alignment
-            ws.cell(row, col).font = Font(size=14)
+            ws.cell(row, col).font = Font(size=13)
 
     return
     # end format_master_ws()
@@ -1212,7 +1212,7 @@ def generate_vacant_sheet(book, context):
             data_column_index = max_periods + 2
             data_str = row[data_column_index]  # 11th column (0-based index = 10)
         except Exception as e:
-            print(f"Daywise Periods not written in column K of TEACHERWISE sheet! Ignored.")
+            print(f"Daywise Periods not written in column {get_column_letter(data_column_index)} of TEACHERWISE sheet! Ignored.")
             pass
 
         # -----end---- #
