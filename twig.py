@@ -32,6 +32,8 @@ from openpyxl import workbook
 from openpyxl import workbook
 from openpyxl.styles import Alignment, Border, Side
 
+from email_sender import email_sender
+
 # change styles
 # alignment = Alignment(horizontal='general',
 #     vertical='top',
@@ -1445,6 +1447,64 @@ def beautify_sheet_cell(cell) -> str:
     return '\n'.join(processed_lines)   # lines are already processed and joined with newline
     # end of beautify_sheet_cell()
 
+def share_timetable(book, context):
+    """
+        share the timetable with teachers by emailing the teacherwise timetable to individual teacher
+    """
+    teacherwise_sheet = book['TEACHERWISE']
+    teacher_details = load_teacher_details(book)
+
+    skipped_teachers = []
+
+    for row in teacherwise_sheet.iter_rows(min_row=2, values_only=True):
+        if row[0] is None:
+            break
+        if ',' in row[0]:
+            teacher_code = row[0].split(',')[1].strip()   # teacher code is after the comma in the first column
+        else:
+            teacher_code = row[0].strip()   # if there is no comma, the entire first column is considered as teacher code
+        email = teacher_details.get(teacher_code, {}).get('EMAIL', None)
+        if email and '@' in email:
+            print(f"Emailing timetable to {teacher_code} at {email}...")
+        else:
+            email = None
+            print(f"No email found for teacher {teacher_code}. Skipping email.")
+
+        msg_body = f"Dear {teacher_details.get(teacher_code, {}).get('NAME', teacher_code)},\n\n"
+        msg_body += "Please find below your updated timetable:\n\n"
+        for col_index, col_data in enumerate(row, start=0):
+            if col_index > 9:
+                break   # only consider the first 10 columns (teacher code + 8 periods + total)
+            if col_index == 0:
+                continue    # skip teacher code column
+            if col_data is not None:
+                col_data = col_data.replace('\n', '\n    ')   # indent the lines for better readability
+                msg_body += f"Period {col_index}:\n    {col_data}\n\n"
+            else:
+                msg_body += f"Period {col_index}: -\n"
+        msg_body += "\nBest regards,\nSchool Administration"
+
+        print("Email content:")
+        print(msg_body)
+        print("-" * 40)
+
+        # share the generated timetable with the teachers by email
+
+        if email is not None:
+            send_mail = True   # we can set this to False for testing purposes to skip sending emails
+            if send_mail:
+                try:
+                    email_sender.send_message(email, "GSSS Amarpura: Updated Timetable", msg_body)
+                    time.sleep(1)   # sleep for a while to avoid sending too many emails in a short time
+                except Exception as e:
+                    skipped_teachers.append(teacher_code)
+                    print(f"Error occurred while sending email to {teacher_code} at {email} address: {e}")
+        else:
+            print(f"Skipping email for {teacher_code} due to missing email address.")
+            skipped_teachers.append(teacher_code)
+    
+    print(skipped_teachers and f"Skipped emailing the following teachers due to missing email addresses: {', '.join(skipped_teachers)}." or "All teachers were emailed successfully.")  
+    return 
 
 
 def verbose(msg, level=1):
@@ -1590,6 +1650,9 @@ def main():
     bw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     bw_parser.add_argument("-w", "--overwrite", action="store_true", help="overwrite existing output file without prompting")
 
+    share_parser = subparsers.add_parser("share", help="Share timetable with teachers by emailing the teacherwise timetable to individual teacher")
+    share_parser.add_argument("infile", type=str, action="store", help="File containing teacherwise timetable")
+
     # Subcommand 'diff'
     diff_parser = subparsers.add_parser("diff", help="compare two timetables")
     diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
@@ -1663,7 +1726,6 @@ def main():
     context = {
         'ARGS': args
     }
-    # print(context)
 
     args.command = args.command.lower() if args.command else None
 
@@ -1671,7 +1733,8 @@ def main():
                         'classwise',
                         'vacant', 
                         # 'diff', 
-                        'beautify']:
+                        'beautify',
+                        'share']:
         if DEBUG:
             args.infile = "Timetable.xlsx"
 
@@ -1761,7 +1824,10 @@ def main():
         # book.save(args.infile)
         book.save(output_filename)
         print(f"Beautified timetable saved to '{output_filename}'.")
-    
+
+    elif args.command == "share":
+        share_timetable(book, context)
+        print("Done sharing.")
     else:
         print(
             "twig.py -- timetable manipulation utility\n"
@@ -1769,6 +1835,7 @@ def main():
             "Type 'python twig.py -h' for more information."
         )
         sys.exit(0)
+
 
     # finish timing exection
     end_time = time.time()
