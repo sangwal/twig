@@ -19,11 +19,11 @@
     Date written: 20-Apr-2022
 """
 import argparse
-from ast import arguments
+# from ast import arguments
 import re
 import time
 import configparser
-from turtle import setup     # now settings are in twig.ini
+# from turtle import setup     # now settings are in twig.ini
 import openpyxl
 import sys
 from pathlib import Path
@@ -63,7 +63,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '260504'   # twig.py version YYMMDD
+__version__ = '260514'   # twig.py version YYMMDD
 
 
 # manage configuration from twig.ini file and command line arguments
@@ -766,17 +766,18 @@ def write_teacherwise_sheet(workbook, timetable, teacher_details, total_periods,
     print("done.")
     # end of write_teacherwise_sheet()
 
-def get_user_input(valid_chars: str, prompt: str, default: str | None) -> str:
-    print(prompt, end='', flush=True)
+def get_user_input(valid_chars: str, prompt: str, default: str | None = None) -> str:
+    # print(prompt, end='', flush=True)
     if default is not None:
-        print(default)
+        # print(default)
         return default
     
     # default is None; read response from user
     while True:
+        print(prompt, end='', flush=True)
         response = input().strip()
         if response == '':
-            print(prompt, end='', flush=True)
+            # print(prompt, end='', flush=True)
             continue
 
         if response in valid_chars:
@@ -1447,22 +1448,71 @@ def beautify_sheet_cell(cell) -> str:
     return '\n'.join(processed_lines)   # lines are already processed and joined with newline
     # end of beautify_sheet_cell()
 
-def share_timetable(book, context):
+
+def get_teacher_name(teacher_code, teacher_details):
+    if teacher_code in teacher_details:
+        return teacher_details[teacher_code]['NAME']
+ 
+    return teacher_code    # if teacher code is not found in teacher_details, return the code itself as the name
+
+
+def generate_message_body(teacher_code, teacher_details, timetable_entry, max_columns):
+    # Implementation for generating message body
+
+    msg_body = f"Dear {get_teacher_name(teacher_code, teacher_details)},\n\n"
+    msg_body += "Please find below your updated timetable:\n\n"
+    for col_index, col_data in enumerate(timetable_entry, start=0):
+        if col_index > max_columns:
+            break   # only consider the first 10 columns (teacher code + 8 periods + total)
+        if col_index == 0:
+            continue    # skip teacher code column
+        if col_data is not None:
+            col_data = col_data.replace('\n', '\n    ')   # indent the lines for better readability
+            msg_body += f"Period {col_index}:\n    {col_data}\n\n"
+        else:
+            msg_body += f"Period {col_index}: --\n"
+    msg_body += "\nBest regards,\nSchool Administration"
+
+    return msg_body
+
+
+def share_timetable(book, teachers = None):
     """
         share the timetable with teachers by emailing the teacherwise timetable to individual teacher
+
+        book -- the workbook object containing the timetable data
+        teachers -- list of teacher codes to whom the timetable needs to be shared. If None, the timetable will be shared with all teachers in the TEACHERWISE sheet.
     """
+    response = get_user_input("ynYN", "Are you sure you want to share the timetable with teachers by email? y)es  n)o: ")
+
+    response = response.lower()
+    # if response.lower() not in ['y', 'yes']:
+    #     print("Operation cancelled.")
+    #     return
+    
     teacherwise_sheet = book['TEACHERWISE']
     teacher_details = load_teacher_details(book)
+
+    # read maximum periods from the CLASSWISE sheet to determine how many columns to consider for generating the message body for email
+    max_periods = get_max_periods(book['CLASSWISE'])
+    max_columns = max_periods
 
     skipped_teachers = []
 
     for row in teacherwise_sheet.iter_rows(min_row=2, values_only=True):
         if row[0] is None:
             break
+        # teacher code is in the first column, but it may contain the teacher name as well, separated by a comma. We need to extract the teacher code from the first column to get the email address from teacher_details dictionary.
         if ',' in row[0]:
             teacher_code = row[0].split(',')[1].strip()   # teacher code is after the comma in the first column
         else:
             teacher_code = row[0].strip()   # if there is no comma, the entire first column is considered as teacher code
+
+        # send timetable to the teacher only if the teacher code is in the list of teachers to be shared with (if provided)
+        # teachers = ['AS', 'DR', 'MT', 'RL', 'SH']   # for example, to share only with these teachers
+        if teachers and teacher_code not in teachers:
+            continue    # end if
+
         email = teacher_details.get(teacher_code, {}).get('EMAIL', None)
         if email and '@' in email:
             print(f"Emailing timetable to {teacher_code} at {email}...")
@@ -1470,41 +1520,30 @@ def share_timetable(book, context):
             email = None
             print(f"No email found for teacher {teacher_code}. Skipping email.")
 
-        msg_body = f"Dear {teacher_details.get(teacher_code, {}).get('NAME', teacher_code)},\n\n"
-        msg_body += "Please find below your updated timetable:\n\n"
-        for col_index, col_data in enumerate(row, start=0):
-            if col_index > 9:
-                break   # only consider the first 10 columns (teacher code + 8 periods + total)
-            if col_index == 0:
-                continue    # skip teacher code column
-            if col_data is not None:
-                col_data = col_data.replace('\n', '\n    ')   # indent the lines for better readability
-                msg_body += f"Period {col_index}:\n    {col_data}\n\n"
-            else:
-                msg_body += f"Period {col_index}: -\n"
-        msg_body += "\nBest regards,\nSchool Administration"
+        msg_body = generate_message_body(teacher_code, teacher_details, row, max_columns)
 
         print("Email content:")
         print(msg_body)
         print("-" * 40)
 
         # share the generated timetable with the teachers by email
-
-        if email is not None:
-            send_mail = True   # we can set this to False for testing purposes to skip sending emails
-            if send_mail:
-                try:
-                    email_sender.send_message(email, "GSSS Amarpura: Updated Timetable", msg_body)
-                    time.sleep(1)   # sleep for a while to avoid sending too many emails in a short time
-                except Exception as e:
-                    skipped_teachers.append(teacher_code)
-                    print(f"Error occurred while sending email to {teacher_code} at {email} address: {e}")
-        else:
-            print(f"Skipping email for {teacher_code} due to missing email address.")
+        if response == 'n' or email is None:
             skipped_teachers.append(teacher_code)
+            continue    # skip emailing if email address is not found
+
+        try:
+            email_sender.send_message(email, "GSSS Amarpura: Updated Timetable", msg_body)
+            time.sleep(1)   # sleep for a while to avoid sending too many emails in a short time
+        except Exception as e:
+            skipped_teachers.append(teacher_code)
+            print(f"Error occurred while sending email to {teacher_code} at {email} address: {e}")
     
-    print(skipped_teachers and f"Skipped emailing the following teachers due to missing email addresses: {', '.join(skipped_teachers)}." or "All teachers were emailed successfully.")  
-    return 
+    if skipped_teachers:
+        print(f"Skipped emailing the following teachers due to missing email addresses: {', '.join(skipped_teachers)}.")
+    else:
+        print("All teachers were emailed successfully.")
+    
+    return  # share_timetable()
 
 
 def verbose(msg, level=1):
@@ -1650,8 +1689,10 @@ def main():
     bw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
     bw_parser.add_argument("-w", "--overwrite", action="store_true", help="overwrite existing output file without prompting")
 
+    # subcommand 'share'
     share_parser = subparsers.add_parser("share", help="Share timetable with teachers by emailing the teacherwise timetable to individual teacher")
     share_parser.add_argument("infile", type=str, action="store", help="File containing teacherwise timetable")
+    share_parser.add_argument("-t", "--teachers", type=str, action="store", help="List of teacher codes (comma separated) to whom the timetable needs to be shared. If not specified, the timetable will be shared with all teachers in the TEACHERWISE sheet.")
 
     # Subcommand 'diff'
     diff_parser = subparsers.add_parser("diff", help="compare two timetables")
@@ -1713,13 +1754,16 @@ def main():
 
     warnings = 0
 
+    DEBUG = True     # for testing and debugging; set to False for normal execution
+
     if DEBUG:
         # setup arguments for debugging
         filename = "Timetable.xlsx"     # input file
-        args.command = 'teacherwise'
+        args.command = 'share'
         args.fullname = True
-        args.strict = False
-        args.outfile = "Timetable.xlsx"
+        args.teachers = None
+        # args.strict = False
+        # args.outfile = "Timetable.xlsx"
         # args.keepstamp = False
         # args.separator = '\n'
 
@@ -1826,7 +1870,10 @@ def main():
         print(f"Beautified timetable saved to '{output_filename}'.")
 
     elif args.command == "share":
-        share_timetable(book, context)
+        args.teachers = args.teachers.split(',') if args.teachers else None    # if teachers is None, set it to empty list for easier processing
+        args.teachers = [t.strip() for t in args.teachers] if args.teachers else None
+        print(f"Sharing timetable with teachers: {', '.join(args.teachers) if args.teachers else 'All teachers'} ...")
+        share_timetable(book, args.teachers)
         print("Done sharing.")
     else:
         print(
