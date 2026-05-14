@@ -1,0 +1,10 @@
+# Google OAuth secrets
+credentials.json
+token.json
+
+# If you use environment variables
+.env
+
+# Python specific (if applicable)
+__pycache__/
+venv/
