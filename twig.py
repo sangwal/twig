@@ -19,11 +19,9 @@
     Date written: 20-Apr-2022
 """
 import argparse
-# from ast import arguments
 import re
 import time
 import configparser
-# from turtle import setup     # now settings are in twig.ini
 import openpyxl
 import sys
 from pathlib import Path
@@ -518,7 +516,7 @@ def load_timetable(input_sheet, SEPARATOR, context):
     warnings = 0
     days_in_week = {1, 2, 3, 4, 5, 6}
 
-    subject_allotment_sheet = context['book']['SUBJECT ALLOTMENTS'] if 'SUBJECT ALLOTMENTS' in context['book'] else None
+    subject_allotment_sheet = context['book']['SUBJECT_ALLOTMENT'] if 'SUBJECT_ALLOTMENT' in context['book'] else None
 
     pattern = re.compile(
         r'^(?P<subject>[\w \-\.]+)\s*\((?P<days>[1-6,\- ]+)\)\s*(?P<teacher>[A-Z]+)$'
@@ -598,7 +596,7 @@ def get_subject_allotment_teacher(class_name, subject, subject_allotment_sheet):
 
 
     if not get_subject_allotment_teacher.subject_allotments:
-        print("Loading subject allotments from 'SUBJECT ALLOTMENTS' sheet... ", end="")
+        print("Loading subject allotments from SUBJECT_ALLOTMENT sheet... ", end="")
         
         # load subject allotments into a dictionary for faster lookup and caching results for faster subsequent lookups
         sheet = subject_allotment_sheet
@@ -614,7 +612,7 @@ def get_subject_allotment_teacher(class_name, subject, subject_allotment_sheet):
                 get_subject_allotment_teacher.subject_allotments[(klass, subject)] = teacher_code
                 col += 1
                 if col > 12:  # sanity check to avoid infinite loop in case of malformed sheet
-                    print(f"Warning: More than 10 subjects found for class {klass} in 'SUBJECT ALLOTMENTS' sheet. Stopping further reading of this row.")
+                    print(f"Warning: More than 10 subjects found for class {klass} in SUBJECT_ALLOTMENT sheet. Stopping further reading of this row.")
                     break
 
             row += 1
@@ -1354,6 +1352,8 @@ def beautify_sheet_cell(cell) -> str:
     arranging lines,
     removing redundant information,
     removing comments, etc.
+
+    Returns the beautified cell value as a string.
     """
     content =  cell.value
     # content=  """HI (2) RL
@@ -1754,7 +1754,7 @@ def main():
 
     warnings = 0
 
-    DEBUG = True     # for testing and debugging; set to False for normal execution
+    # DEBUG = True     # for testing and debugging; set to False for normal execution
 
     if DEBUG:
         # setup arguments for debugging
