@@ -1551,7 +1551,97 @@ def verbose(msg, level=1):
         print(msg)
     return
 
+def get_allotted_periods(subject_allotment_sheet):
+    # extract the periods from the allotment string, which is in the format "Subject (days) Teacher"
 
+    # get maximum number of columns in the subject allotment sheet to determine how many columns to consider for processing the allotment data
+    max_cols = subject_allotment_sheet.max_column
+    for col in range(2, max_cols):   # consider only first 20 columns for allotment
+        teacher_code = subject_allotment_sheet.cell(row=2, column=col).value
+        if teacher_code is None or teacher_code == '':
+            max_cols = col   # update max_cols to the last non-empty column
+            break   # we have reached the end of the subject allotment sheet, so stop further processing
+
+    teacherwise_allotment = {}
+    row = 3
+    while True:
+        col = 3
+        teacher_code = subject_allotment_sheet.cell(row=row, column=1).value
+        if teacher_code is None or teacher_code == '':
+            break   # we have reached the end of the subject allotment sheet, so stop further processing
+
+        for col in range(3, max_cols):
+            teacher_code = subject_allotment_sheet.cell(row=row, column=col).value
+            if teacher_code is None or teacher_code == '':
+                continue
+
+            teacher_code = teacher_code.strip()
+            
+            class_name = subject_allotment_sheet.cell(row=row, column=1).value
+            subject = subject_allotment_sheet.cell(row=2, column=col).value
+
+            if teacher_code not in teacherwise_allotment:
+                teacherwise_allotment[teacher_code] = []
+            teacherwise_allotment[teacher_code].append((class_name, subject))   # store the row and column index of the allotment for each teacher
+            col += 1
+        row += 1
+        
+    # print("Teacherwise subject allotment: ", len(teacherwise_allotment))
+    # sys.exit(1)
+    return teacherwise_allotment
+
+def get_period_distribution(period_distribution_sheet):
+    # extract the period distribution from the sheet, which is in the format "Class Subject Teacher (days)"
+    period_distribution = {}
+    # get maximum number of columns in the period distribution sheet to determine how many columns to consider for processing the distribution data
+    max_cols = period_distribution_sheet.max_column
+    for col in range(2, max_cols):   # consider only first 20 columns for distribution
+        teacher_code = period_distribution_sheet.cell(row=2, column=col).value
+        if teacher_code is None or teacher_code == '':
+            max_cols = col   # update max_cols to the last non-empty column
+            break   # we have reached the end of the period distribution sheet, so stop further processing
+
+    row = 3
+    while True:
+        col = 2
+        class_name = period_distribution_sheet.cell(row=row, column=1).value
+        if class_name is None or class_name == '':
+            break   # we have reached the end of the period distribution sheet, so stop further processing
+
+        class_name = class_name.strip()
+
+        for col in range(2, max_cols):
+            period_count = period_distribution_sheet.cell(row=row, column=col).value
+            if period_count is None or period_count == '':
+                period_count = 0
+            if type(period_count) == str:
+                period_count = period_count.strip()
+                if period_count.isdigit():
+                    period_count = int(period_count)
+                else:
+                    print(f"Warning: Invalid period count '{period_count}' in row {row} of period distribution sheet. Setting it to 0.")
+                    period_count = 0
+            
+            subject = period_distribution_sheet.cell(row=2, column=col).value.strip()
+            
+            period_distribution[(class_name, subject)] = period_count
+
+            col += 1
+        row += 1
+
+    return period_distribution  
+
+def calculate_allotted_periods(period_distribution, teacherwise_allotment):
+    # calculate the total allotted periods for each teacher based on the period distribution and teacherwise allotment
+    allotted_periods = {}
+    for teacher_code, allotments in teacherwise_allotment.items():
+        total_periods = 0
+        for class_name, subject in allotments:
+            total_periods += period_distribution.get((class_name, subject), 0)
+        allotted_periods[teacher_code] = total_periods
+
+    return allotted_periods 
+    
 def write_sample_config(filename):
     CONFIG_FILE = filename
     DEFAULT_CONFIG = """
@@ -1685,9 +1775,9 @@ def main():
     cw_parser.add_argument("outfile", type=str, action="store", help="File to write classwise timetable")
 
     # Subcommand 'beautify'
-    bw_parser = subparsers.add_parser("beautify", help="Beautify timetable")
-    bw_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
-    bw_parser.add_argument("-w", "--overwrite", action="store_true", help="overwrite existing output file without prompting")
+    beautify_parser = subparsers.add_parser("beautify", help="Beautify timetable")
+    beautify_parser.add_argument("infile", type=str, action="store", help="File containing classwise timetable")
+    beautify_parser.add_argument("-w", "--overwrite", action="store_true", help="overwrite existing output file without prompting")
 
     # subcommand 'share'
     share_parser = subparsers.add_parser("share", help="Share timetable with teachers by emailing the teacherwise timetable to individual teacher")
@@ -1698,6 +1788,10 @@ def main():
     diff_parser = subparsers.add_parser("diff", help="compare two timetables")
     diff_parser.add_argument("base", type=str, action="store", help="base classwise timetable to compare against")
     diff_parser.add_argument("current", type=str, action="store", help="current timetable to be compared against base timetable")
+
+    # Subcommand 'count'
+    count_parser = subparsers.add_parser("count", help="count periods from SUBJECT_ALLOTMENT and PERIOD_DISTRIBUTION in timetable")
+    count_parser.add_argument("infile", type=str, action="store", help="File containing SUBJECT_ALLOTMENT and PERIOD_DISTRIBUTION sheets")
 
     # Parse the arguments
     args = parser.parse_args()
@@ -1758,8 +1852,8 @@ def main():
 
     if DEBUG:
         # setup arguments for debugging
-        filename = "Timetable.xlsx"     # input file
-        args.command = 'share'
+        args.infile = 'Timetable-20260518-SAMRATH.xlsx'
+        args.command = 'count'
         args.fullname = True
         args.teachers = None
         # args.strict = False
@@ -1773,24 +1867,23 @@ def main():
 
     args.command = args.command.lower() if args.command else None
 
-    if args.command in ['teacherwise',
-                        'classwise',
-                        'vacant', 
+    if args.command in [
+                        'teacherwise', # generate teacherwise timetable from the classwise timetable
+                        'classwise', # generate classwise timetable from the classwise timetable (useful for generating a cleaned up and formatted classwise timetable from a messy input sheet)
+                        'vacant', # generate vacant periods sheet from teacherwise timetable
                         # 'diff', 
-                        'beautify',
-                        'share']:
-        if DEBUG:
-            args.infile = "Timetable.xlsx"
+                        'beautify', # beautify the classwise timetable by applying some formatting to the cell values, such as stripping extra spaces, arranging lines, removing redundant information, removing comments, etc.
+                        'share', # share the timetable with teachers by emailing the teacherwise timetable to individual teacher
+                        'count' # count total periods for each teacher
+                        ]:
 
         # access args.infile as filename variable for backward compatibility with existing code
         if not args.infile:
-            filename = 'Timetable.xlsx'
-        else:
-            filename = args.infile
+            args.infile = 'Timetable.xlsx'
 
-        verbose(f"Reading CLASSWISE timetable from '{filename}'... ", level=2)
-        book = openpyxl.load_workbook(filename)
-        book.filename = filename    # remember the filename
+        verbose(f"Reading CLASSWISE timetable from '{args.infile}'... ", level=2)
+        book = openpyxl.load_workbook(args.infile)
+        book.filename = args.infile    # remember the filename
         # print("done.")
 
     if args.command == 'classwise':
@@ -1875,6 +1968,18 @@ def main():
         print(f"Sharing timetable with teachers: {', '.join(args.teachers) if args.teachers else 'All teachers'} ...")
         share_timetable(book, args.teachers)
         print("Done sharing.")
+    elif args.command == "count":
+        subject_allotment_sheet = book['SUBJECT_ALLOTMENT']
+        period_distribution_sheet = book['PERIOD_DISTRIBUTION']
+        teacher_details = load_teacher_details(book)
+        teacherwise_allotment = get_allotted_periods(subject_allotment_sheet)
+        period_distribution = get_period_distribution(period_distribution_sheet)
+
+        allotted_periods = calculate_allotted_periods(period_distribution, teacherwise_allotment)
+        print("\nTotal periods allotted to each teacher based on the period distribution and teacherwise allotment:")
+
+        for teacher_code, count in sorted(allotted_periods.items(), key=lambda x: x[1], reverse=True):
+            print(f"  • {get_teacher_name(teacher_code, teacher_details)} ({teacher_code}): {count} periods")
     else:
         print(
             "twig.py -- timetable manipulation utility\n"
