@@ -25,6 +25,7 @@ import configparser
 import openpyxl
 import sys
 from pathlib import Path
+from contextlib import contextmanager
 
 from openpyxl import workbook
 from openpyxl import workbook
@@ -61,9 +62,16 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 
 
-__version__ = '260514'   # twig.py version YYMMDD
+__version__ = '260521'   # twig.py version YYMMDD
 
+@contextmanager
+def timer():
+    start = time.time()
+    yield
+    end = time.time()
+    print(f"Time taken: {end - start:.2f} seconds")
 
+        
 # manage configuration from twig.ini file and command line arguments
 class Config:
     _config = {}
@@ -589,7 +597,9 @@ def get_subject_allotment_teacher(class_name, subject, subject_allotment_sheet):
     """
     returns the teacher code to which the subject is allotted for the class, or None if not found
     """
-    
+    if not subject_allotment_sheet:
+        return None
+
     # cache subject allotments in a dictionary for faster lookup
     if not hasattr(get_subject_allotment_teacher, 'subject_allotments'):
         get_subject_allotment_teacher.subject_allotments = {}
@@ -601,8 +611,8 @@ def get_subject_allotment_teacher(class_name, subject, subject_allotment_sheet):
         # load subject allotments into a dictionary for faster lookup and caching results for faster subsequent lookups
         sheet = subject_allotment_sheet
         row = 3
-        col = 3
         while True:
+            col = 3
             if sheet.cell(row=row, column=1).value is None:
                 break   # we have reached the end of the sheet
             while sheet.cell(row=row, column=col).value is not None:
@@ -616,7 +626,6 @@ def get_subject_allotment_teacher(class_name, subject, subject_allotment_sheet):
                     break
 
             row += 1
-            col = 3
 
         # END if not subject_allotments
         print("done.")
@@ -1595,7 +1604,7 @@ def get_period_distribution(period_distribution_sheet):
     period_distribution = {}
     # get maximum number of columns in the period distribution sheet to determine how many columns to consider for processing the distribution data
     max_cols = period_distribution_sheet.max_column
-    for col in range(2, max_cols):   # consider only first 20 columns for distribution
+    for col in range(2, max_cols):
         teacher_code = period_distribution_sheet.cell(row=2, column=col).value
         if teacher_code is None or teacher_code == '':
             max_cols = col   # update max_cols to the last non-empty column
@@ -1818,7 +1827,7 @@ def main():
 
 
     # start timing the execution for reporting purpose
-    start_time = time.time()
+    # start_time = time.time()
 
     # load settings from twig.ini file
     CONFIG_FILE = args.config       # 'twig.ini' is injected as default value for --config argument in argparse setup above
@@ -1991,18 +2000,19 @@ def main():
         sys.exit(0)
 
 
-    # finish timing exection
-    end_time = time.time()
+    # # finish timing exection
+    # end_time = time.time()
 
-    print("Finished processing in %.3f seconds." % (end_time - start_time))
+    # print("Finished processing in %.3f seconds." % (end_time - start_time))
     
-    verbose("Have a nice day!\n", level=2)
+    # verbose("Have a nice day!\n", level=2)
 
     return warnings
 
 
 if __name__ == '__main__':
-    warnings = main()
+    with timer():
+        warnings = main()
     if warnings:
         sys.exit(1)
     sys.exit(0)
