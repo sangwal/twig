@@ -22,6 +22,7 @@ import argparse
 import re
 import time
 import configparser
+from typing import Tuple
 import openpyxl
 import sys
 from pathlib import Path
@@ -277,11 +278,20 @@ def load_teacher_details(workbook, ws_name='TEACHERS'):
 
     return teacher_details
 
+def get_class_section(class_name) -> Tuple[str | None, str | None]:
+    # Now class_name may be '10 - Daisy'
+    class_name = class_name.strip()
+    pattern = re.compile(r'(^\d+)\s*-?\s*([A-Za-z]+)$')
+    match = pattern.match(class_name)
+    if match:
+        return (match[1], match[2])
 
-def get_class_number(_class):
+    return (class_name, None)
+
+def get_class_number(class_name):
     # remove section (for example, 'A' from '10A')
-    return _class[:-1] if _class[-1].isalpha() else _class
-
+    class_name, _ = get_class_section(class_name)
+    return class_name
 
 def highlight_clashes(sheet, context) -> int:
     """
@@ -370,7 +380,12 @@ def highlight_clashes(sheet, context) -> int:
                         entry[day].append(class_name + '-' + subject)   
                     else:
                         # eg. 11A Eng and 11B Eng are considered the same class in non-strict mode, so not considered a clash
-                        entry[day].append(get_class_number(class_name) + '-' + subject)
+                        class_number = get_class_number(class_name)
+                        if class_number:
+                            entry[day].append(class_number + '-' + subject)
+                        else:
+                            print(f"Warning: Could not extract class number from class name '{class_name}' in cell {get_column_letter(column)}{row}. Consider using strict mode for more accurate clash detection.")
+                            sys.exit(1)
 
             # after all lines in a cell have been processed
             clash_days = []
@@ -1861,14 +1876,21 @@ def main():
 
     if DEBUG:
         # setup arguments for debugging
-        args.infile = 'Timetable-20260518-SAMRATH.xlsx'
-        args.command = 'count'
-        args.fullname = True
-        args.teachers = None
-        # args.strict = False
+        
         # args.outfile = "Timetable.xlsx"
         # args.keepstamp = False
         # args.separator = '\n'
+
+        args.command = 'teacherwise'
+        args.infile = 'Timetable.xlsx'
+        args.outfile = 'Timetable.xlsx'
+        args.strict = False
+        args.fullname = True
+        
+        # args.command = 'count'
+        # args.infile = 'Timetable-20260518-SAMRATH.xlsx'
+        # args.teachers = 'AS, DR, MT, RL, SH'
+        
 
     context = {
         'ARGS': args
@@ -1886,14 +1908,9 @@ def main():
                         'count' # count total periods for each teacher
                         ]:
 
-        # access args.infile as filename variable for backward compatibility with existing code
-        if not args.infile:
-            args.infile = 'Timetable.xlsx'
-
         verbose(f"Reading CLASSWISE timetable from '{args.infile}'... ", level=2)
         book = openpyxl.load_workbook(args.infile)
         book.filename = args.infile    # remember the filename
-        # print("done.")
 
     if args.command == 'classwise':
         verbose(f"Generating classwise timetable in '{args.outfile}' ...")
@@ -2013,6 +2030,7 @@ def main():
 if __name__ == '__main__':
     with timer():
         warnings = main()
+    
     if warnings:
         sys.exit(1)
     sys.exit(0)
