@@ -2,4 +2,6 @@
 .git
 .local
 *-tmp.xlsx
+lib/
+__pycache__/
 
