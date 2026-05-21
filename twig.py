@@ -1968,6 +1968,7 @@ def main():
         print(f"Sharing timetable with teachers: {', '.join(args.teachers) if args.teachers else 'All teachers'} ...")
         share_timetable(book, args.teachers)
         print("Done sharing.")
+
     elif args.command == "count":
         subject_allotment_sheet = book['SUBJECT_ALLOTMENT']
         period_distribution_sheet = book['PERIOD_DISTRIBUTION']
@@ -1980,6 +1981,7 @@ def main():
 
         for teacher_code, count in sorted(allotted_periods.items(), key=lambda x: x[1], reverse=True):
             print(f"  • {get_teacher_name(teacher_code, teacher_details)} ({teacher_code}): {count} periods")
+    
     else:
         print(
             "twig.py -- timetable manipulation utility\n"
